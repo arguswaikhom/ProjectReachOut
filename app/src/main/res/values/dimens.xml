@@ -1,0 +1,18 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_view_gap">4dp</dimen>
+
+
+    <!-- Feed Item -->
+    <dimen name="feed_item_vertical_margin">14dp</dimen>
+    <dimen name="feed_item_profile_pic">36dp</dimen>
+    <dimen name="feed_item_profile_name">15sp</dimen>
+    <dimen name="feed_item_timestamp">10sp</dimen>
+    <dimen name="sub_item_gap">8dp</dimen>
+    <dimen name="feed_team_name_padding_bottom">2dp</dimen>
+
+</resources>
