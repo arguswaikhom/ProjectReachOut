@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">ProjectReachOut</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+
+    <string name="team_name">Team Name</string>
+    <string name="username">Username</string>
+    <string name="time_stamp">14 Feb 2014</string>
+
+
+    <string name="title_home">Home</string>
+    <string name="title_my_post">My Post</string>
+    <string name="title_add_post">Add Post</string>
+    <string name="title_events">Events</string>
+    <string name="title_my_events">My Events</string>
+    <string name="title_expenditure">Expenditures</string>
+
+    <string name="dummy_text">Some text will be displayed here.</string>
+
+    <!-- AddNewPostFragment -->
+    <string name="upload_picture">Upload Picture</string>
+    <string name="lbl_set_profile_photo">Set profile image</string>
+    <string name="lbl_take_camera_picture">Take a picture</string>
+    <string name="lbl_choose_from_gallery">Choose from gallery</string>
+    <string name="toast_image_intent_null">Image picker option is missing!</string>
+    <string name="dialog_permission_title">Grant Permissions</string>
+    <string name="dialog_permission_message">This app needs permission to use this feature. You can grant them in app settings.</string>
+    <string name="go_to_settings">GOTO SETTINGS</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="title_activity_select_people">SelectPeopleActivity</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+
+    <string name="http">http</string>
+    <string name="localhost">10.24.62.110</string>
+    <string name="port_no">8000</string>
+    <string name="title_add_event">Add Event</string>
+</resources>
