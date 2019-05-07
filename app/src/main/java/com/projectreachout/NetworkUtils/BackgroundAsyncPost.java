@@ -9,6 +9,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.projectreachout.AppController;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 public class BackgroundAsyncPost extends AsyncTask<String, Integer, String> {
 
@@ -26,9 +27,12 @@ public class BackgroundAsyncPost extends AsyncTask<String, Integer, String> {
 
         String url = strings[0];
 
+        CountDownLatch latch = new CountDownLatch(1);
+
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 (String response) -> {
                     mResponse = response;
+                    latch.countDown();
                 },
                 (VolleyError error) -> mAsyncResponsePost.onErrorResponse(error)) {
             @Override
@@ -38,6 +42,12 @@ public class BackgroundAsyncPost extends AsyncTask<String, Integer, String> {
         };
 
         AppController.getInstance().addToRequestQueue(stringRequest);
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return mResponse;
     }

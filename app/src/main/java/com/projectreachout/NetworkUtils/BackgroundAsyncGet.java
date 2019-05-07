@@ -9,6 +9,8 @@ import com.projectreachout.AppController;
 
 import org.json.JSONArray;
 
+import java.util.concurrent.CountDownLatch;
+
 public class BackgroundAsyncGet extends AsyncTask<String, Integer, JSONArray> {
 
     private JSONArray mJsonArrayResponse;
@@ -23,11 +25,22 @@ public class BackgroundAsyncGet extends AsyncTask<String, Integer, JSONArray> {
 
         String url = strings[0];
 
+        CountDownLatch latch = new CountDownLatch(1);
+
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                (JSONArray response) -> mJsonArrayResponse = response,
+                (JSONArray response) -> {
+                    mJsonArrayResponse = response;
+                    latch.countDown();
+                },
                 (VolleyError error) -> mAsyncResponseGet.onErrorResponse(error));
 
         AppController.getInstance().addToRequestQueue(jsonArrayRequest);
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return mJsonArrayResponse;
     }
