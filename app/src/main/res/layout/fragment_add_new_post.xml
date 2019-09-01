@@ -1,31 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="16dp"
-    android:orientation="vertical"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
     tools:context=".AddNewPost.AddNewPostFragment">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:orientation="vertical">
-
-            <!--<include layout="@layout/warning_board_layout"/>-->
-
-            <!--<com.projectreachout.PostFeed.FeedImageView
-                android:id="@+id/iv_fanp_uploaded_image"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:scaleType="fitXY"
-                android:visibility="visible" />-->
 
             <ImageView
                 android:id="@+id/iv_fanp_uploaded_image"
@@ -41,6 +32,7 @@
                 android:id="@+id/btn_fanp_upload_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:background="@drawable/bg_button_with_ripples"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
@@ -52,6 +44,7 @@
                 android:id="@+id/et_fanp_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_edit_text_rounded_border"
@@ -60,20 +53,20 @@
                 android:padding="16dp"
                 android:textColor="@color/black"
                 android:textColorHint="@color/colorPrimary" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/btn_fanp_upload_post"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_button_with_ripples"
-                android:text="Submit"
-                android:textColor="@color/white" />
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btn_fanp_upload_post"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_button_with_ripples"
+            android:text="Submit"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</ScrollView>

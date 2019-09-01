@@ -417,7 +417,7 @@ public class AddEventActivity extends AppCompatActivity {
 
     private void showTeamPicker(View view) {
         String title = "Choose Team";
-        String[] teamName = new String[]{"Regular Volunteers", "Fund Raising", "Teaching", "School Event", "Environmental Awareness"};
+        String[] teamName = new String[]{"Regular Volunteers", "Fund Raising", "Event", "Environmental Awareness"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
