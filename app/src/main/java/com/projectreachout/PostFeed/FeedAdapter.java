@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
@@ -16,6 +17,8 @@ import com.projectreachout.AppController;
 import com.projectreachout.R;
 
 import java.util.List;
+
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class FeedAdapter extends ArrayAdapter<FeedItem> {
 
@@ -48,6 +51,7 @@ public class FeedAdapter extends ArrayAdapter<FeedItem> {
         TextView description = convertView.findViewById(R.id.tv_pfi_description);
         NetworkImageView profilePicture = convertView.findViewById(R.id.iv_pfi_profile_picture);
         FeedImageView feedImageView = convertView.findViewById(R.id.iv_pfi_post_image);
+        ImageButton optionImageButton = convertView.findViewById(R.id.ibtn_pfi_overflow_button);
 
         FeedItem item = feedItems.get(position);
 
@@ -61,7 +65,7 @@ public class FeedAdapter extends ArrayAdapter<FeedItem> {
                 System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         timeStamp.setText(timeAgo);
 
-        // Chcek for empty status message
+        // Check for empty status message
         if (!TextUtils.isEmpty(item.getDescription())) {
             description.setText(item.getDescription());
             description.setVisibility(View.VISIBLE);
@@ -90,6 +94,16 @@ public class FeedAdapter extends ArrayAdapter<FeedItem> {
             feedImageView.setVisibility(View.GONE);
         }
 
+        // onClicked Option overflow Button
+        optionImageButton.setOnClickListener(v -> onClickedOptions(item));
+
         return convertView;
+    }
+
+    private void onClickedOptions(FeedItem item) {
+        int id = item.getId();
+        String url = getDomainUrl();
+
+        //TODO: implement onClicked
     }
 }

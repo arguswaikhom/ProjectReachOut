@@ -12,34 +12,29 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.projectreachout.NetworkUtils.AsyncResponseGet;
-import com.projectreachout.NetworkUtils.AsyncResponsePost;
-import com.projectreachout.NetworkUtils.BackgroundAsyncGet;
-import com.projectreachout.NetworkUtils.BackgroundAsyncPost;
+import com.android.volley.toolbox.StringRequest;
+import com.projectreachout.AppController;
 import com.projectreachout.R;
-
-import net.gotev.uploadservice.MultipartUploadRequest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromObject;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getRandomInt;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,7 +46,7 @@ import static com.projectreachout.GeneralStatic.getRandomInt;
  */
 public class InvestmentFragment extends Fragment {
 
-    private final String LOG_TAG = InvestmentFragment.class.getSimpleName();
+    private final String TAG = InvestmentFragment.class.getSimpleName();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -97,7 +92,9 @@ public class InvestmentFragment extends Fragment {
 
     private TableLayout mInvestmentTableLayout;
     private TextView mTotalAmountTextView;
-    private TextView mInReturnTextView;
+
+    private EditText mAmountInReturnET;
+
     private Button mAddInvestmentItemButton;
     private Button mSubmitButton;
 
@@ -109,72 +106,85 @@ public class InvestmentFragment extends Fragment {
 
         mInvestmentTableLayout = rootView.findViewById(R.id.tl_sfi_investment);
         mTotalAmountTextView = rootView.findViewById(R.id.tv_sfi_total_amount);
-        mInReturnTextView = rootView.findViewById(R.id.et_sfi_in_return_amount);
+        mAmountInReturnET = rootView.findViewById(R.id.et_sfi_in_return_amount);
         mAddInvestmentItemButton = rootView.findViewById(R.id.btn_sfi_add_investment_item);
         mSubmitButton = rootView.findViewById(R.id.btn_sfi_submit);
 
         mAddInvestmentItemButton.setOnClickListener(v -> addNewInvestmentItem(new InvestmentItem()));
         mSubmitButton.setOnClickListener(v -> submitInvestment());
 
-        //addDummyInvestmentData();
-
-        // TODO: Implement getEventId()
-        String eventId = String.valueOf(getRandomInt(1000, 10000));
-
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(getString(R.string.http))
-                .authority(getString(R.string.localhost))
-                .appendPath("event")
-                .appendPath("investment_details")
-                .appendQueryParameter("event_id", eventId);
-
-        String url = builder.build().toString();
-
-        BackgroundAsyncGet backgroundAsyncGet = new BackgroundAsyncGet(new AsyncResponseGet() {
-            @Override
-            public void onResponse(JSONArray output) {
-                if(output != null){
-                    parseJsonFeed(output);
-                }
-            }
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-
-            @Override
-            public void onProgressUpdate(int value) {
-
-            }
-
-            @Override
-            public void onPreExecute() {
-
-            }
-        });
-        backgroundAsyncGet.execute(url);
+        fetchEventInvestmentDetails();
 
         return rootView;
     }
 
-    private void parseJsonFeed(JSONArray output) {
-        for (int i = 0; i < output.length(); i++) {
-            JSONObject investmentItem = JSONParsingObjectFromArray(output, i);
+    private void fetchEventInvestmentDetails() {
+        String url = getDomainUrl() + "/get_event_investment/";
+        String event_id = String.valueOf(AppController.getInstance().getGlobalEventId());
+
+        Map<String, String> param = new HashMap<>();
+        param.put("event_id", event_id);
+
+        Log.v("aaaaa", url);
+        Log.v("aaaaa", event_id);
+
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (response != null) {
+                    Log.v("aaaaa", response);
+                    parseJsonFeed(JSONParsingObjectFromString(response));
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("aaaaa", error.toString());
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return AppController.getInstance().getLoginCredentialHeader();
+            }
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                return param;
+            }
+        };
+
+        AppController.getInstance().addToRequestQueue(stringRequest);
+    }
+
+    private void parseJsonFeed(JSONObject outputObj) {
+        String investmentAmount = JSONParsingStringFromObject(outputObj, "amount_invested");
+        String investmentOnReturn = JSONParsingStringFromObject(outputObj, "amount_recieved");
+
+        JSONArray investmentList = JSONParsingArrayFromObject(outputObj, "investment_list");
+
+        mInvestmentTableLayout.removeAllViews();
+
+        for (int i = 0; i < investmentList.length(); i++) {
+            JSONObject investmentItem = JSONParsingObjectFromArray(investmentList, i);
 
             String investmentOn = JSONParsingStringFromObject(investmentItem, "investment_on");
             String amount = JSONParsingStringFromObject(investmentItem, "amount");
 
-            addNewInvestmentItem(new InvestmentItem(investmentOn, Double.parseDouble(amount)));
+            addNewInvestmentItem(new InvestmentItem(investmentOn, amount));
         }
+
+        mTotalAmountTextView.setText(investmentAmount);
+        mAmountInReturnET.setText(investmentOnReturn);
     }
 
     private void submitInvestment() {
-        Map<String, String> map = new HashMap<>();
+        ArrayList<String> reasons = new ArrayList<>();
+        ArrayList<String> amountInvested = new ArrayList<>();
 
-        Log.v("aaa", mInvestmentTableLayout.getChildCount() + "");
+        boolean uploadReady = false;
+
         for (int i = 0, j = mInvestmentTableLayout.getChildCount(); i < j; i++) {
-
             LinearLayout view = (LinearLayout) mInvestmentTableLayout.getChildAt(i);
 
             EditText investmentOnET = (EditText) view.getChildAt(0);
@@ -183,45 +193,69 @@ public class InvestmentFragment extends Fragment {
             String investmentOn = investmentOnET.getText().toString().trim();
             String amount = amountET.getText().toString().trim();
 
-            /*InvestmentItem investmentItem = new InvestmentItem(investmentOn.getText().toString(),
-                    Double.parseDouble(amount.getText().toString()));*/
-
-            map.put(investmentOn, amount);
-        }
-
-        // TODO: Implement getEventId()
-        String eventId = String.valueOf(getRandomInt(1000, 10000));
-
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(getString(R.string.http))
-                .authority(getString(R.string.localhost))
-                .appendPath("event")
-                .appendPath("submit_investment")
-                .appendQueryParameter("event_id", eventId);
-        String url = builder.build().toString();
-
-        BackgroundAsyncPost backgroundAsyncPost = new BackgroundAsyncPost(map, new AsyncResponsePost() {
-            @Override
-            public void onResponse(String output) {
-
+            if (investmentOn.equals("") && amount.equals("")) {
+                continue;
             }
 
+            if (amount.contains(".")) {
+                amountET.setError("Don't use decimal amount!!");
+                return;
+            }
+
+            uploadReady = true;
+
+            reasons.add(investmentOn);
+            amountInvested.add(amount);
+        }
+
+        if (!uploadReady) return;
+
+        String url = getDomainUrl() + "/add_investment/";
+        String event_id = String.valueOf(AppController.getInstance().getGlobalEventId());
+
+        Map<String, String> map = new HashMap<>();
+        map.put("event_id", event_id);
+        map.put("investment_on_return", mAmountInReturnET.getText().toString().trim());
+        map.put("investment_on", reasons.toString());
+        map.put("amount", amountInvested.toString());
+
+        long total = 0;
+        for (String x : amountInvested) {
+            total += Long.parseLong(x);
+        }
+        mTotalAmountTextView.setText(String.valueOf(total));
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                if (response != null) {
+                    if (response.trim().equals("200")) {
+                        fetchEventInvestmentDetails();
+                        Log.v("aaaaa", "response :: " + response);
+
+                    }
+                    Log.v("aaaaa", "response :: " + response);
+                }
+
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
 
             }
-
+        }){
             @Override
-            public void onProgressUpdate(int value) {
-
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return AppController.getInstance().getLoginCredentialHeader();
             }
 
             @Override
-            public void onPreExecute() {
-
+            protected Map<String, String> getParams() throws AuthFailureError {
+                return map;
             }
-        });
-        backgroundAsyncPost.execute(url);
+        };
+
+        AppController.getInstance().addToRequestQueue(stringRequest);
     }
 
     private void addNewInvestmentItem(InvestmentItem singleInvestmentItem) {
@@ -236,30 +270,16 @@ public class InvestmentFragment extends Fragment {
         EditText amountEditText = (EditText) rootLayoutView.getChildAt(INDEX_AMOUNT);
 
         String investmentOn = singleInvestmentItem.getInvestment_on();
-        double amount = singleInvestmentItem.getAmount();
+        String amount = singleInvestmentItem.getAmount();
 
-        investmentOnEditText.setText(investmentOn);
         amountEditText.setText("" + amount);
+        investmentOnEditText.setText(investmentOn);
 
         if (rootLayoutView.getParent() != null) {
             ((ViewGroup) rootLayoutView.getParent()).removeView(rootLayoutView);
         }
         mInvestmentTableLayout.addView(rootLayoutView);
     }
-
-    /*private void addDummyInvestmentData() {
-
-        List<InvestmentItem> investmentItemList = new ArrayList<>();
-        int size = getRandomInt(4, 7);
-        for (int j = 0; j < size; j++) {
-            InvestmentItem singleInvestmentItem = new InvestmentItem("SomeReason", 500.00);
-            investmentItemList.add(singleInvestmentItem);
-        }
-
-        for (int i = 0; i < investmentItemList.size(); i++) {
-            addNewInvestmentItem(investmentItemList.get(i));
-        }
-    }*/
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

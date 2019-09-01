@@ -3,7 +3,6 @@ package com.projectreachout.AddNewEvent.BottomSheets;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -27,7 +26,7 @@ public class OrganizersListAdapter extends ArrayAdapter<UserDetails> {
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        if(convertView == null){
+        if (convertView == null) {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.u_user_row_item, parent, false);
         }
 
@@ -39,14 +38,13 @@ public class OrganizersListAdapter extends ArrayAdapter<UserDetails> {
         String username = Objects.requireNonNull(userDetails).getUser_name();
         String profileThumbnailUrl = Objects.requireNonNull(userDetails).getProfile_picture_url();
 
-        try {
-            Glide.with(getContext())
-                    .load(profileThumbnailUrl)
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(profileThumbnailImageView);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+        RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_person_black_124dp).error(R.drawable.ic_person_black_124dp).centerCrop().circleCrop();
+
+        Glide.with(getContext())
+                .load(profileThumbnailUrl)
+                .apply(requestOptions)
+                .into(profileThumbnailImageView);
+
         usernameTextView.setText(username);
 
         return convertView;

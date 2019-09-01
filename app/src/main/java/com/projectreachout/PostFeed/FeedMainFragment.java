@@ -1,6 +1,7 @@
 package com.projectreachout.PostFeed;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,9 +15,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.projectreachout.NetworkUtils.AsyncResponseGet;
-import com.projectreachout.NetworkUtils.BackgroundAsyncGet;
+import com.android.volley.toolbox.StringRequest;
+import com.projectreachout.AppController;
+import com.projectreachout.MainActivity;
 import com.projectreachout.R;
 
 import org.json.JSONArray;
@@ -24,12 +29,16 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingIntFromObject;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,121 +48,7 @@ import static com.projectreachout.GeneralStatic.REFRESH;
  * Use the {@link FeedMainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FeedMainFragment extends Fragment {
-
-    public final String DUMMY_FEED_DATA_JSON = "{\n" +
-            "    \"feed\": [\n" +
-            "        {\n" +
-            "            \"id\": 1,\n" +
-            "            \"team_name\": \"Regular Volunteers\",\n" +
-            "            \"username\": \"Valerye Minihan\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/nat.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/cosmos.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 2,\n" +
-            "            \"team_name\": \"School Event\",\n" +
-            "            \"username\": \"Prescott De Lascy\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/time.png\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/time_best.jpg\",\n" +
-            "            \"description\": \"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 3,\n" +
-            "            \"team_name\": \"President\",\n" +
-            "            \"username\": \"Demott Falconer-Taylo\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/lincoln.jpg\",\n" +
-            "            \"image_url\": null,\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 4,\n" +
-            "            \"team_name\": \"Teaching\",\n" +
-            "            \"username\": \"Franklin Halle\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/discovery.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/discovery_mos.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 5,\n" +
-            "            \"team_name\": \"Fund Raising\",\n" +
-            "            \"username\": \"Cherilynn Bampkin\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/ravi_tamada.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/nav_drawer.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 6,\n" +
-            "            \"team_name\": \"School Event\",\n" +
-            "            \"username\": \"Nicolette Jerzak\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/ktm.png\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/ktm_1290.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 7,\n" +
-            "            \"team_name\": \"School Event\",\n" +
-            "            \"username\": \"Lockwood Sheplande\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/harley.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/harley_bike.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 8,\n" +
-            "            \"team_name\": \"Fund Raising\",\n" +
-            "            \"username\": \"Devland Cleatherow\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/rock_girl.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/rock.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 9,\n" +
-            "            \"team_name\": \"Teaching\",\n" +
-            "            \"username\": \"Claiborne Dubois\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/gandhi.jpg\",\n" +
-            "            \"image_url\": null,\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 10,\n" +
-            "            \"team_name\": \"Fund Raising\",\n" +
-            "            \"username\": \"Shell Croysdale\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/life.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/life_photo.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 11,\n" +
-            "            \"team_name\": \"Event Manager\",\n" +
-            "            \"username\": \"Thornton Vivers\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/shakira.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/shakira_la_la.png\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        },\n" +
-            "        {\n" +
-            "            \"id\": 12,\n" +
-            "            \"team_name\": \"Regular Volunteers\",\n" +
-            "            \"username\": \"A. R. rahman\",\n" +
-            "            \"time_stamp\": \"1403375851930\",\n" +
-            "            \"profile_picture_url\": \"https://api.androidhive.info/feed/img/ar.jpg\",\n" +
-            "            \"image_url\": \"https://api.androidhive.info/feed/img/ar_bw.jpg\",\n" +
-            "            \"description\": \"\\\"Science is a beautiful and emotional human endeavor,\\\" says Brannon Braga, executive producer and director. \\\"And Cosmos is all about making science an experience.\\\"\"\n" +
-            "        }\n" +
-            "\n" +
-            "    ]\n" +
-            "}\n";
+public class FeedMainFragment extends Fragment{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -165,6 +60,8 @@ public class FeedMainFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private static final String TAG = FeedMainFragment.class.getSimpleName();
 
     public FeedMainFragment() {
         // Required empty public constructor
@@ -197,13 +94,18 @@ public class FeedMainFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     public final String LOG_TAG_FMF = FeedMainFragment.class.getSimpleName();
 
-    private FeedListAdapter mFeedListAdapter;
+    public static FeedListAdapter mFeedListAdapter;
 
     //private FeedAdapter mFeedAdapter;
 
-    private List<FeedItem> mFeedItemList;
+    public static List<FeedItem> mFeedItemList;
     private LinearLayout mErrorMessageLayout;
     private Button mRetryBtn;
 
@@ -212,6 +114,10 @@ public class FeedMainFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.list_view_layout, container, false);
+
+        if (mListener != null) {
+            mListener.onFragmentInteraction(Uri.parse(getString(R.string.title_home)));
+        }
 
         ListView listView = rootView.findViewById(R.id.lv_lvl_list_view);
         mErrorMessageLayout = rootView.findViewById(R.id.ll_lvl_error_message_layout);
@@ -222,7 +128,7 @@ public class FeedMainFragment extends Fragment {
         mFeedListAdapter = new FeedListAdapter(getActivity(), mFeedItemList);
         listView.setAdapter(mFeedListAdapter);
 
-        /*mFeedAdapter = new FeedAdapter(getContext() , R.layout.pf_feed_item, mFeedItemList);
+        /*mFeedAdapter = new FeedAdapter(getContext() , R.layout.pf_feed_item, mFeedItemListMyArticles);
         listView.setAdapter(mFeedAdapter);*/
 
         loadData(REFRESH);
@@ -233,64 +139,60 @@ public class FeedMainFragment extends Fragment {
     }
 
     private void loadData(int action) {
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         // TODO: use .authority(getString(R.string.localhost)) after having a domain name
         builder.scheme(getString(R.string.http))
                 .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("articles");
+                .appendPath("get_articles")
+                .appendPath("");*/
 
-        switch (action){
+        String url = getDomainUrl() + "/get_articles/";
+
+        switch (action) {
             case REFRESH: {
-                loadBackgroundAsyncTask(builder.build().toString());
+                loadBackgroundAsyncTask(url);
             }
             case LOAD_MORE: {
                 // TODO: get timeStamp of the last post in the feed list
-                String lastPostTimeStamp = "1556604826";
+                /*String lastPostTimeStamp = "1556604826";
 
                 builder.appendQueryParameter("before", lastPostTimeStamp);
-                loadBackgroundAsyncTask(builder.build().toString());
+                loadBackgroundAsyncTask(builder.build().toString());*/
             }
         }
     }
 
-    private void loadBackgroundAsyncTask(String url){
-        /*
-         * TODO: Implement the empty methods
-         * */
-        BackgroundAsyncGet backgroundAsyncGet = new BackgroundAsyncGet(new AsyncResponseGet() {
+    private void loadBackgroundAsyncTask(String url) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONArray output) {
+            public void onResponse(String output) {
                 if (output != null) {
-                    if(mErrorMessageLayout.getVisibility() == View.VISIBLE){
+                    if (mErrorMessageLayout.getVisibility() == View.VISIBLE) {
                         mErrorMessageLayout.setVisibility(View.GONE);
                     }
-                    parseJsonFeed(output);
+                    Log.v(TAG, output);
+                    parseJsonFeed(JSONParsingArrayFromString(output));
                 }
             }
-
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 displayErrorMessage();
             }
-
+        }){
             @Override
-            public void onProgressUpdate(int value) {
-
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return AppController.getInstance().getLoginCredentialHeader();
             }
+        };
 
-            @Override
-            public void onPreExecute() {
-
-            }
-        });
-
-        backgroundAsyncGet.execute(url);
+        AppController.getInstance().addToRequestQueue(stringRequest);
     }
 
     private void displayErrorMessage() {
-        if(mFeedListAdapter.isEmpty()){
+        if (mFeedListAdapter.isEmpty()) {
             mErrorMessageLayout.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             String errorMessage = "Couldn't update information from server...";
             Snackbar.make(Objects.requireNonNull(getView()), errorMessage, Snackbar.LENGTH_INDEFINITE).setAction("Retry", new View.OnClickListener() {
                 @Override
@@ -302,23 +204,38 @@ public class FeedMainFragment extends Fragment {
     }
 
     private void parseJsonFeed(JSONArray response) {
-        for (int i = 0; i < response.length(); i++) {
+        mFeedItemList.clear();
+        for (int i = response.length()-1; i >= 0; i--) {
             JSONObject feedObj = JSONParsingObjectFromArray(response, i);
 
+            /*Uri.Builder builder = new Uri.Builder();
+            builder.scheme(getString(R.string.http))
+                    .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no));
+
+            String url = builder.build().toString();*/
+
+            String url = getDomainUrl();
+
+            int id = JSONParsingIntFromObject(feedObj, "article_id");
             String teamName = JSONParsingStringFromObject(feedObj, "team_name");
             String userName = JSONParsingStringFromObject(feedObj, "username");
             String timeStamp = JSONParsingStringFromObject(feedObj, "time_stamp");
             String profilePictureUrl = JSONParsingStringFromObject(feedObj, "profile_picture_url");
-            String imageUrl = JSONParsingStringFromObject(feedObj, "image_url");
-            String description = JSONParsingStringFromObject(feedObj, "description");
+            String imageUrl = JSONParsingStringFromObject(feedObj, "image");
+            String description = JSONParsingStringFromObject(feedObj, "desc");
+
+            Log.v(TAG, imageUrl);
 
             FeedItem item = new FeedItem();
 
+            item.setId(id);
             item.setTeam_name(teamName);
             item.setUsername(userName);
             item.setTime_stamp(timeStamp);
-            item.setProfile_picture_url(profilePictureUrl);
-            item.setImage_url(imageUrl);
+
+            item.setProfile_picture_url(url + profilePictureUrl);
+            item.setImage_url(url + imageUrl);
+
             item.setDescription(description);
 
             String string = item.toString();

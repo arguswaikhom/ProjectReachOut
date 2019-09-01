@@ -100,12 +100,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="0"
+                    android:inputType="number"
+                    tools:text="0"
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
 
         <Button
+            android:id="@+id/btn_sfi_submit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -113,7 +115,6 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
-            android:id="@+id/btn_sfi_submit"
             android:background="@drawable/bg_custom_button_ripples"
             android:text="submit" />
     </LinearLayout>

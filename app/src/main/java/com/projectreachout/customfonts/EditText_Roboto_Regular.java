@@ -3,7 +3,6 @@ package com.projectreachout.customfonts;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
 public class EditText_Roboto_Regular extends android.support.v7.widget.AppCompatEditText {
 

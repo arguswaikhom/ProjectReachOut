@@ -81,7 +81,7 @@
                     android:layout_marginEnd="4dp"
                     android:layout_marginBottom="4dp"
                     android:layout_weight="1"
-                    android:text="15 Jan 2020"
+                    tools:text="15 Jan 2020"
                     android:textSize="16sp" />
 
                 <TextView
@@ -93,7 +93,7 @@
                     android:layout_marginEnd="4dp"
                     android:layout_marginBottom="4dp"
                     android:layout_weight="1"
-                    android:text="Chris Brown"
+                    tools:text="Chris Brown"
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
@@ -117,7 +117,8 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
             android:layout_weight="1"
-            android:text="Handsome Men Club"
+            android:gravity="center"
+            tools:text="Handsome Men Club"
             android:textSize="16sp" />
 
         <TextView
@@ -135,11 +136,12 @@
             android:id="@+id/tv_sfed_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:justificationMode="inter_word"
             android:layout_gravity="center"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
             android:layout_weight="1"
-            android:text="This the the event description..."
+            tools:text="This the the event description..."
             android:textSize="16sp" />
 
         <TextView
@@ -148,7 +150,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="16dp"
-            android:text="Organizer: 7"
+            tools:text="Organizer: 7"
             android:textColor="@color/black"
             android:textSize="16sp" />
 
@@ -169,10 +171,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:background="@drawable/bg_custom_button_ripples"
-                android:text="add" />
+                android:text="add organizer" />
 
             <Button
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"

@@ -4,30 +4,42 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.net.Uri;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.KeyEvent;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.projectreachout.AppController;
 import com.projectreachout.Login.ForgotPassword.ForgotPasswordActivity;
-import com.projectreachout.NetworkUtils.AsyncResponsePost;
-import com.projectreachout.NetworkUtils.BackgroundAsyncPost;
+import com.projectreachout.MainActivity;
 import com.projectreachout.R;
+
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.projectreachout.GeneralStatic.PASSWORD_KEY;
-import static com.projectreachout.GeneralStatic.USERNAME_KEY;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
 public class LoginActivity extends AppCompatActivity {
+
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
     private static final boolean AUTO_HIDE = true;
     private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
@@ -38,11 +50,11 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mUserNameET;
     private EditText mPassWordET;
 
-    private ImageButton mLoginIBtn;
+    private Button mLoginIBtn;
 
     private TextView mForgotPasswordTV;
 
-    private final Runnable mHidePart2Runnable = new Runnable() {
+    /*private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
         public void run() {
@@ -64,23 +76,30 @@ public class LoginActivity extends AppCompatActivity {
                 actionBar.show();
             }
         }
-    };
+    };*/
 
-    private boolean mVisible;
+    /*private boolean mVisible;
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
             hide();
         }
-    };
+    };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ln_activity_login);
 
-        mVisible = true;
-        mContentView = findViewById(R.id.rl_al_fullscreen_content);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        try {
+            getSupportActionBar().hide();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        /*mVisible = true;
+        mContentView = findViewById(R.id.rl_al_fullscreen_content);*/
 
         mUserNameET = findViewById(R.id.et_al_username);
         mPassWordET = findViewById(R.id.et_al_password);
@@ -98,60 +117,99 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        login();
+    }
+
     private void onClickedLogin(View view) {
         String username = mUserNameET.getText().toString().trim();
         String password = mPassWordET.getText().toString().trim();
 
-        if(username.equals("")){
+        if (username.equals("")) {
             showKeyBoard(mUserNameET);
             return;
         }
 
-        if (password.equals("")){
+        if (password.equals("")) {
             showKeyBoard(mPassWordET);
             return;
         }
 
-        Map<String, String> param = new HashMap<>();
-        param.put(USERNAME_KEY, username);
-        param.put(PASSWORD_KEY, password);
-
-        uploadLoginContent(param);
+        uploadLoginContent(username, password);
     }
 
-    private void uploadLoginContent(Map<String, String> param) {
+    private void uploadLoginContent(String username, String password) {
 
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         builder.scheme(getString(R.string.http))
                 .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("login");
+                .appendPath("login")
+                .appendPath("");
 
-        String url = builder.build().toString();
+        String url = builder.build().toString();*/
 
-        BackgroundAsyncPost backgroundAsyncPost = new BackgroundAsyncPost(param, new AsyncResponsePost() {
+        String url = getDomainUrl() + "/login/";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                (String response) -> {
+                    if (response != null) {
+                        Log.d(TAG, response);
+                        if (response.trim().equals("500")) {
+                            String errorMessage = "Incorrect username or password";
+                            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+                        } else {
+                            newLogin(response, password);
+                        }
+                    }
+                },
+                (VolleyError error) -> {
+                    Log.d(TAG, error.toString());
+                    String errorMessage = "Something went wrong!!";
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+                }) {
+
             @Override
-            public void onResponse(String output) {
-
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                String credentials = username + ":" + password;
+                Log.d(TAG, credentials);
+                String auth = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                headers.put("Authorization", auth);
+                return headers;
             }
+        };
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-
-            @Override
-            public void onProgressUpdate(int value) {
-
-            }
-
-            @Override
-            public void onPreExecute() {
-
-            }
-        });
-
-        backgroundAsyncPost.execute(url);
+        AppController.getInstance().addToRequestQueue(stringRequest);
     }
+
+    private void newLogin(String response, String password) {
+        JSONObject jsonObject = JSONParsingObjectFromString(response);
+
+        String username = JSONParsingStringFromObject(jsonObject, "username");
+        String email = JSONParsingStringFromObject(jsonObject, "email");
+        String profile_picture_url = getDomainUrl() + JSONParsingStringFromObject(jsonObject, "avatar");
+        String accountType = JSONParsingStringFromObject(jsonObject, "account_type");
+
+        AppController.getInstance().saveLoginUserCredentials(username, password, email, profile_picture_url, accountType);
+
+        login();
+    }
+
+    private void login() {
+        if (AppController.getInstance().isUserLogin()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -162,10 +220,10 @@ public class LoginActivity extends AppCompatActivity {
         // are available.
 
         //delayedHide(100);
-        delayedHide(0);
+        //delayedHide(0);
     }
 
-    private void hide() {
+    /*private void hide() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
@@ -180,5 +238,5 @@ public class LoginActivity extends AppCompatActivity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
+    }*/
 }

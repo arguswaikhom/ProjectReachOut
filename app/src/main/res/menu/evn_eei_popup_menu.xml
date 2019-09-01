@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_eepm_modify"
-        android:title="Modify" />
+    <item
+        android:id="@+id/menu_eepm_modify"
+        android:title="Modify"
+        android:visible="false" />
+    <item
+        android:id="@+id/menu_eepm_delete"
+        android:title="Delete"
+        android:visible="false" />
 </menu>

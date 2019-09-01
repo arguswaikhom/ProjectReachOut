@@ -2,13 +2,13 @@ package com.projectreachout.SingleEventDetailsAndModification;
 
 public class InvestmentItem {
 
-    private String investment_on;
-    private double amount;
+    private String investment_on = "";
+    private String amount = "";
 
     public InvestmentItem() {
     }
 
-    public InvestmentItem(String investment_on, double amount) {
+    public InvestmentItem(String investment_on, String amount) {
         this.investment_on = investment_on;
         this.amount = amount;
     }
@@ -17,7 +17,7 @@ public class InvestmentItem {
         this.investment_on = investment_on;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(String amount) {
         this.amount = amount;
     }
 
@@ -25,7 +25,7 @@ public class InvestmentItem {
         return investment_on;
     }
 
-    public double getAmount() {
+    public String getAmount() {
         return amount;
     }
 }

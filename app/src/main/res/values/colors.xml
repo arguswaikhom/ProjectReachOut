@@ -32,4 +32,6 @@
     <color name="black_overlay">#66000000</color>
 
     <color name="color_item_selected">#E2E4E4</color>
+
+    <color name="colorError">@android:color/holo_red_dark</color>
 </resources>

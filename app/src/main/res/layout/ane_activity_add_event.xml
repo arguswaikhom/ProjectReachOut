@@ -64,6 +64,21 @@
                     android:text="None"
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_aaae_show_event_leader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:text="None"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <View
@@ -114,7 +129,21 @@
                     android:background="@drawable/bg_custom_button_ripples"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
-                    android:text="Select People"
+                    android:text="Select Organizers"
+                    android:textAllCaps="false"
+                    android:textAppearance="?android:textAppearanceSmall"
+                    android:textColor="@color/colorPrimary" />
+
+                <Button
+                    android:id="@+id/btn_aaae_select_event_leader"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/bg_custom_button_ripples"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="Select Event Leader"
                     android:textAllCaps="false"
                     android:textAppearance="?android:textAppearanceSmall"
                     android:textColor="@color/colorPrimary" />
@@ -145,6 +174,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@drawable/bg_edit_text_rounded_border"
                 android:hint="Describe concisely..."
+                android:inputType="textCapWords"
                 android:maxLength="30"
                 android:paddingStart="8dp"
                 android:paddingTop="10dp"
@@ -168,6 +198,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_edit_text_rounded_border"
             android:hint="Write description about the event... "
+            android:inputType="textCapSentences|textLongMessage|textMultiLine"
             android:paddingStart="8dp"
             android:paddingTop="10dp"
             android:paddingEnd="8dp"
