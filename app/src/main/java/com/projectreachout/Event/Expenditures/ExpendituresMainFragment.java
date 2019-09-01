@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,14 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.projectreachout.AppController;
 import com.projectreachout.Event.EventItem;
-import com.projectreachout.NetworkUtils.AsyncResponseGet;
-import com.projectreachout.NetworkUtils.BackgroundAsyncGet;
 import com.projectreachout.R;
 import com.projectreachout.SingleEventDetailsAndModification.SingleEventDetailsActivity;
 
@@ -27,13 +30,17 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-import static android.view.View.GONE;
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromObject;
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingIntFromObject;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,6 +51,9 @@ import static com.projectreachout.GeneralStatic.REFRESH;
  * create an instance of this fragment.
  */
 public class ExpendituresMainFragment extends Fragment {
+
+    private static final String TAG = ExpendituresMainFragment.class.getSimpleName();
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -87,8 +97,8 @@ public class ExpendituresMainFragment extends Fragment {
     }
 
     private ListView mListView;
-    private ExpendituresEventListAdapter mEventListAdapter;
-    private List<EventItem> mEventItemList;
+    public static ExpendituresEventListAdapter mEventListAdapter;
+    public static List<EventItem> mEventItemList;
 
     private LinearLayout mErrorMessageLayout;
     private Button mRetryBtn;
@@ -99,6 +109,10 @@ public class ExpendituresMainFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.list_view_layout, container, false);
 
+        if (mListener != null){
+            mListener.onFragmentInteraction(Uri.parse(getString(R.string.title_events)));
+        }
+
         mListView = rootView.findViewById(R.id.lv_lvl_list_view);
 
         mErrorMessageLayout = rootView.findViewById(R.id.ll_lvl_error_message_layout);
@@ -108,7 +122,7 @@ public class ExpendituresMainFragment extends Fragment {
         mEventListAdapter = new ExpendituresEventListAdapter(getContext(), R.layout.evn_exp_event_item, mEventItemList);
         mListView.setAdapter(mEventListAdapter);
 
-        mListView.setOnItemClickListener(this::onItemClick);
+        //mListView.setOnItemClickListener(this::onItemClick);
 
         //addDummyEvent();
 
@@ -119,60 +133,60 @@ public class ExpendituresMainFragment extends Fragment {
     }
 
     private void loadData(int action) {
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         // TODO: use .authority(getString(R.string.localhost)) after having a domain name
+        *//*builder.scheme(getString(R.string.http))
+                .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
+                .appendPath("events");*//*
+
         builder.scheme(getString(R.string.http))
                 .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("events");
+                .appendPath("get_all_events")
+                .appendPath("");*/
+
+        String url = getDomainUrl() + "/get_all_events/";
+
 
         switch (action){
             case REFRESH: {
-                loadBackgroundAsyncTask(builder.build().toString());
+                loadBackgroundAsyncTask(url);
             }
             case LOAD_MORE: {
                 // TODO: get timeStamp of the last event in the list
-                String lastEventTimeStamp = "1556604826";
+                /*String lastEventTimeStamp = "1556604826";
 
                 builder.appendQueryParameter("before", lastEventTimeStamp);
-                loadBackgroundAsyncTask(builder.build().toString());
+                loadBackgroundAsyncTask(builder.build().toString());*/
 
             }
         }
     }
 
     private void loadBackgroundAsyncTask(String url){
-        /*
-         * TODO: Implement the empty methods
-         * */
-
-        BackgroundAsyncGet backgroundAsyncGet = new BackgroundAsyncGet(new AsyncResponseGet() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONArray output) {
+            public void onResponse(String output) {
                 if(output != null){
                     if (mErrorMessageLayout.getVisibility() == View.VISIBLE) {
                         mErrorMessageLayout.setVisibility(View.GONE);
                     }
-                    parseJsonFeed(output);
+                    Log.v(TAG, output);
+                    parseJsonFeed(JSONParsingArrayFromString(output));
                 }
             }
-
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 displayErrorMessage();
             }
-
+        }){
             @Override
-            public void onProgressUpdate(int value) {
-
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return AppController.getInstance().getLoginCredentialHeader();
             }
+        };
 
-            @Override
-            public void onPreExecute() {
-
-            }
-        });
-
-        backgroundAsyncGet.execute(url);
+        AppController.getInstance().addToRequestQueue(stringRequest);
     }
 
     private void displayErrorMessage() {
@@ -190,18 +204,28 @@ public class ExpendituresMainFragment extends Fragment {
     }
 
     private void parseJsonFeed(JSONArray jsonArray) {
-        for (int i = 0; i < jsonArray.length(); i++) {
+        mEventItemList.clear();
+        for (int i = jsonArray.length()-1; i >= 0; i--) {
             JSONObject eventItemJSONObj = JSONParsingObjectFromArray(jsonArray, i);
 
+            int eventId = JSONParsingIntFromObject(eventItemJSONObj, "event_id");
             String title = JSONParsingStringFromObject(eventItemJSONObj, "event_title");
             String date = JSONParsingStringFromObject(eventItemJSONObj, "date");
             String team = JSONParsingStringFromObject(eventItemJSONObj, "team_name");
-            String assignBy = JSONParsingStringFromObject(eventItemJSONObj, "assign_by");
+            String assignBy = JSONParsingStringFromObject(eventItemJSONObj, "assigned_by");
             String investedAmount = JSONParsingStringFromObject(eventItemJSONObj, "investment_amount");
-            String investmentInReturn = JSONParsingStringFromObject(eventItemJSONObj, "investment_in_return");
+            String investmentInReturn = JSONParsingStringFromObject(eventItemJSONObj, "investment_return");
             String description = JSONParsingStringFromObject(eventItemJSONObj, "description");
+            String eventLeader = JSONParsingStringFromObject(eventItemJSONObj, "event_leader");
 
-            EventItem eventItem = new EventItem(title, date, team, description, assignBy, investmentInReturn, investedAmount);
+            JSONArray organizers = JSONParsingArrayFromObject(eventItemJSONObj, "organizers");
+
+            Log.d(TAG, organizers.toString());
+            Log.d(TAG, String.valueOf(organizers.length()));
+
+            EventItem eventItem = new EventItem(title, date, team, description, assignBy, organizers.length(), investmentInReturn, investedAmount);
+            eventItem.setEvent_id(eventId);
+            eventItem.setEventLeader(eventLeader);
 
             mEventListAdapter.add(eventItem);
         }

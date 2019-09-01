@@ -6,13 +6,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.projectreachout.R;
-
 class SingleEventDetailsFragmentPageAdapter extends FragmentPagerAdapter {
 
     private final int PAGE_COUNT = 2;
     private final Context mContext;
-    private String mTabTitles[] = new String[] {"Details", "Investment"};
+    private String[] mTabTitles = new String[]{"Details", "Investment"};
 
     public SingleEventDetailsFragmentPageAdapter(FragmentManager fragmentManager, Context context) {
         super(fragmentManager);

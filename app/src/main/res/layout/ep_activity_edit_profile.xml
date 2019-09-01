@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditProfile.EditProfileActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/ll_eaep_content_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_eaep_account_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="@dimen/text_view_gap"
+                android:gravity="center"
+                android:text="@string/account_type"
+                android:textAllCaps="true"
+                android:textColor="@android:color/background_dark"
+                android:textStyle="bold"
+                tools:textAppearance="?android:textAppearanceMedium" />
+
+            <ImageView
+                android:id="@+id/iv_eaep_user_profile_picture"
+                android:layout_width="124dp"
+                android:layout_height="124dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/nav_header_desc"
+                android:gravity="center"
+                android:paddingTop="@dimen/nav_header_vertical_spacing"
+                android:src="@drawable/ic_person_black_124dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_eaep_choose_profile_picture"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:layout_weight="1"
+                    android:drawableStart="@drawable/ic_image_black_24dp"
+                    android:text="Change Picture"
+                    android:textAllCaps="false" />
+
+                <Button
+                    android:id="@+id/btn_eaep_change_password"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:layout_weight="1"
+                    android:drawableStart="@drawable/ic_edit_black_24dp"
+                    android:text="Change Password"
+                    android:textAllCaps="false" />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/warning_view_eaep"
+                layout="@layout/warning_board_layout" />
+
+            <EditText
+                android:id="@+id/et_eaep_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_view_gap"
+                android:digits="@string/input_alphabets_no_space"
+                android:hint="Username" />
+
+            <EditText
+                android:id="@+id/et_eaep_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_view_gap"
+                android:digits="@string/input_alphabets_no_space"
+                android:hint="First Name" />
+
+            <EditText
+                android:id="@+id/et_eaep_last_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_view_gap"
+                android:digits="@string/input_alphabets_no_space"
+                android:hint="Last Name" />
+
+            <EditText
+                android:id="@+id/et_eaep_phone_no"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_view_gap"
+                android:hint="Phone No."
+                android:inputType="phone" />
+
+            <EditText
+                android:id="@+id/et_eaep_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_view_gap"
+                android:hint="Email"
+                android:inputType="textEmailAddress" />
+
+            <EditText
+                android:id="@+id/et_eaep_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_view_gap"
+                android:hint="Location" />
+
+            <EditText
+                android:id="@+id/et_eaep_bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_view_gap"
+                android:hint="Bio" />
+
+            <Button
+                android:id="@+id/btn_eaep_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="@dimen/text_view_gap"
+                android:text="submit" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_eaep_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+    </RelativeLayout>
+</ScrollView>

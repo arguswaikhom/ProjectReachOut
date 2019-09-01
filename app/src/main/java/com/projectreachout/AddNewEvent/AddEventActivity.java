@@ -1,29 +1,38 @@
 package com.projectreachout.AddNewEvent;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.projectreachout.AddNewEvent.BottomSheets.BottomSheetFragment;
-import com.projectreachout.NetworkUtils.AsyncResponsePost;
-import com.projectreachout.NetworkUtils.BackgroundAsyncPost;
+import com.projectreachout.AddNewEvent.DateAndTimePicker.DatePickerFragment;
+import com.projectreachout.AddNewEvent.DateAndTimePicker.ResponseDate;
+import com.projectreachout.AppController;
 import com.projectreachout.R;
 import com.projectreachout.SelectPeople.SelectPeopleActivity;
-
-import com.projectreachout.AddNewEvent.DateAndTimePicker.*;
 import com.projectreachout.User.UserDetails;
 
 import java.util.ArrayList;
@@ -42,17 +51,23 @@ import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
 import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
 import static com.projectreachout.GeneralStatic.TEAM_LIST;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getMonthForInt;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
 public class AddEventActivity extends AppCompatActivity {
 
+    private static final String TAG = AddEventActivity.class.getSimpleName();
+
     private TextView mShowDateTV;
     private TextView mShowTeamTV;
     private TextView mShowOrganizersTV;
+    private TextView mShowEventLeaderTV;
 
     private Button mPickDateBtn;
     private Button mPickTeamBtn;
     private Button mSelectPeopleBtn;
+    private Button mSelectEventLeaderBtn;
 
     private EditText mTitleET;
     private EditText mDescriptionET;
@@ -60,8 +75,12 @@ public class AddEventActivity extends AppCompatActivity {
     private Button mSubmitBtn;
 
     private String mDate;
+    private String mEventLeader;
+    private int mEventLeaderIndex = -1;
     private ArrayList<String> mSelectedTeam = new ArrayList<>();
     private ArrayList<UserDetails> mSelectedUsers = new ArrayList<>();
+
+    private ProgressDialog mDialog;
 
     // TODO: Delete this SparseBooleanArray after item selection works with base on user id
     private SparseBooleanArray sparseBooleanArray = new SparseBooleanArray();
@@ -71,9 +90,18 @@ public class AddEventActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ane_activity_add_event);
 
+        try {
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.setTitle(getString(R.string.title_add_event));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
         mShowDateTV = findViewById(R.id.tv_aaae_show_date);
         mShowTeamTV = findViewById(R.id.tv_aaae_show_team);
         mShowOrganizersTV = findViewById(R.id.tv_aaae_show_selected_people);
+        mShowEventLeaderTV = findViewById(R.id.tv_aaae_show_event_leader);
 
         // Underlining text for clickable
         mShowTeamTV.setPaintFlags(mShowTeamTV.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
@@ -82,11 +110,14 @@ public class AddEventActivity extends AppCompatActivity {
         mPickDateBtn = findViewById(R.id.btn_aaae_pick_date);
         mPickTeamBtn = findViewById(R.id.btn_aaae_pick_team);
         mSelectPeopleBtn = findViewById(R.id.btn_aaae_select_people);
+        mSelectEventLeaderBtn = findViewById(R.id.btn_aaae_select_event_leader);
 
         mTitleET = findViewById(R.id.et_aaae_title);
         mDescriptionET = findViewById(R.id.et_aaae_description);
 
         mSubmitBtn = findViewById(R.id.btn_aaae_submit);
+
+        mDialog = new ProgressDialog(this);
 
         displayDateToday();
 
@@ -96,8 +127,65 @@ public class AddEventActivity extends AppCompatActivity {
         mPickDateBtn.setOnClickListener(this::pickEventDate);
         mPickTeamBtn.setOnClickListener(this::showTeamPicker);
         mSelectPeopleBtn.setOnClickListener(this::navigateSelectPeopleActivity);
+        mSelectEventLeaderBtn.setOnClickListener(this::selectEventLeader);
 
         mSubmitBtn.setOnClickListener(this::submitEvent);
+    }
+
+    String eventLeader = null;
+    int eventLeaderIndex = -1;
+
+    private void selectEventLeader(View view) {
+        if (mSelectedUsers.size() == 0) {
+            String errorMessage = "Select Organizers First";
+            Snackbar.make(view, errorMessage, Snackbar.LENGTH_INDEFINITE).setAction("Select", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    navigateSelectPeopleActivity(new View(getApplicationContext()));
+                }
+
+            }).show();
+            return;
+        }
+
+        String title = "Choose Event Leader";
+        String[] teamName = new String[mSelectedUsers.size()];
+
+        for (int i=0; i<mSelectedUsers.size(); i++) {
+            UserDetails userDetails = mSelectedUsers.get(i);
+            teamName[i] = userDetails.getUser_name();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(title);
+        builder.setSingleChoiceItems(teamName, mEventLeaderIndex, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                eventLeader = teamName[which];
+                eventLeaderIndex = which;
+            }
+        }).setPositiveButton("OK", (dialog, which) -> {
+            mEventLeader = eventLeader;
+            mEventLeaderIndex = eventLeaderIndex;
+            mShowEventLeaderTV.setText(mEventLeader);
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        builder.create().show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void navigateSelectPeopleActivity(View view) {
@@ -134,6 +222,21 @@ public class AddEventActivity extends AppCompatActivity {
                 } else {
                     mShowOrganizersTV.setText("Organizers: " + mSelectedUsers.size());
                 }
+
+                boolean flag = false;
+                for (int i=0; i<mSelectedUsers.size(); i++) {
+                    if (mSelectedUsers.get(i).getUser_name().equals(mEventLeader)) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    mShowEventLeaderTV.setText("None");
+                    mEventLeader = null;
+                    mEventLeaderIndex = -1;
+                }
+
+                Log.d(TAG, mSelectedUsers.toString());
             }
         }
     }
@@ -167,7 +270,9 @@ public class AddEventActivity extends AppCompatActivity {
         bundle.putParcelable(DATE_RESPONSE, new ResponseDate() {
             @Override
             public void setDate(int year, int month, int day) {
-                mShowDateTV.setText(day + "/" + month + "/" + year);
+                int realMonth = month + 1;
+                mDate = day + "-" + realMonth + "-" + year;
+                mShowDateTV.setText(day + " " + getMonthForInt(month) + " " + year);
             }
 
             @Override
@@ -191,11 +296,12 @@ public class AddEventActivity extends AppCompatActivity {
         String description = mDescriptionET.getText().toString().trim();
 
         // TODO: Implement getUser_name() and replace with the current user
-        String username = "Tony Stark";
+        String username = AppController.getInstance().getLoginUserUsername();
 
         List<String> organizersId = new ArrayList<>();
         for (int i = 0; i < mSelectedUsers.size(); i++) {
-            organizersId.add(mSelectedUsers.get(i).getId());
+            // organizersId.add(mSelectedUsers.get(i).getId());
+            organizersId.add(mSelectedUsers.get(i).getUser_name());
         }
 
         Map<String, String> param = new HashMap<>();
@@ -205,6 +311,18 @@ public class AddEventActivity extends AppCompatActivity {
         param.put("description", description);
         param.put("selected_team", mSelectedTeam.toString());
         param.put("organizers", organizersId.toString());
+        param.put("event_leader", mEventLeader);
+
+        /*String play = username + "\n\n" +
+                mDate + "\n\n" +
+                title + "\n\n" +
+                description + "\n\n" +
+                mSelectedTeam.toString() + "\n\n" +
+                organizersId.toString() + "\n\n\n";
+
+        Log.v(TAG, play);*/
+
+        Log.v(TAG, "MAP: \n\n\n" + param.toString() + "\n\n\n");
 
         return param;
     }
@@ -221,42 +339,67 @@ public class AddEventActivity extends AppCompatActivity {
             return;
         }
 
+        if (mEventLeader == null || mEventLeader.trim().equals("")) {
+            selectEventLeader(new View(getApplicationContext()));
+            return;
+        }
+
         String description = mTitleET.getText().toString().trim();
-        if (description.equals("")){
+        if (description.equals("")) {
             showKeyBoard(mTitleET);
             return;
         }
 
         Map<String, String> param = getMappedData();
 
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         builder.scheme(getString(R.string.http))
                 .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("add_new_event");
+                .appendPath("add_event")
+                .appendPath("");
 
-        String url = builder.build().toString();
+        String url = builder.build().toString();*/
 
-        /*
-         * TODO: Implement the empty methods
-         * */
+        String url = getDomainUrl() + "/add_event/";
 
-        BackgroundAsyncPost backgroundAsyncPost = new BackgroundAsyncPost(param, new AsyncResponsePost() {
+        Log.v(TAG, "URL: " + url);
+
+        mDialog.setMessage("Loading. Please wait...   ");
+        mDialog.show();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
-            public void onResponse(String output) {}
-
+            public void onResponse(String output) {
+                Log.v(TAG, output);
+                if (output.trim().equals("200")) {
+                    mDialog.dismiss();
+                    Toast.makeText(AddEventActivity.this, "Event Added", Toast.LENGTH_SHORT).show();
+                    onBackPressed();
+                } else {
+                    mDialog.dismiss();
+                    displayErrorMessage(view);
+                }
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.v(TAG, error.toString());
+                mDialog.dismiss();
                 displayErrorMessage(view);
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return AppController.getInstance().getLoginCredentialHeader();
             }
 
             @Override
-            public void onProgressUpdate(int value) {}
+            protected Map<String, String> getParams() throws AuthFailureError {
+                return param;
+            }
+        };
 
-            @Override
-            public void onPreExecute() {}
-        });
-
-        backgroundAsyncPost.execute(url);
+        AppController.getInstance().addToRequestQueue(stringRequest);
     }
 
     private void displayErrorMessage(View view) {
@@ -271,6 +414,7 @@ public class AddEventActivity extends AppCompatActivity {
 
 
     ArrayList<String> selectedTeam = new ArrayList<>();
+
     private void showTeamPicker(View view) {
         String title = "Choose Team";
         String[] teamName = new String[]{"Regular Volunteers", "Fund Raising", "Teaching", "School Event", "Environmental Awareness"};
@@ -278,11 +422,11 @@ public class AddEventActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         boolean[] checkedItem = new boolean[teamName.length];
-        if(mSelectedTeam.size() != 0){
+        if (mSelectedTeam.size() != 0) {
             selectedTeam = new ArrayList<>();
-            for(int i=0; i<mSelectedTeam.size(); i++){
-                for(int j=0; j<teamName.length; j++){
-                    if(mSelectedTeam.get(i).equals(teamName[j])){
+            for (int i = 0; i < mSelectedTeam.size(); i++) {
+                for (int j = 0; j < teamName.length; j++) {
+                    if (mSelectedTeam.get(i).equals(teamName[j])) {
                         selectedTeam.add(teamName[j]);
                         checkedItem[j] = true;
                         break;
@@ -320,48 +464,10 @@ public class AddEventActivity extends AppCompatActivity {
     private void displayDateToday() {
         final Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
+        int month = c.get(Calendar.MONTH) + 1;      // month starts from 0
         int day = c.get(Calendar.DAY_OF_MONTH);
 
-        mShowDateTV.setText(day + "/" + month + "/" + year);
+        mDate = day + "-" + month + "-" + year;
+        mShowDateTV.setText(day + " " + getMonthForInt(month-1) + " " + year);
     }
-
-   /* private void showTeamPickerDialog() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Team");
-
-        String[] teamName = {"None", "Regular Volunteers", "Fund Raising", "Teaching", "School Event", "Environmental Awareness"};
-        builder.setItems(teamName, (dialog, which) -> {
-            switch (which) {
-                case 0: {
-                    mShowTeamTV.setText(teamName[0]);
-                    break;
-                }
-                case 1: {
-                    mShowTeamTV.setText(teamName[1]);
-                    break;
-                }
-                case 2: {
-                    mShowTeamTV.setText(teamName[2]);
-                    break;
-                }
-                case 3: {
-                    mShowTeamTV.setText(teamName[3]);
-                    break;
-                }
-                case 4: {
-                    mShowTeamTV.setText(teamName[4]);
-                    break;
-                }
-                case 5: {
-                    mShowTeamTV.setText(teamName[5]);
-                    break;
-                }
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }*/
 }

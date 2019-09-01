@@ -2,17 +2,14 @@ package com.projectreachout.Login.ForgotPassword;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.android.volley.VolleyError;
-import com.projectreachout.NetworkUtils.AsyncResponsePost;
-import com.projectreachout.NetworkUtils.BackgroundAsyncPost;
 import com.projectreachout.R;
 
 import java.util.HashMap;
@@ -20,6 +17,7 @@ import java.util.Map;
 
 import static com.projectreachout.GeneralStatic.PASSWORD_KEY;
 import static com.projectreachout.GeneralStatic.USER_ID_KEY;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.getRandomInt;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
@@ -114,36 +112,17 @@ public class CreatePasswordActivity extends AppCompatActivity {
     }
 
     private void uploadChangePasswordInfo(Map<String, String> param) {
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         builder.scheme(getString(R.string.http))
                 .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("new_password");
+                .appendPath("new_password");*/
 
-        String url = builder.build().toString();
+        String url = getDomainUrl() + "/new_password/";
 
-        BackgroundAsyncPost backgroundAsyncPost = new BackgroundAsyncPost(param, new AsyncResponsePost() {
-            @Override
-            public void onResponse(String output) {
-                // TODO: On good response redirect to the login activity
-            }
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        // TODO: Implement create password request
+        // TODO: On good response redirect to the login activity
 
-            }
-
-            @Override
-            public void onProgressUpdate(int value) {
-
-            }
-
-            @Override
-            public void onPreExecute() {
-
-            }
-        });
-
-        backgroundAsyncPost.execute(url);
     }
 
     @Override

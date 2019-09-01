@@ -1,6 +1,7 @@
 package com.projectreachout.NetworkUtils;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -13,11 +14,21 @@ import java.util.concurrent.CountDownLatch;
 
 public class BackgroundAsyncPost extends AsyncTask<String, Integer, String> {
 
+    private static final String TAG = "";
+
     private AsyncResponsePost mAsyncResponsePost;
     private String mResponse;
+
     private Map<String, String> mParam;
+    private Map<String, String> mHeader = null;
 
     public BackgroundAsyncPost(Map<String, String> param, AsyncResponsePost asyncResponsePost) {
+        this.mParam = param;
+        this.mAsyncResponsePost = asyncResponsePost;
+    }
+
+    public BackgroundAsyncPost(Map<String, String> header, Map<String, String> param, AsyncResponsePost asyncResponsePost) {
+        this.mHeader = header;
         this.mParam = param;
         this.mAsyncResponsePost = asyncResponsePost;
     }
@@ -27,6 +38,8 @@ public class BackgroundAsyncPost extends AsyncTask<String, Integer, String> {
 
         String url = strings[0];
 
+        Log.v(TAG, url);
+
         CountDownLatch latch = new CountDownLatch(1);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -35,6 +48,16 @@ public class BackgroundAsyncPost extends AsyncTask<String, Integer, String> {
                     latch.countDown();
                 },
                 (VolleyError error) -> mAsyncResponsePost.onErrorResponse(error)) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                if (mHeader != null) {
+                    return mHeader;
+                } else {
+                    return AppController.getInstance().getLoginCredentialHeader();
+                }
+            }
+
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 return mParam;

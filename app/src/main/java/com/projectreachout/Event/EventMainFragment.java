@@ -1,37 +1,45 @@
 package com.projectreachout.Event;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.projectreachout.AddNewEvent.AddEventActivity;
-import com.projectreachout.NetworkUtils.AsyncResponseGet;
-import com.projectreachout.NetworkUtils.BackgroundAsyncGet;
+import com.android.volley.toolbox.StringRequest;
+import com.projectreachout.AppController;
 import com.projectreachout.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.projectreachout.GeneralStatic.*;
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromObject;
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingIntFromObject;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
+import static com.projectreachout.GeneralStatic.LOAD_MORE;
+import static com.projectreachout.GeneralStatic.REFRESH;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,11 +47,13 @@ import static com.projectreachout.GeneralStatic.*;
  * {@link EventMainFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class EventMainFragment extends Fragment {
+public class EventMainFragment extends Fragment{
+
+    private static final String TAG = EventMainFragment.class.getSimpleName();
 
     ListView mListView;
-    EventListAdapter mEventListAdapter;
-    List<EventItem> mEventItemList;
+    public static EventListAdapter mEventListAdapter;
+    public static List<EventItem> mEventItemList;
 
     private LinearLayout mErrorMessageLayout;
     private Button mRetryBtn;
@@ -62,11 +72,15 @@ public class EventMainFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.list_view_layout, container, false);
 
+        if (mListener != null){
+            mListener.onFragmentInteraction(Uri.parse(getString(R.string.title_my_events)));
+        }
+
         mListView = rootView.findViewById(R.id.lv_lvl_list_view);
         mFAB = rootView.findViewById(R.id.fab_lvl_fab);
 
-        mFAB.show();
-        mFAB.setImageResource(R.drawable.ic_add_white_24dp);
+        /*mFAB.show();
+        mFAB.setImageResource(R.drawable.ic_add_white_24dp);*/
 
         mEventItemList = new ArrayList<>();
         mEventListAdapter = new EventListAdapter(getContext(), R.layout.evn_event_item, mEventItemList);
@@ -75,78 +89,83 @@ public class EventMainFragment extends Fragment {
         mErrorMessageLayout = rootView.findViewById(R.id.ll_lvl_error_message_layout);
         mRetryBtn = rootView.findViewById(R.id.btn_nel_retry);
 
-        mFAB.setOnClickListener(v -> {
+        /*mFAB.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), AddEventActivity.class);
             startActivity(intent);
-        });
+        });*/
 
         //setDummyData();
 
         loadData(REFRESH);
+
         mRetryBtn.setOnClickListener(v -> loadData(REFRESH));
 
         return rootView;
     }
+
     private void loadData(int action) {
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         // TODO: use .authority(getString(R.string.localhost)) after having a domain name
         builder.scheme(getString(R.string.http))
                 .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("events");
+                .appendPath("get_my_events")
+                .appendPath("");*/
 
-        switch (action){
+        String url = getDomainUrl() + "/get_my_events/";
+
+
+        switch (action) {
             case REFRESH: {
-                loadBackgroundAsyncTask(builder.build().toString());
+                loadBackgroundAsyncTask(url);
             }
             case LOAD_MORE: {
                 // TODO: get timeStamp of the last post in the feed list
                 String lastPostTimeStamp = "1556604826";
 
-                builder.appendQueryParameter("before", lastPostTimeStamp);
-                loadBackgroundAsyncTask(builder.build().toString());
+                /*builder.appendQueryParameter("before", lastPostTimeStamp);
+                loadBackgroundAsyncTask(builder.build().toString());*/
             }
         }
     }
 
-    private void loadBackgroundAsyncTask(String url){
-        /*
-         * TODO: Implement the empty methods
-         * */
+    private void loadBackgroundAsyncTask(String url) {
 
-        BackgroundAsyncGet backgroundAsyncGet = new BackgroundAsyncGet(new AsyncResponseGet() {
+        Map<String, String> param = new HashMap<>();
+        param.put("user_name", AppController.getInstance().getLoginUserUsername());
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONArray output) {
-                if(output != null){
-                    if (mErrorMessageLayout.getVisibility() == View.VISIBLE) {
-                        mErrorMessageLayout.setVisibility(GONE);
-                    }
-                    parseJsonFeed(output);
+            public void onResponse(String output) {
+                if (output != null) {
+                    Log.d(TAG, output);
+                    JSONArray response = JSONParsingArrayFromString(output);
+                    parseJsonFeed(response);
                 }
             }
-
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                displayErrorMessage();
+                Log.d(TAG, error.toString());
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return AppController.getInstance().getLoginCredentialHeader();
             }
 
             @Override
-            public void onProgressUpdate(int value) {
-
+            protected Map<String, String> getParams() throws AuthFailureError {
+                return param;
             }
+        };
 
-            @Override
-            public void onPreExecute() {
-
-            }
-        });
-
-        backgroundAsyncGet.execute(url);
+        AppController.getInstance().addToRequestQueue(stringRequest);
     }
 
     private void displayErrorMessage() {
-        if(mEventListAdapter.isEmpty()){
+        if (mEventListAdapter.isEmpty()) {
             mErrorMessageLayout.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             String errorMessage = "Couldn't update information from server...";
             Snackbar.make(Objects.requireNonNull(getView()), errorMessage, Snackbar.LENGTH_INDEFINITE).setAction("Retry", new View.OnClickListener() {
                 @Override
@@ -158,7 +177,8 @@ public class EventMainFragment extends Fragment {
     }
 
     private void parseJsonFeed(JSONArray jsonArray) {
-        for (int i = 0; i < jsonArray.length(); i++) {
+        mEventItemList.clear();
+        for (int i = jsonArray.length()-1; i >= 0; i--) {
             JSONObject eventItemJSONObj = JSONParsingObjectFromArray(jsonArray, i);
 
             JSONArray organizers = JSONParsingArrayFromObject(eventItemJSONObj, "organizers");
@@ -168,20 +188,37 @@ public class EventMainFragment extends Fragment {
             for (int index = 0; index < organizers.length(); index++) {
                 JSONObject organiserItem = JSONParsingObjectFromArray(organizers, index);
 
+                int user_id = JSONParsingIntFromObject(organiserItem, "user_id");
                 String username = JSONParsingStringFromObject(organiserItem, "username");
                 String profilePictureURL = JSONParsingStringFromObject(organiserItem, "profile_picture_url");
 
-                ContributePeople contributePeople = new ContributePeople(username, profilePictureURL);
+                ContributePeople contributePeople = new ContributePeople(user_id, username, profilePictureURL);
                 contributePeopleList.add(contributePeople);
             }
 
+            int event_id = JSONParsingIntFromObject(eventItemJSONObj, "event_id");
             String title = JSONParsingStringFromObject(eventItemJSONObj, "event_title");
             String date = JSONParsingStringFromObject(eventItemJSONObj, "date");
             String team = JSONParsingStringFromObject(eventItemJSONObj, "team_name");
+            String assigned_by = JSONParsingStringFromObject(eventItemJSONObj, "assigned_by");
             String description = JSONParsingStringFromObject(eventItemJSONObj, "description");
+            String investment_amount = JSONParsingStringFromObject(eventItemJSONObj, "investment_amount");
+            String investment_in_return = JSONParsingStringFromObject(eventItemJSONObj, "investment_in_return");
+            String eventLeader = JSONParsingStringFromObject(eventItemJSONObj, "event_leader");
 
+            //EventItem eventItem = new EventItem(title, date, team, description, contributePeopleList);
 
-            EventItem eventItem = new EventItem(title, date, team, description, contributePeopleList);
+            EventItem eventItem = new EventItem();
+            eventItem.setEvent_id(event_id);
+            eventItem.setEvent_title(title);
+            eventItem.setDate(date);
+            eventItem.setTeam_name(team);
+            eventItem.setAssignBy(assigned_by);
+            eventItem.setDescription(description);
+            eventItem.setContribute_people_list(contributePeopleList);
+            eventItem.setInvestmentAmount(investment_amount);
+            eventItem.setInvestmentInReturn(investment_in_return);
+            eventItem.setEventLeader(eventLeader);
 
             mEventListAdapter.add(eventItem);
         }

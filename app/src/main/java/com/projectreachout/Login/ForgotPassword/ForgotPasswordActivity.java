@@ -3,18 +3,14 @@ package com.projectreachout.Login.ForgotPassword;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
-import com.android.volley.VolleyError;
-import com.projectreachout.NetworkUtils.AsyncResponsePost;
-import com.projectreachout.NetworkUtils.BackgroundAsyncPost;
 import com.projectreachout.R;
 
 import java.util.HashMap;
@@ -115,36 +111,16 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CreatePasswordActivity.class);
         startActivity(intent);
 
-        Uri.Builder builder = new Uri.Builder();
+        /*Uri.Builder builder = new Uri.Builder();
         builder.scheme(getString(R.string.http))
                 .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
                 .appendPath("forget_password");
 
-        String url = builder.build().toString();
+        String url = builder.build().toString();*/
 
-        BackgroundAsyncPost backgroundAsyncPost = new BackgroundAsyncPost(param, new AsyncResponsePost() {
-            @Override
-            public void onResponse(String output) {
-                // TODO: Extract userId from the output response and startActivity() to the CreatePasswordActivity with the userId
-            }
+        // TODO: Implement forget password request
+        // TODO: Extract userId from the output response and startActivity() to the CreatePasswordActivity with the userId
 
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-
-            @Override
-            public void onProgressUpdate(int value) {
-
-            }
-
-            @Override
-            public void onPreExecute() {
-
-            }
-        });
-
-        backgroundAsyncPost.execute(url);
     }
 
     @Override

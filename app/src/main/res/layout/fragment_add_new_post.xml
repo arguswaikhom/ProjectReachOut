@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="16dp"
-    android:gravity="center"
     android:orientation="vertical"
     tools:context=".AddNewPost.AddNewPostFragment">
 
@@ -14,9 +13,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
+
+            <!--<include layout="@layout/warning_board_layout"/>-->
 
             <!--<com.projectreachout.PostFeed.FeedImageView
                 android:id="@+id/iv_fanp_uploaded_image"
@@ -25,6 +26,7 @@
                 android:background="@color/white"
                 android:scaleType="fitXY"
                 android:visibility="visible" />-->
+
             <ImageView
                 android:id="@+id/iv_fanp_uploaded_image"
                 android:layout_width="wrap_content"
@@ -39,7 +41,12 @@
                 android:id="@+id/btn_fanp_upload_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/upload_picture" />
+                android:background="@drawable/bg_button_with_ripples"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/choose_picture"
+                android:textColor="@color/white" />
+
 
             <EditText
                 android:id="@+id/et_fanp_description"
@@ -47,20 +54,26 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_edit_text_rounded_border"
                 android:hint="Write description..."
+                android:inputType="textCapSentences|textMultiLine|textLongMessage"
                 android:padding="16dp"
                 android:textColor="@color/black"
                 android:textColorHint="@color/colorPrimary" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
             <Button
                 android:id="@+id/btn_fanp_upload_post"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
                 android:layout_marginTop="16dp"
-                android:text="submit" />
+                android:background="@drawable/bg_button_with_ripples"
+                android:text="Submit"
+                android:textColor="@color/white" />
         </LinearLayout>
     </ScrollView>
-
-
 </LinearLayout>

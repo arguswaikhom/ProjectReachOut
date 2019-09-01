@@ -1,30 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.projectreachout">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".AppController"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_foreground_pro_image"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".Main2Activity"></activity>
+        <activity
+            android:name=".ChangePassword.ChangePasswordActivity"
+            android:label="@string/title_activity_change_password"
+            android:parentActivityName=".EditProfile.EditProfileActivity" />
+        <activity
+            android:name=".EditProfile.EditProfileActivity"
+            android:label="@string/title_activity_edit_profile"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".MyArticles.MyArticles"
+            android:label="@string/title_my_articles" />
         <activity
             android:name=".Login.ForgotPassword.CreatePasswordActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen"
             android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
         <activity
             android:name=".Login.ForgotPassword.ForgotPasswordActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -34,9 +48,15 @@
         <activity
             android:name=".Login.LoginActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_fullscreen"
-            android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme" />
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <!--android:theme="@style/FullscreenTheme"-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".SingleEventDetailsAndModification.SingleEventDetailsActivity"
             android:screenOrientation="portrait"
@@ -55,11 +75,14 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
+
+            <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            -->
         </activity> <!-- uCrop cropping activity -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

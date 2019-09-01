@@ -9,34 +9,41 @@
             android:icon="@drawable/ic_home_black_24dp"
             android:title="@string/title_home" />
         <item
-            android:id="@+id/nav_add_post"
+            android:id="@+id/nav_add_article"
             android:icon="@drawable/ic_post_add_black_24dp"
-            android:title="@string/title_add_post" />
+            android:title="@string/title_add_article" />
+        <item
+            android:id="@+id/nav_my_events"
+            android:icon="@drawable/ic_events"
+            android:title="@string/title_my_events" />
         <item
             android:id="@+id/nav_events"
-            android:icon="@drawable/ic_events"
-            android:title="@string/title_events" />
-        <item
-            android:id="@+id/nav_expenditures"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="@string/title_expenditure" />
+            android:icon="@drawable/ic_library_books_black_24dp"
+            android:title="@string/title_events"
+            android:visible="false" />
         <item
             android:id="@+id/nav_add_event"
             android:icon="@drawable/ic_event_add_black_24dp"
-            android:title="@string/title_add_event" />
+            android:title="@string/title_add_event"
+            android:visible="false" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Others">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="Share"
+                android:visible="false" />
             <item
-                android:id="@+id/nav_send"
+                android:id="@+id/nav_send_report"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:title="Send Report"
+                android:visible="false" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_power_settings_new_black_24dp"
+                android:title="Logout" />
         </menu>
     </item>
-
 </menu>

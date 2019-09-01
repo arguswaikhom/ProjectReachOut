@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import java.util.Objects;
 
 public class UserDetailsAdapter extends ArrayAdapter<UserDetails> {
 
+    private static final String TAG = UserDetailsAdapter.class.getSimpleName();
+
     public SparseBooleanArray mSelectedItems;
 
     public UserDetailsAdapter(Context context, int resource, List<UserDetails> objects) {
@@ -33,6 +36,8 @@ public class UserDetailsAdapter extends ArrayAdapter<UserDetails> {
         for (int i = 0; i < mSelectedItems.size(); i++) {
             arrayList.add(mSelectedItems.keyAt(i));
         }
+        Log.v(TAG, arrayList.toString());
+
         return arrayList;
     }
 
@@ -52,19 +57,21 @@ public class UserDetailsAdapter extends ArrayAdapter<UserDetails> {
         ImageView profileThumbnailImageView = convertView.findViewById(R.id.iv_uuri_profile_thumbnail);
         TextView usernameTextView = convertView.findViewById(R.id.tv_uuri_username);
 
-        try {
-            Glide.with(getContext())
-                    .load(profileThumbnailUrl)
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(profileThumbnailImageView);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.placeholder(R.drawable.ic_person_black_124dp);
+        requestOptions.error(R.drawable.ic_person_black_124dp);
+        requestOptions.circleCrop();
+
+        Glide.with(getContext())
+                .load(profileThumbnailUrl)
+                .apply(requestOptions)
+                .into(profileThumbnailImageView);
+
         usernameTextView.setText(username);
 
-        if(mSelectedItems.get(position)){
+        if (mSelectedItems.get(position)) {
             convertView.setBackgroundColor(getContext().getResources().getColor(R.color.color_item_selected));
-        }else {
+        } else {
             convertView.setBackgroundColor(Color.TRANSPARENT);
         }
 
