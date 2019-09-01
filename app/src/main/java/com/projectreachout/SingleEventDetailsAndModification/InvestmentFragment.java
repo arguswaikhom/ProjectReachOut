@@ -92,6 +92,7 @@ public class InvestmentFragment extends Fragment {
 
     private TableLayout mInvestmentTableLayout;
     private TextView mTotalAmountTextView;
+    private TextView mDifferentAmountTV;
 
     private EditText mAmountInReturnET;
 
@@ -106,6 +107,7 @@ public class InvestmentFragment extends Fragment {
 
         mInvestmentTableLayout = rootView.findViewById(R.id.tl_sfi_investment);
         mTotalAmountTextView = rootView.findViewById(R.id.tv_sfi_total_amount);
+        mDifferentAmountTV = rootView.findViewById(R.id.tv_sfi_difference_amount);
         mAmountInReturnET = rootView.findViewById(R.id.et_sfi_in_return_amount);
         mAddInvestmentItemButton = rootView.findViewById(R.id.btn_sfi_add_investment_item);
         mSubmitButton = rootView.findViewById(R.id.btn_sfi_submit);
@@ -176,6 +178,8 @@ public class InvestmentFragment extends Fragment {
 
         mTotalAmountTextView.setText(investmentAmount);
         mAmountInReturnET.setText(investmentOnReturn);
+        long diffAmount = Long.parseLong(investmentOnReturn) - Long.parseLong(investmentAmount);
+        mDifferentAmountTV.setText(diffAmount + "");
     }
 
     private void submitInvestment() {
