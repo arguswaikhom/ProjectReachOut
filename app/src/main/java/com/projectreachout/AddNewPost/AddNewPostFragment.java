@@ -36,6 +36,8 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.projectreachout.AppController;
 import com.projectreachout.ImageCompression.FileUtil;
 import com.projectreachout.ImageCompression.ImageCompression;
+import com.projectreachout.MessageManager.MessageManager;
+import com.projectreachout.PermissionManager.DevicePermissionManager;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
 
@@ -64,13 +66,11 @@ import static com.projectreachout.ImagePicker.ImagePickerActivity.REQUEST_GALLER
  */
 
 public class AddNewPostFragment extends Fragment implements SingleUploadBroadcastReceiver.Delegate {
-
-
     //Image request code
     private int PICK_IMAGE_REQUEST = 1;
 
-    //storage permission code
-    private static final int STORAGE_PERMISSION_CODE = 123;
+    private DevicePermissionManager mDevicePermissionManager;
+    private MessageManager mMessageManager;
 
     private File mActualImage;
 
@@ -136,13 +136,15 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
 
         View rootView = inflater.inflate(R.layout.fragment_add_new_post, container, false);
 
+        mDevicePermissionManager = new DevicePermissionManager(getContext());
+        mMessageManager = new MessageManager(getContext());
+        mDevicePermissionManager.handlePermissions();
+
         uploadReceiver = new SingleUploadBroadcastReceiver();
 
         if (mListener != null) {
             mListener.onFragmentInteraction(Uri.parse(getString(R.string.title_add_article)));
         }
-
-        requestStoragePermission();
 
         mImageView = rootView.findViewById(R.id.iv_fanp_uploaded_image);
         mUploadImage = rootView.findViewById(R.id.btn_fanp_upload_picture);
@@ -210,6 +212,11 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
     }
 
     private void chooseImage(View view) {
+        if (!mDevicePermissionManager.hasAllPermissionsGranted()) {
+            mMessageManager.showShortToast("Permission Required");
+            mDevicePermissionManager.requestAllPermissions();
+            return;
+        }
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -317,38 +324,6 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
             Toast.makeText(getContext(), "No picture selected", Toast.LENGTH_SHORT).show();
         }
     }
-
-    //Requesting permission
-    private void requestStoragePermission() {
-        if (AppController.getInstance().hasPermissionGranted())
-            return;
-
-        /*if (ActivityCompat.shouldShowRequestPermissionRationale(Objects.requireNonNull(getActivity()), Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            showSettingsDialog();
-        }*/
-        //And finally ask for the permission
-        ActivityCompat.requestPermissions(Objects.requireNonNull(getActivity()), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, STORAGE_PERMISSION_CODE);
-    }
-
-
-    //This method will be called when the user will tap on allow or deny
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        //Checking the request code of our request
-        if (requestCode == STORAGE_PERMISSION_CODE) {
-
-            //If permission is granted
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //Displaying a toast
-                Toast.makeText(getContext(), "Permission granted now you can read the storage", Toast.LENGTH_LONG).show();
-            } else {
-                //Displaying another toast if permission is not granted
-                Toast.makeText(getContext(), "Oops you just denied the permission", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
     /**
      * Showing Alert Dialog with Settings option
      * Navigates user to app settings

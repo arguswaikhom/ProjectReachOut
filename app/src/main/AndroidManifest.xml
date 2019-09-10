@@ -21,7 +21,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Main2Activity"></activity>
         <activity
             android:name=".ChangePassword.ChangePasswordActivity"
             android:label="@string/title_activity_change_password"

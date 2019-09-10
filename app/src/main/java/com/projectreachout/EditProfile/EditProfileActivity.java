@@ -29,6 +29,8 @@ import com.projectreachout.AppController;
 import com.projectreachout.ChangePassword.ChangePasswordActivity;
 import com.projectreachout.ImageCompression.FileUtil;
 import com.projectreachout.ImageCompression.ImageCompression;
+import com.projectreachout.MessageManager.MessageManager;
+import com.projectreachout.PermissionManager.DevicePermissionManager;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
 
@@ -53,6 +55,10 @@ import static com.projectreachout.GeneralStatic.showKeyBoard;
 public class EditProfileActivity extends AppCompatActivity implements SingleUploadBroadcastReceiver.Delegate {
 
     private final String TAG = EditProfileActivity.class.getSimpleName();
+
+    private DevicePermissionManager mDevicePermissionManager;
+    private MessageManager mMessageManager;
+
 
     private int PICK_IMAGE_REQUEST = 1;
 
@@ -95,6 +101,10 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
         uploadReceiver = new SingleUploadBroadcastReceiver();
         mDialog = new ProgressDialog(this);
+        mDevicePermissionManager = new DevicePermissionManager(this);
+        mMessageManager = new MessageManager(this);
+
+        mDevicePermissionManager.handlePermissions();
 
         mContentLL = findViewById(R.id.ll_eaep_content_layout);
 
@@ -190,6 +200,11 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     }
 
     private void uploadPost(View view) {
+        if (!mDevicePermissionManager.hasAllPermissionsGranted()) {
+            mMessageManager.showShortToast("Permission Required");
+            mDevicePermissionManager.requestAllPermissions();
+            return;
+        }
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
