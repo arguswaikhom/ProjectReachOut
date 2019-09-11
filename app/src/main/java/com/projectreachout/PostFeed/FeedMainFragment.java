@@ -1,7 +1,6 @@
 package com.projectreachout.PostFeed;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,7 +20,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.projectreachout.AppController;
-import com.projectreachout.MainActivity;
 import com.projectreachout.R;
 
 import org.json.JSONArray;

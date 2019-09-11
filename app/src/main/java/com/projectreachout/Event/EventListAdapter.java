@@ -39,7 +39,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.projectreachout.Event.EventMainFragment.mEventItemList;
 import static com.projectreachout.Event.EventMainFragment.mEventListAdapter;
 import static com.projectreachout.GeneralStatic.getDate;
-import static com.projectreachout.GeneralStatic.getDateTime;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 

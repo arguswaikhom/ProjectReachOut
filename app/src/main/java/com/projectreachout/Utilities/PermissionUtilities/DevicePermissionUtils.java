@@ -1,4 +1,4 @@
-package com.projectreachout.PermissionManager;
+package com.projectreachout.Utilities.PermissionUtilities;
 
 import android.Manifest;
 import android.app.Activity;
@@ -9,7 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-public class DevicePermissionManager implements  ActivityCompat.OnRequestPermissionsResultCallback{
+public class DevicePermissionUtils implements  ActivityCompat.OnRequestPermissionsResultCallback{
     private final int STORAGE_PERMISSION_CODE = 123;
 
     private final String CAMERA_PERMISSION = Manifest.permission.CAMERA;
@@ -18,7 +18,7 @@ public class DevicePermissionManager implements  ActivityCompat.OnRequestPermiss
 
     private Context mContext;
 
-    public DevicePermissionManager(Context context) {
+    public DevicePermissionUtils(Context context) {
         this.mContext = context;
     }
 
