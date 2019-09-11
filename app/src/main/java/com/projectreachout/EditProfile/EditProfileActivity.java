@@ -4,12 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,10 +28,10 @@ import com.projectreachout.AppController;
 import com.projectreachout.ChangePassword.ChangePasswordActivity;
 import com.projectreachout.ImageCompression.FileUtil;
 import com.projectreachout.ImageCompression.ImageCompression;
-import com.projectreachout.MessageManager.MessageManager;
-import com.projectreachout.PermissionManager.DevicePermissionManager;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
+import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
+import com.projectreachout.Utilities.PermissionUtilities.DevicePermissionUtils;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 
@@ -56,8 +55,8 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
     private final String TAG = EditProfileActivity.class.getSimpleName();
 
-    private DevicePermissionManager mDevicePermissionManager;
-    private MessageManager mMessageManager;
+    private DevicePermissionUtils mDevicePermissionUtils;
+    private MessageUtils mMessageUtils;
 
 
     private int PICK_IMAGE_REQUEST = 1;
@@ -101,10 +100,10 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
         uploadReceiver = new SingleUploadBroadcastReceiver();
         mDialog = new ProgressDialog(this);
-        mDevicePermissionManager = new DevicePermissionManager(this);
-        mMessageManager = new MessageManager(this);
+        mDevicePermissionUtils = new DevicePermissionUtils(this);
+        mMessageUtils = new MessageUtils(this);
 
-        mDevicePermissionManager.handlePermissions();
+        mDevicePermissionUtils.handlePermissions();
 
         mContentLL = findViewById(R.id.ll_eaep_content_layout);
 
@@ -200,9 +199,9 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     }
 
     private void uploadPost(View view) {
-        if (!mDevicePermissionManager.hasAllPermissionsGranted()) {
-            mMessageManager.showShortToast("Permission Required");
-            mDevicePermissionManager.requestAllPermissions();
+        if (!mDevicePermissionUtils.hasAllPermissionsGranted()) {
+            mMessageUtils.showShortToast("Permission Required");
+            mDevicePermissionUtils.requestAllPermissions();
             return;
         }
         Intent intent = new Intent();

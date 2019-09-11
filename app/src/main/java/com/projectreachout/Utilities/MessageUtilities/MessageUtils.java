@@ -1,14 +1,12 @@
-package com.projectreachout.MessageManager;
+package com.projectreachout.Utilities.MessageUtilities;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.widget.Toast;
 
-public class MessageManager {
+public class MessageUtils {
     private Context mContext;
 
-    public MessageManager(Context context) {
+    public MessageUtils(Context context) {
         this.mContext = context;
     }
 

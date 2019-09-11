@@ -1,23 +1,16 @@
 package com.projectreachout.AddNewPost;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,21 +18,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.projectreachout.AppController;
 import com.projectreachout.ImageCompression.FileUtil;
 import com.projectreachout.ImageCompression.ImageCompression;
-import com.projectreachout.MessageManager.MessageManager;
-import com.projectreachout.PermissionManager.DevicePermissionManager;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
+import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
+import com.projectreachout.Utilities.PermissionUtilities.DevicePermissionUtils;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 
@@ -48,13 +35,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import static android.app.Activity.RESULT_OK;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
-import static com.projectreachout.ImagePicker.ImagePickerActivity.REQUEST_GALLERY_IMAGE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,8 +54,8 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
     //Image request code
     private int PICK_IMAGE_REQUEST = 1;
 
-    private DevicePermissionManager mDevicePermissionManager;
-    private MessageManager mMessageManager;
+    private DevicePermissionUtils mDevicePermissionUtils;
+    private MessageUtils mMessageUtils;
 
     private File mActualImage;
 
@@ -136,9 +121,9 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
 
         View rootView = inflater.inflate(R.layout.fragment_add_new_post, container, false);
 
-        mDevicePermissionManager = new DevicePermissionManager(getContext());
-        mMessageManager = new MessageManager(getContext());
-        mDevicePermissionManager.handlePermissions();
+        mDevicePermissionUtils = new DevicePermissionUtils(getContext());
+        mMessageUtils = new MessageUtils(getContext());
+        mDevicePermissionUtils.handlePermissions();
 
         uploadReceiver = new SingleUploadBroadcastReceiver();
 
@@ -212,9 +197,9 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
     }
 
     private void chooseImage(View view) {
-        if (!mDevicePermissionManager.hasAllPermissionsGranted()) {
-            mMessageManager.showShortToast("Permission Required");
-            mDevicePermissionManager.requestAllPermissions();
+        if (!mDevicePermissionUtils.hasAllPermissionsGranted()) {
+            mMessageUtils.showShortToast("Permission Required");
+            mDevicePermissionUtils.requestAllPermissions();
             return;
         }
         Intent intent = new Intent();
