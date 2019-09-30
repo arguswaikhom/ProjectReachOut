@@ -55,7 +55,6 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
     private int PICK_IMAGE_REQUEST = 1;
 
     private DevicePermissionUtils mDevicePermissionUtils;
-    private MessageUtils mMessageUtils;
 
     private File mActualImage;
 
@@ -122,7 +121,6 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
         View rootView = inflater.inflate(R.layout.fragment_add_new_post, container, false);
 
         mDevicePermissionUtils = new DevicePermissionUtils(getContext());
-        mMessageUtils = new MessageUtils(getContext());
         mDevicePermissionUtils.handlePermissions();
 
         uploadReceiver = new SingleUploadBroadcastReceiver();
@@ -198,7 +196,7 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
 
     private void chooseImage(View view) {
         if (!mDevicePermissionUtils.hasAllPermissionsGranted()) {
-            mMessageUtils.showShortToast("Permission Required");
+            MessageUtils.showShortToast(getContext(), "Permission Required");
             mDevicePermissionUtils.requestAllPermissions();
             return;
         }
