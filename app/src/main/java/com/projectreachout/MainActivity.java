@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,7 +39,7 @@ import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, FeedMainFragment.OnFragmentInteractionListener,
         AddNewPostFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
-        ExpendituresMainFragment.OnFragmentInteractionListener {
+        ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener{
 
     private FragmentManager mFragmentManager;
 
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity
 
     private Button mMyArticlesBtn;
     private Button mEditProfileBtn;
+
+    private ImageButton mShareAppLinkIB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +93,9 @@ public class MainActivity extends AppCompatActivity
         mEmailTV = mHeaderView.findViewById(R.id.tv_nhm_email);
         mMyArticlesBtn = mHeaderView.findViewById(R.id.btn_nhm_my_articles);
         mEditProfileBtn = mHeaderView.findViewById(R.id.btn_nhm_edit_profile);
+        mShareAppLinkIB = mHeaderView.findViewById(R.id.ib_nhm_share_app_link);
 
+        mShareAppLinkIB.setOnClickListener(this);
         mMyArticlesBtn.setOnClickListener(this::onClickedMyArticles);
         mEditProfileBtn.setOnClickListener(this::onClickedEditProfile);
     }
@@ -268,5 +273,25 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fl_abm_include, new ExpendituresMainFragment())
                 .commit();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.ib_nhm_share_app_link: {
+                shareAppLink();
+                break;
+            }
+        }
+    }
+
+    private void shareAppLink() {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_link));
+        sendIntent.setType("text/plain");
+
+        Intent shareIntent = Intent.createChooser(sendIntent, null);
+        startActivity(shareIntent);
     }
 }

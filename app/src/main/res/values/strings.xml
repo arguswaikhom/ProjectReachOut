@@ -41,4 +41,6 @@
     <string name="input_alphabets_no_space">qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM</string>
     <string name="input_alphanumeric_no_space">qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM0123456789</string>
 
+    <string name="app_link">https://play.google.com/store/apps/details?id=com.projectreachout</string>
+
 </resources>
