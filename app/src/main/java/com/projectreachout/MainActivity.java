@@ -44,16 +44,17 @@ import com.projectreachout.MyArticles.MyArticles;
 import com.projectreachout.PostFeed.FeedMainFragment;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 
+import static com.projectreachout.AppController.gUserType;
 import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
 import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
-import static com.projectreachout.AppController.gUserType;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, FeedMainFragment.OnFragmentInteractionListener,
         AddNewPostFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
-        ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener, InstallStateUpdatedListener, MessageUtils.OnSnackBarActionListener {
+        ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener, InstallStateUpdatedListener,
+        MessageUtils.OnSnackBarActionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity
         loadFragment(new FeedMainFragment(), FRAGMENT_HOME);
 
         gUserType = getIntent().getStringExtra(LoginActivity.USER_TYPE);
-        if(gUserType.equals(LoginActivity.AUTHORISED_USER)) {
+        if (gUserType.equals(LoginActivity.AUTHORISED_USER)) {
             implementDrawerLayout(toolbar);
             setUpNavView();
         }
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (gUserType.equals(LoginActivity.AUTHORISED_USER)){
+        if (gUserType.equals(LoginActivity.AUTHORISED_USER)) {
             login();
             displayUserDetails();
         }
@@ -378,10 +379,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onStateUpdate(InstallState installState) {
-        if (installState.installStatus() == InstallStatus.DOWNLOADED){
+        if (installState.installStatus() == InstallStatus.DOWNLOADED) {
             popupSnackBarForCompleteUpdate();
-        } else if (installState.installStatus() == InstallStatus.INSTALLED){
-            if (mAppUpdateManager != null){
+        } else if (installState.installStatus() == InstallStatus.INSTALLED) {
+            if (mAppUpdateManager != null) {
                 mAppUpdateManager.unregisterListener(this);
             }
         } else {
@@ -397,7 +398,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onActionBarClicked(View view, int requestCode) {
         if (requestCode == INSTALL_REQUEST_CODE) {
-            if (mAppUpdateManager != null){
+            if (mAppUpdateManager != null) {
                 mAppUpdateManager.completeUpdate();
             }
         }
