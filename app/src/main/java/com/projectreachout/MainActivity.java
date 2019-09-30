@@ -35,13 +35,12 @@ import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
 import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
+import static com.projectreachout.AppController.gUserType;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, FeedMainFragment.OnFragmentInteractionListener,
         AddNewPostFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
         ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener{
-
-    private String mUserType = "";
 
     private FragmentManager mFragmentManager;
 
@@ -69,8 +68,8 @@ public class MainActivity extends AppCompatActivity
 
         loadFragment(new FeedMainFragment(), FRAGMENT_HOME);
 
-        mUserType = getIntent().getStringExtra(LoginActivity.USER_TYPE);
-        if(mUserType.equals(LoginActivity.AUTHORISED_USER)) {
+        gUserType = getIntent().getStringExtra(LoginActivity.USER_TYPE);
+        if(gUserType.equals(LoginActivity.AUTHORISED_USER)) {
             implementDrawerLayout(toolbar);
             setUpNavView();
         }
@@ -162,7 +161,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (mUserType.equals(LoginActivity.AUTHORISED_USER)){
+        if (gUserType.equals(LoginActivity.AUTHORISED_USER)){
             login();
             displayUserDetails();
         }
@@ -183,7 +182,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (mUserType.equals(LoginActivity.GUEST_USER)) {
+        if (gUserType.equals(LoginActivity.GUEST_USER)) {
             getMenuInflater().inflate(R.menu.activity_main_option_menu, menu);
         }
         return true;
@@ -194,7 +193,7 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.amom_login: {
                 startActivity(new Intent(this, LoginActivity.class));
-                logOut();
+                finish();
             }
         }
         return super.onOptionsItemSelected(item);

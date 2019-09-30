@@ -22,6 +22,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.projectreachout.AppController;
+import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.R;
 
 import java.util.HashMap;
@@ -139,7 +140,9 @@ public class FeedListAdapter  extends BaseAdapter {
             feedImageView.setVisibility(View.GONE);
         }
 
-        if (item.getUsername().trim().equals(AppController.getInstance().getLoginUserUsername().trim())){
+        if (AppController.gUserType.equals(LoginActivity.GUEST_USER)) {
+            optionsImageButton.setVisibility(View.GONE);
+        }else if (item.getUsername().trim().equals(AppController.getInstance().getLoginUserUsername().trim())){
             optionsImageButton.setVisibility(View.VISIBLE);
         } else {
             optionsImageButton.setVisibility(View.GONE);
