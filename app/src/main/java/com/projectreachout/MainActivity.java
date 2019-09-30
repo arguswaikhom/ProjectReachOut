@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity
         AddNewPostFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
         ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener{
 
+    private String mUserType = "";
+
     private FragmentManager mFragmentManager;
 
     private View mHeaderView;
@@ -67,12 +69,22 @@ public class MainActivity extends AppCompatActivity
 
         loadFragment(new FeedMainFragment(), FRAGMENT_HOME);
 
+        mUserType = getIntent().getStringExtra(LoginActivity.USER_TYPE);
+        if(mUserType.equals(LoginActivity.AUTHORISED_USER)) {
+            implementDrawerLayout(toolbar);
+            setUpNavView();
+        }
+    }
+
+    private void implementDrawerLayout(Toolbar toolbar) {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+    }
 
+    private void setUpNavView() {
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -148,10 +160,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (mUserType.equals(LoginActivity.AUTHORISED_USER)){
+            login();
+            displayUserDetails();
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        login();
-        displayUserDetails();
     }
 
     private void login() {
@@ -164,25 +183,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-
-        // TODO: Implement menu when it is require
-        //getMenuInflater().inflate(R.menu.main, menu);
+        if (mUserType.equals(LoginActivity.GUEST_USER)) {
+            getMenuInflater().inflate(R.menu.activity_main_option_menu, menu);
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-       /* int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }*/
-
+        switch (item.getItemId()) {
+            case R.id.amom_login: {
+                startActivity(new Intent(this, LoginActivity.class));
+                logOut();
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -225,15 +239,18 @@ public class MainActivity extends AppCompatActivity
                 break;
             }
             case R.id.nav_logout: {
-                AppController.getInstance().logout();
-                startActivity(new Intent(this, LoginActivity.class));
-                finish();
-                break;
+                logOut();
             }
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void logOut() {
+        AppController.getInstance().logout();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
     @Override

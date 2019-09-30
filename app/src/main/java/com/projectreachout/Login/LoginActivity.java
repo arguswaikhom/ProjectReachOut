@@ -1,9 +1,7 @@
 package com.projectreachout.Login;
 
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
@@ -32,14 +30,20 @@ import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
+
+    public static final String USER_TYPE = "user_type";
+    public static final String GUEST_USER = "guest_user";
+    public static final String AUTHORISED_USER = "a_user";
 
     private EditText mUserNameET;
     private EditText mPassWordET;
 
     private Button mLoginIBtn;
+
+    private TextView mVisitAsGuestTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +63,10 @@ public class LoginActivity extends AppCompatActivity {
         mUserNameET = findViewById(R.id.et_al_username);
         mPassWordET = findViewById(R.id.et_al_password);
         mLoginIBtn = findViewById(R.id.ib_al_login);
+        mVisitAsGuestTV = findViewById(R.id.tv_lal_visit_as_guest);
 
-        mLoginIBtn.setOnClickListener(this::onClickedLogin);
+        mLoginIBtn.setOnClickListener(this);
+        mVisitAsGuestTV.setOnClickListener(this);
     }
 
     @Override
@@ -74,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
         login();
     }
 
-    private void onClickedLogin(View view) {
+    private void onClickedLogin() {
         String username = mUserNameET.getText().toString().trim();
         String password = mPassWordET.getText().toString().trim();
 
@@ -151,8 +157,25 @@ public class LoginActivity extends AppCompatActivity {
     private void login() {
         if (AppController.getInstance().isUserLogin()) {
             Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(USER_TYPE, AUTHORISED_USER);
             startActivity(intent);
             finish();
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_lal_visit_as_guest: {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra(USER_TYPE, GUEST_USER);
+                startActivity(intent);
+                finish();
+            }
+            case R.id.ib_al_login: {
+                onClickedLogin();
+                break;
+            }
         }
     }
 }
