@@ -56,8 +56,6 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     private final String TAG = EditProfileActivity.class.getSimpleName();
 
     private DevicePermissionUtils mDevicePermissionUtils;
-    private MessageUtils mMessageUtils;
-
 
     private int PICK_IMAGE_REQUEST = 1;
 
@@ -101,7 +99,6 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
         uploadReceiver = new SingleUploadBroadcastReceiver();
         mDialog = new ProgressDialog(this);
         mDevicePermissionUtils = new DevicePermissionUtils(this);
-        mMessageUtils = new MessageUtils(this);
 
         mDevicePermissionUtils.handlePermissions();
 
@@ -200,7 +197,7 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
     private void uploadPost(View view) {
         if (!mDevicePermissionUtils.hasAllPermissionsGranted()) {
-            mMessageUtils.showShortToast("Permission Required");
+            MessageUtils.showShortToast(this, "Permission Required");
             mDevicePermissionUtils.requestAllPermissions();
             return;
         }

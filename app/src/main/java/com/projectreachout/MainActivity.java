@@ -1,8 +1,10 @@
 package com.projectreachout;
 
 import android.content.Intent;
+import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,6 +14,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +25,15 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallState;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallStatus;
+import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.android.play.core.tasks.Task;
 import com.projectreachout.AddNewEvent.AddEventActivity;
 import com.projectreachout.AddNewPost.AddNewPostFragment;
 import com.projectreachout.EditProfile.EditProfileActivity;
@@ -30,6 +42,7 @@ import com.projectreachout.Event.Expenditures.ExpendituresMainFragment;
 import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.MyArticles.MyArticles;
 import com.projectreachout.PostFeed.FeedMainFragment;
+import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 
 import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
@@ -40,7 +53,9 @@ import static com.projectreachout.AppController.gUserType;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, FeedMainFragment.OnFragmentInteractionListener,
         AddNewPostFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
-        ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener{
+        ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener, InstallStateUpdatedListener, MessageUtils.OnSnackBarActionListener {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private FragmentManager mFragmentManager;
 
@@ -72,6 +87,25 @@ public class MainActivity extends AppCompatActivity
         if(gUserType.equals(LoginActivity.AUTHORISED_USER)) {
             implementDrawerLayout(toolbar);
             setUpNavView();
+        }
+
+        mAppUpdateManager = AppUpdateManagerFactory.create(this);
+        mAppUpdateManager.registerListener(this);
+        inAppUpdateUtil();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IN_APP_UPDATE_REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+                String msg = "Update flow failed! Result code: " + resultCode;
+                Log.v(TAG, msg);
+                MessageUtils.showShortToast(this, msg);
+
+                // If the update is cancelled or fails,
+                // you can request to start the update again.
+            }
         }
     }
 
@@ -170,6 +204,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        if (mAppUpdateManager != null) {
+            inAppUpdateUtil();
+        } else {
+            mAppUpdateManager = AppUpdateManagerFactory.create(this);
+            mAppUpdateManager.registerListener(this);
+            inAppUpdateUtil();
+        }
     }
 
     private void login() {
@@ -309,5 +350,56 @@ public class MainActivity extends AppCompatActivity
 
         Intent shareIntent = Intent.createChooser(sendIntent, null);
         startActivity(shareIntent);
+    }
+
+    // InAppUpdate
+    private final int INSTALL_REQUEST_CODE = 1;
+    private final int IN_APP_UPDATE_REQUEST_CODE = 100;
+    private AppUpdateManager mAppUpdateManager = null;
+
+    private void inAppUpdateUtil() {
+        Task<AppUpdateInfo> appUpdateInfoTask = mAppUpdateManager.getAppUpdateInfo();
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                requestUpdate(appUpdateInfo);
+            } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                popupSnackBarForCompleteUpdate();
+            }
+        });
+    }
+
+    private void requestUpdate(AppUpdateInfo appUpdateInfo) {
+        try {
+            mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE, this, IN_APP_UPDATE_REQUEST_CODE);
+        } catch (IntentSender.SendIntentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onStateUpdate(InstallState installState) {
+        if (installState.installStatus() == InstallStatus.DOWNLOADED){
+            popupSnackBarForCompleteUpdate();
+        } else if (installState.installStatus() == InstallStatus.INSTALLED){
+            if (mAppUpdateManager != null){
+                mAppUpdateManager.unregisterListener(this);
+            }
+        } else {
+            Log.i(TAG, "InstallStateUpdatedListener: state: " + installState.installStatus());
+        }
+    }
+
+    private void popupSnackBarForCompleteUpdate() {
+        View parentView = findViewById(android.R.id.content);
+        MessageUtils.showActionIndefiniteSnackBar(parentView, "New app is ready!!", "Install", INSTALL_REQUEST_CODE, this);
+    }
+
+    @Override
+    public void onActionBarClicked(View view, int requestCode) {
+        if (requestCode == INSTALL_REQUEST_CODE) {
+            if (mAppUpdateManager != null){
+                mAppUpdateManager.completeUpdate();
+            }
+        }
     }
 }
