@@ -103,24 +103,23 @@
                 android:background="@drawable/login_bg"
                 android:paddingStart="36dp"
                 android:paddingTop="16dp"
-                android:text="login"
-                android:textColor="@color/white"
                 android:paddingEnd="36dp"
                 android:paddingBottom="16dp"
-                android:src="@drawable/ic_play_arrow_black_24dp" />
-
+                android:src="@drawable/ic_play_arrow_black_24dp"
+                android:text="login"
+                android:textColor="@color/white" />
         </LinearLayout>
     </LinearLayout>
 
-    <com.projectreachout.customfonts.TextView_Roboto_Regular
-        android:id="@+id/tv_al_forgot_password"
+    <TextView
+        android:id="@+id/tv_lal_visit_as_guest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:text="Forgot password?"
-        android:textColor="@color/white"
-        android:visibility="gone" />
+        android:text="visit as guest.."
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="16sp" />
 </RelativeLayout>
