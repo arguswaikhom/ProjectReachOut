@@ -25,6 +25,7 @@ public class AppController extends Application {
     public static final String TAG_EMAIL = "email";
     public static final String TAG_PROFILE_PICTURE_URL = "profile_picture_url";
     public static final String TAG_ACCOUNT_TYPE = "account_type";
+    public static String gUserType = "";
 
     public static final int STORAGE_PERMISSION_CODE = 123;
 
