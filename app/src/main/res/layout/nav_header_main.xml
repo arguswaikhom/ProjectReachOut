@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="bottom"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageButton
+        android:id="@+id/ib_nhm_share_app_link"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginEnd="24dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_menu_share"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_nhm_user_profile_picture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_nhm_account_type"
+        app:layout_constraintVertical_bias="0.105" />
 
     <TextView
         android:id="@+id/tv_nhm_account_type"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="@dimen/text_view_gap"
+        android:layout_marginTop="44dp"
         android:gravity="center"
-        android:text="@string/account_type"
         android:textAllCaps="true"
         android:textColor="@android:color/background_dark"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/account_type"
         tools:textAppearance="?android:textAppearanceMedium" />
 
     <ImageView
@@ -31,61 +40,69 @@
         android:layout_width="124dp"
         android:layout_height="124dp"
         android:layout_gravity="center"
+        android:layout_marginTop="12dp"
         android:contentDescription="@string/nav_header_desc"
         android:gravity="center"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@drawable/ic_person_black_124dp" />
+        android:src="@drawable/ic_person_black_124dp"
+        app:layout_constraintEnd_toEndOf="@+id/tv_nhm_account_type"
+        app:layout_constraintStart_toStartOf="@+id/tv_nhm_account_type"
+        app:layout_constraintTop_toBottomOf="@+id/tv_nhm_account_type" />
+
 
     <TextView
         android:id="@+id/tv_nhm_username"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/text_view_gap"
-        android:layout_marginBottom="@dimen/text_view_gap"
+        android:layout_marginTop="12dp"
         android:gravity="center"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="@string/username"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/black"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/iv_nhm_user_profile_picture"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="@+id/iv_nhm_user_profile_picture"
+        app:layout_constraintTop_toBottomOf="@+id/iv_nhm_user_profile_picture" />
 
     <TextView
         android:id="@+id/tv_nhm_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/text_view_gap"
-        android:layout_marginBottom="@dimen/text_view_gap"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="@string/nav_header_subtitle"
-        android:textColor="@android:color/black" />
+        android:textColor="@android:color/black"
+        app:layout_constraintEnd_toEndOf="@+id/tv_nhm_username"
+        app:layout_constraintStart_toStartOf="@+id/tv_nhm_username"
+        app:layout_constraintTop_toBottomOf="@+id/tv_nhm_username" />
 
     <LinearLayout
+        android:layout_margin="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@+id/tv_nhm_email"
+        app:layout_constraintStart_toStartOf="@+id/tv_nhm_email"
+        app:layout_constraintTop_toBottomOf="@+id/tv_nhm_email">
 
         <Button
             android:id="@+id/btn_nhm_my_articles"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_weight="1"
-            android:text="@string/title_my_articles"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:text="@string/title_my_articles" />
 
         <Button
             android:id="@+id/btn_nhm_edit_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_weight="1"
-            android:text="Edit Profile"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:text="Edit Profile" />
     </LinearLayout>
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
