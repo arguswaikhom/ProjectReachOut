@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mAccountTypeTV;
     private TextView mUsernameTV;
     private TextView mEmailTV;
+    private TextView mUpdateAvailableTV;
 
     private ImageView mUserProfilePictureIV;
 
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity
     private Button mEditProfileBtn;
 
     private ImageButton mShareAppLinkIB;
+
+    private FrameLayout mUpdateAvailableFL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +100,6 @@ public class MainActivity extends AppCompatActivity
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
 
-        mAppUpdateManager = AppUpdateManagerFactory.create(this);
-        mAppUpdateManager.registerListener(this);
         inAppUpdateUtil();
     }
 
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == IN_APP_UPDATE_REQUEST_CODE) {
             if (resultCode != RESULT_OK) {
                 String msg = "Update flow failed! Result code: " + resultCode;
-                Log.v(TAG, msg);
+                Log.v(TAG, "inApp: " + msg);
                 MessageUtils.showShortToast(this, msg);
 
                 // If the update is cancelled or fails,
@@ -139,6 +141,10 @@ public class MainActivity extends AppCompatActivity
         mEditProfileBtn = mHeaderView.findViewById(R.id.btn_nhm_edit_profile);
         mShareAppLinkIB = mHeaderView.findViewById(R.id.ib_nhm_share_app_link);
 
+        mUpdateAvailableFL = mHeaderView.findViewById(R.id.fl_nhm_update_available);
+        mUpdateAvailableTV = mHeaderView.findViewById(R.id.tv_wbl_notice);
+
+        mUpdateAvailableTV.setOnClickListener(this);
         mShareAppLinkIB.setOnClickListener(this);
         mMyArticlesBtn.setOnClickListener(this::onClickedMyArticles);
         mEditProfileBtn.setOnClickListener(this::onClickedEditProfile);
@@ -198,18 +204,13 @@ public class MainActivity extends AppCompatActivity
             login();
             displayUserDetails();
         }
+//        Log.d(TAG, "inApp: manager onResume(): " + mAppUpdateManager);
+//        inAppUpdateUtil();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mAppUpdateManager != null) {
-            inAppUpdateUtil();
-        } else {
-            mAppUpdateManager = AppUpdateManagerFactory.create(this);
-            mAppUpdateManager.registerListener(this);
-            inAppUpdateUtil();
-        }
     }
 
     private void login() {
@@ -338,6 +339,10 @@ public class MainActivity extends AppCompatActivity
                 shareAppLink();
                 break;
             }
+            case R.id.tv_wbl_notice: {
+                inAppUpdateUtil();
+                break;
+            }
         }
     }
 
@@ -357,10 +362,19 @@ public class MainActivity extends AppCompatActivity
     private AppUpdateManager mAppUpdateManager = null;
 
     private void inAppUpdateUtil() {
+        Log.d(TAG, "inApp: inAppUpdateUtil()");
+        mAppUpdateManager = AppUpdateManagerFactory.create(this);
+        mAppUpdateManager.registerListener(this);
         Task<AppUpdateInfo> appUpdateInfoTask = mAppUpdateManager.getAppUpdateInfo();
         appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
                 requestUpdate(appUpdateInfo);
+                Log.d(TAG, "inApp: inAppUpdateUtil() -> Update Available");
+
+                if(AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER){
+                    mUpdateAvailableFL.setVisibility(View.VISIBLE);
+                    mUpdateAvailableTV.setText("New update available!! Click here to update..");
+                }
             } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                 popupSnackBarForCompleteUpdate();
             }
@@ -368,6 +382,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void requestUpdate(AppUpdateInfo appUpdateInfo) {
+        Log.d(TAG, "inApp: requestUpdate()");
         try {
             mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE, this, IN_APP_UPDATE_REQUEST_CODE);
         } catch (IntentSender.SendIntentException e) {
@@ -380,6 +395,9 @@ public class MainActivity extends AppCompatActivity
         if (installState.installStatus() == InstallStatus.DOWNLOADED) {
             popupSnackBarForCompleteUpdate();
         } else if (installState.installStatus() == InstallStatus.INSTALLED) {
+            Log.d(TAG, "inApp: installed");
+            Log.d(TAG, "inApp: manager: " + mAppUpdateManager);
+
             if (mAppUpdateManager != null) {
                 mAppUpdateManager.unregisterListener(this);
             }
@@ -389,12 +407,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void popupSnackBarForCompleteUpdate() {
+        Log.d(TAG, "inApp: popupSnackBarForCompleteUpdate()");
+
         View parentView = findViewById(android.R.id.content);
         MessageUtils.showActionIndefiniteSnackBar(parentView, "New app is ready!!", "Install", INSTALL_REQUEST_CODE, this);
     }
 
     @Override
     public void onActionBarClicked(View view, int requestCode) {
+        Log.d(TAG, "inApp: onActionBarClicked()");
+
         if (requestCode == INSTALL_REQUEST_CODE) {
             if (mAppUpdateManager != null) {
                 mAppUpdateManager.completeUpdate();
