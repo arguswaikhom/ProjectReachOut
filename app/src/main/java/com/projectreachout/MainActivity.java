@@ -44,7 +44,6 @@ import com.projectreachout.MyArticles.MyArticles;
 import com.projectreachout.PostFeed.FeedMainFragment;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 
-import static com.projectreachout.AppController.gUserType;
 import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
@@ -84,10 +83,17 @@ public class MainActivity extends AppCompatActivity
 
         loadFragment(new FeedMainFragment(), FRAGMENT_HOME);
 
-        gUserType = getIntent().getStringExtra(LoginActivity.USER_TYPE);
-        if (gUserType.equals(LoginActivity.AUTHORISED_USER)) {
-            implementDrawerLayout(toolbar);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
             setUpNavView();
+        } else {
+            toggle.setDrawerIndicatorEnabled(false);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
 
         mAppUpdateManager = AppUpdateManagerFactory.create(this);
@@ -108,14 +114,6 @@ public class MainActivity extends AppCompatActivity
                 // you can request to start the update again.
             }
         }
-    }
-
-    private void implementDrawerLayout(Toolbar toolbar) {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
     }
 
     private void setUpNavView() {
@@ -196,7 +194,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (gUserType.equals(LoginActivity.AUTHORISED_USER)) {
+        if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
             login();
             displayUserDetails();
         }
@@ -224,7 +222,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (gUserType.equals(LoginActivity.GUEST_USER)) {
+        if (AppController.getInstance().getUserType() == LoginActivity.GUEST_USER) {
             getMenuInflater().inflate(R.menu.activity_main_option_menu, menu);
         }
         return true;

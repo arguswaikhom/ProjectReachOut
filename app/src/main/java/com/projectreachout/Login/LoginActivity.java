@@ -35,8 +35,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     public static final String USER_TYPE = "user_type";
-    public static final String GUEST_USER = "guest_user";
-    public static final String AUTHORISED_USER = "a_user";
+    public static final int GUEST_USER = 0;
+    public static final int AUTHORISED_USER = 1;
 
     private EditText mUserNameET;
     private EditText mPassWordET;
@@ -157,7 +157,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void login() {
         if (AppController.getInstance().isUserLogin()) {
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(USER_TYPE, AUTHORISED_USER);
+            AppController.getInstance().setUserType(AUTHORISED_USER);
             startActivity(intent);
             finish();
         }
@@ -168,7 +168,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (view.getId()) {
             case R.id.tv_lal_visit_as_guest: {
                 Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra(USER_TYPE, GUEST_USER);
+                AppController.getInstance().setUserType(GUEST_USER);
                 startActivity(intent);
                 finish();
             }

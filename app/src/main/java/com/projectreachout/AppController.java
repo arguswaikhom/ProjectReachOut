@@ -12,6 +12,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.projectreachout.Login.LoginActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,6 @@ public class AppController extends Application {
     public static final String TAG_EMAIL = "email";
     public static final String TAG_PROFILE_PICTURE_URL = "profile_picture_url";
     public static final String TAG_ACCOUNT_TYPE = "account_type";
-    public static String gUserType = "";
 
     public static final int STORAGE_PERMISSION_CODE = 123;
 
@@ -106,6 +106,17 @@ public class AppController extends Application {
         editor.putString(TAG_PROFILE_PICTURE_URL, profile_picture_url);
         editor.putString(TAG_ACCOUNT_TYPE, accountType);
         editor.apply();
+    }
+
+    public void setUserType(int userType) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putInt(LoginActivity.USER_TYPE, userType);
+        editor.apply();
+    }
+
+    public int getUserType() {
+        SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
+        return sharedPreferences.getInt(LoginActivity.USER_TYPE, LoginActivity.GUEST_USER);
     }
 
     public boolean isUserLogin() {

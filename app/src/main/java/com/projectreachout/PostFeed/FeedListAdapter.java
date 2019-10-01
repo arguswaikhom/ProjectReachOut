@@ -140,7 +140,7 @@ public class FeedListAdapter  extends BaseAdapter {
             feedImageView.setVisibility(View.GONE);
         }
 
-        if (AppController.gUserType.equals(LoginActivity.GUEST_USER)) {
+        if (AppController.getInstance().getUserType() != LoginActivity.AUTHORISED_USER) {
             optionsImageButton.setVisibility(View.GONE);
         }else if (item.getUsername().trim().equals(AppController.getInstance().getLoginUserUsername().trim())){
             optionsImageButton.setVisibility(View.VISIBLE);
