@@ -31,16 +31,19 @@
     <string name="go_to_settings">GOTO SETTINGS</string>
 
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_select_people">Select Organizers</string>
     <string name="title_activity_edit_profile">Edit Profile</string>
     <string name="title_activity_change_password">Change Password</string>
-
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
 
     <string name="input_alphabets_no_space">qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM</string>
     <string name="input_alphanumeric_no_space">qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM0123456789</string>
 
     <string name="app_link">https://play.google.com/store/apps/details?id=com.projectreachout</string>
+
+    <!--Notification Contents-->
+    <string name="notification_title_new_article">New Article</string>
+    <string name="notification_title_new_event">New Event</string>
+    <string name="notification_body_new_article">You have new article available you haven\'t seen</string>
+    <string name="notification_body_new_event">You have a new event coming up</string>
 
 </resources>
