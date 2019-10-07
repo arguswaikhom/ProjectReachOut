@@ -1,9 +1,10 @@
 package com.projectreachout.Utilities.MessageUtilities;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 public class MessageUtils {
     public interface OnSnackBarActionListener {

@@ -3,9 +3,6 @@ package com.projectreachout.PostFeed;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +11,18 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.material.snackbar.Snackbar;
 import com.projectreachout.AppController;
 import com.projectreachout.R;
+import com.projectreachout.Utilities.BackgroundSyncUtilities.BackgoundServerChecker;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -93,6 +95,12 @@ public class FeedMainFragment extends Fragment{
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        BackgoundServerChecker.backgroundCheck(BackgoundServerChecker.ACTION_ARTICLE_ONLY);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
     }
@@ -100,8 +108,6 @@ public class FeedMainFragment extends Fragment{
     public final String LOG_TAG_FMF = FeedMainFragment.class.getSimpleName();
 
     public static FeedListAdapter mFeedListAdapter;
-
-    //private FeedAdapter mFeedAdapter;
 
     public static List<FeedItem> mFeedItemList;
     private LinearLayout mErrorMessageLayout;
@@ -125,9 +131,6 @@ public class FeedMainFragment extends Fragment{
 
         mFeedListAdapter = new FeedListAdapter(getActivity(), mFeedItemList);
         listView.setAdapter(mFeedListAdapter);
-
-        /*mFeedAdapter = new FeedAdapter(getContext() , R.layout.pf_feed_item, mFeedItemListMyArticles);
-        listView.setAdapter(mFeedAdapter);*/
 
         loadData(REFRESH);
 
@@ -240,11 +243,8 @@ public class FeedMainFragment extends Fragment{
             Log.v(LOG_TAG_FMF, string);
 
             mFeedItemList.add(item);
-
-            //mFeedAdapter.add(item);
         }
         mFeedListAdapter.notifyDataSetChanged();
-        //mFeedAdapter.notifyDataSetChanged();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

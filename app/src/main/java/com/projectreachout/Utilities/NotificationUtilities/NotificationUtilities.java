@@ -3,11 +3,15 @@ package com.projectreachout.Utilities.NotificationUtilities;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+
+import com.projectreachout.MainActivity;
 import com.projectreachout.R;
 
 public class NotificationUtilities {
@@ -17,6 +21,8 @@ public class NotificationUtilities {
     private static final String NOTIFICATION_CHANNEL_ID_NEW_MY_EVENT = "new_my_event_notification_channel";
     private static final String NOTIFICATION_CHANNEL_NAME_ARTICLES = "Articles";
     private static final String NOTIFICATION_CHANNEL_NAME_EVENTS = "Events";
+    private static final int PENDING_INTENT_ID_ARTICLES = 1024;
+    private static final int PENDING_INTENT_ID_MY_EVENTS = 2014;
 
     public static void showNewArticleNotification(Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -31,14 +37,15 @@ public class NotificationUtilities {
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 .setSmallIcon(R.mipmap.ic_launcher_foreground_pro_image)
                 .setContentTitle(context.getString(R.string.notification_title_new_article))
-                //.setContentText(context.getString(R.string.charging_reminder_notification_body))
+                .setContentText(context.getString(R.string.notification_body_new_article))
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notification_body_new_article)))
                 .setDefaults(Notification.DEFAULT_VIBRATE)
-                /*.setContentIntent(contentIntent(context))
-                .addAction(drinkWaterAction(context))
-                .addAction(ignoreReminderAction(context))*/
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                .setContentIntent(contentIntent(context, MainActivity.class, PENDING_INTENT_ID_ARTICLES))
+                .setAutoCancel(true);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        }
         notificationManager.notify(NOTIFICATION_ID_NEW_ARTICLE, notificationBuilder.build());
     }
 
@@ -55,15 +62,24 @@ public class NotificationUtilities {
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 .setSmallIcon(R.mipmap.ic_launcher_foreground_pro_image)
                 .setContentTitle(context.getString(R.string.notification_title_new_event))
-                //.setContentText(context.getString(R.string.charging_reminder_notification_body))
+                .setContentText(context.getString(R.string.notification_body_new_event))
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(context.getString(R.string.notification_body_new_event)))
-                .setDefaults(Notification.DEFAULT_VIBRATE)
-                /*.setContentIntent(contentIntent(context))
-                .addAction(drinkWaterAction(context))
-                .addAction(ignoreReminderAction(context))*/
+                .setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_ALL)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                .setContentIntent(contentIntent(context, MainActivity.class, PENDING_INTENT_ID_MY_EVENTS));
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        }
         notificationManager.notify(NOTIFICATION_ID_NEW_MY_EVENT, notificationBuilder.build());
+    }
+
+    private static PendingIntent contentIntent(Context context, Class<?> activityClass, int intentID) {
+        Intent startActivityIntent = new Intent(context, activityClass);
+        return PendingIntent.getActivity(
+                context,
+                intentID,
+                startActivityIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public static void clearAllNotifications(Context context) {

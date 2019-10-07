@@ -3,10 +3,6 @@ package com.projectreachout.Event;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,13 +11,19 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.projectreachout.AppController;
 import com.projectreachout.R;
+import com.projectreachout.Utilities.BackgroundSyncUtilities.BackgoundServerChecker;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -101,6 +103,12 @@ public class EventMainFragment extends Fragment{
         mRetryBtn.setOnClickListener(v -> loadData(REFRESH));
 
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        BackgoundServerChecker.backgroundCheck(BackgoundServerChecker.ACTION_MY_EVENT_ONLY);
     }
 
     private void loadData(int action) {
