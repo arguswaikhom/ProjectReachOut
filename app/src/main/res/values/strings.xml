@@ -43,7 +43,7 @@
     <!--Notification Contents-->
     <string name="notification_title_new_article">New Article</string>
     <string name="notification_title_new_event">New Event</string>
-    <string name="notification_body_new_article">You have new article available you haven\'t seen</string>
-    <string name="notification_body_new_event">You have a new event coming up</string>
+    <string name="notification_body_new_article">You have some new articles available you haven\'t seen</string>
+    <string name="notification_body_new_event">You have a new event around the corner and you might not want to miss it</string>
 
 </resources>

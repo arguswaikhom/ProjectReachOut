@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 
-public class TextView_break_bold extends android.support.v7.widget.AppCompatTextView {
+public class TextView_break_bold extends androidx.appcompat.widget.AppCompatTextView {
 
     public TextView_break_bold(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);

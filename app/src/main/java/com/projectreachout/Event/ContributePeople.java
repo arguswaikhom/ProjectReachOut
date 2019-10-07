@@ -1,6 +1,6 @@
 package com.projectreachout.Event;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class ContributePeople {
     private int user_id;

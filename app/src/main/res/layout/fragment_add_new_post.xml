@@ -33,11 +33,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@drawable/bg_button_with_ripples"
+                android:background="@drawable/bg_custom_button_ripples"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:text="@string/choose_picture"
-                android:textColor="@color/white" />
+                android:textColor="@color/colorPrimary" />
 
 
             <EditText
@@ -65,8 +65,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@drawable/bg_button_with_ripples"
+            android:background="@drawable/bg_custom_button_ripples"
             android:text="Submit"
-            android:textColor="@color/white" />
+            android:textColor="@color/colorPrimary" />
     </LinearLayout>
 </ScrollView>
