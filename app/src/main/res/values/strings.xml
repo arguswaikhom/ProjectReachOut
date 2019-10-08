@@ -20,7 +20,7 @@
 
     <string name="dummy_text">Some text will be displayed here.</string>
 
-    <!-- AddNewPostFragment -->
+    <!-- AddNewArticleFragment -->
     <string name="choose_picture">Choose Picture</string>
     <string name="lbl_set_profile_photo">Set profile image</string>
     <string name="lbl_take_camera_picture">Take a picture</string>

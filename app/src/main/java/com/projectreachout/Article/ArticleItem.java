@@ -1,6 +1,6 @@
-package com.projectreachout.PostFeed;
+package com.projectreachout.Article;
 
-public class FeedItem {
+public class ArticleItem {
 
     private int id;
     private String team_name;
@@ -10,11 +10,11 @@ public class FeedItem {
     private String image_url;
     private String description;
 
-    public FeedItem() {
+    public ArticleItem() {
     }
 
-    public FeedItem(int id, String team_name, String username, String time_stamp,
-                    String profile_picture_url, String image_url, String description) {
+    public ArticleItem(int id, String team_name, String username, String time_stamp,
+                       String profile_picture_url, String image_url, String description) {
         this.id = id;
         this.team_name = team_name;
         this.username = username;

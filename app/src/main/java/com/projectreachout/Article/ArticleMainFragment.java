@@ -1,4 +1,4 @@
-package com.projectreachout.PostFeed;
+package com.projectreachout.Article;
 
 import android.content.Context;
 import android.net.Uri;
@@ -24,13 +24,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-public class FeedMainFragment extends Fragment implements OnServerRequestResponse, AbsListView.OnScrollListener {
-    private static final String TAG = FeedMainFragment.class.getSimpleName();
+public class ArticleMainFragment extends Fragment implements OnServerRequestResponse, AbsListView.OnScrollListener {
+    private static final String TAG = ArticleMainFragment.class.getSimpleName();
 
     private OnFragmentInteractionListener mListener;
-    public static FeedListAdapter mFeedListAdapter;
+    public static ArticleListAdapter mArticleListAdapter;
 
-    public static List<FeedItem> mFeedItemList;
+    public static List<ArticleItem> mArticleItemList;
     private LinearLayout mErrorMessageLayout;
     private Button mRetryBtn;
 
@@ -38,7 +38,7 @@ public class FeedMainFragment extends Fragment implements OnServerRequestRespons
     private View mListViewProgressBarFooterView;
     private ListView mListView;
 
-    public FeedMainFragment() {
+    public ArticleMainFragment() {
     }
 
     @Override
@@ -69,10 +69,10 @@ public class FeedMainFragment extends Fragment implements OnServerRequestRespons
         mRetryBtn = rootView.findViewById(R.id.btn_nel_retry);
         mListViewProgressBarFooterView = LayoutInflater.from(getContext()).inflate(R.layout.footer_progress_bar_layout, mListView, false);
 
-        mFeedItemList = new ArrayList<>();
+        mArticleItemList = new ArrayList<>();
 
-        mFeedListAdapter = new FeedListAdapter(getActivity(), mFeedItemList);
-        mListView.setAdapter(mFeedListAdapter);
+        mArticleListAdapter = new ArticleListAdapter(getActivity(), mArticleItemList);
+        mListView.setAdapter(mArticleListAdapter);
 
         GetArticleHandler.loadArticles(this, GetArticleHandler.REFRESH, GetArticleHandler.REFRESH_VALUE);
         mListView.setOnScrollListener(this);
@@ -80,11 +80,11 @@ public class FeedMainFragment extends Fragment implements OnServerRequestRespons
     }
 
     private int getLastVisibleArticleID() {
-        return mFeedItemList.get(mFeedItemList.size() - 1).getId();
+        return mArticleItemList.get(mArticleItemList.size() - 1).getId();
     }
 
     private void displayErrorMessage() {
-        if (mFeedListAdapter.isEmpty()) {
+        if (mArticleListAdapter.isEmpty()) {
             mErrorMessageLayout.setVisibility(View.VISIBLE);
         } else {
             String errorMessage = "Couldn't update information from server...";
@@ -121,12 +121,12 @@ public class FeedMainFragment extends Fragment implements OnServerRequestRespons
             return;
         }
         if (responseCode == GetArticleHandler.REFRESH) {
-            mFeedItemList.clear();
-            mFeedItemList.addAll((Collection<? extends FeedItem>) response);
+            mArticleItemList.clear();
+            mArticleItemList.addAll((Collection<? extends ArticleItem>) response);
         } else if (responseCode == GetArticleHandler.LOAD_MORE) {
-            mFeedItemList.addAll((Collection<? extends FeedItem>) response);
+            mArticleItemList.addAll((Collection<? extends ArticleItem>) response);
         }
-        mFeedListAdapter.notifyDataSetChanged();
+        mArticleListAdapter.notifyDataSetChanged();
         mListView.removeFooterView(mListViewProgressBarFooterView);
         hasLockedLoadMore = false;
     }
