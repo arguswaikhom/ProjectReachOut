@@ -1,4 +1,4 @@
-package com.projectreachout.ImageCompression;
+package com.projectreachout.Utilities.ImageCompressionUtilities;
 
 import android.content.Context;
 import android.database.Cursor;

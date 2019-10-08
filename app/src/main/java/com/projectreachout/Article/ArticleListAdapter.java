@@ -1,4 +1,4 @@
-package com.projectreachout.PostFeed;
+package com.projectreachout.Article;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,35 +34,35 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.projectreachout.GeneralStatic.getDateTime;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
-import static com.projectreachout.MyArticles.MyArticles.mFeedItemListMyArticles;
-import static com.projectreachout.MyArticles.MyArticles.mFeedListAdapterMyArticles;
-import static com.projectreachout.PostFeed.FeedMainFragment.mFeedItemList;
-import static com.projectreachout.PostFeed.FeedMainFragment.mFeedListAdapter;
+import static com.projectreachout.MyArticles.MyArticles.mArticleItemListMyArticles;
+import static com.projectreachout.MyArticles.MyArticles.mArticleListAdapterMyArticles;
+import static com.projectreachout.Article.ArticleMainFragment.mArticleItemList;
+import static com.projectreachout.Article.ArticleMainFragment.mArticleListAdapter;
 
-public class FeedListAdapter  extends BaseAdapter {
+public class ArticleListAdapter extends BaseAdapter {
 
-    public static final String LOG_TAG_FLA = FeedListAdapter.class.getSimpleName();
+    public static final String LOG_TAG_FLA = ArticleListAdapter.class.getSimpleName();
 
     private Activity activity;
     private LayoutInflater inflater;
-    private List<FeedItem> feedItems;
+    private List<ArticleItem> articleItems;
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
-    public FeedListAdapter(Activity activity, List<FeedItem> feedItems) {
+    public ArticleListAdapter(Activity activity, List<ArticleItem> articleItems) {
         this.activity = activity;
-        this.feedItems = feedItems;
+        this.articleItems = articleItems;
     }
 
 
 
     @Override
     public int getCount() {
-        return feedItems.size();
+        return articleItems.size();
     }
 
     @Override
     public Object getItem(int location) {
-        return feedItems.get(location);
+        return articleItems.get(location);
     }
 
     @Override
@@ -84,10 +84,10 @@ public class FeedListAdapter  extends BaseAdapter {
         TextView userName = convertView.findViewById(R.id.tv_pfi_username);
         TextView timeStamp = convertView.findViewById(R.id.tv_pfi_time_stamp);
         TextView description = convertView.findViewById(R.id.tv_pfi_description);
-        FeedImageView feedImageView = convertView.findViewById(R.id.iv_pfi_post_image);
+        ArticleImageView articleImageView = convertView.findViewById(R.id.iv_pfi_post_image);
         ImageButton optionsImageButton = convertView.findViewById(R.id.ibtn_pfi_overflow_button);
 
-        final FeedItem item = feedItems.get(position);
+        final ArticleItem item = articleItems.get(position);
 
         teamName.setText(item.getTeam_name());
 
@@ -125,9 +125,9 @@ public class FeedListAdapter  extends BaseAdapter {
 
         // Feed image
         if (item.getImage_url() != null) {
-            feedImageView.setImageUrl(item.getImage_url(), imageLoader);
-            feedImageView.setVisibility(View.VISIBLE);
-            feedImageView.setResponseObserver(new FeedImageView.ResponseObserver() {
+            articleImageView.setImageUrl(item.getImage_url(), imageLoader);
+            articleImageView.setVisibility(View.VISIBLE);
+            articleImageView.setResponseObserver(new ArticleImageView.ResponseObserver() {
                 @Override
                 public void onError() {
                 }
@@ -138,7 +138,7 @@ public class FeedListAdapter  extends BaseAdapter {
                 }
             });
         } else {
-            feedImageView.setVisibility(View.GONE);
+            articleImageView.setVisibility(View.GONE);
         }
 
         if (AppController.getInstance().getUserType() != LoginActivity.AUTHORISED_USER) {
@@ -154,7 +154,7 @@ public class FeedListAdapter  extends BaseAdapter {
         return convertView;
     }
 
-    private void showPopupMenu(View view, FeedItem item, int position) {
+    private void showPopupMenu(View view, ArticleItem item, int position) {
 
         PopupMenu popup = new PopupMenu(view.getContext(), view);
         popup.inflate(R.menu.evn_eei_popup_menu);
@@ -189,10 +189,10 @@ public class FeedListAdapter  extends BaseAdapter {
             @Override
             public void onResponse(String response) {
                 if (response != null) {
-                    if (mFeedItemList != null) mFeedItemList.remove(position);
-                    if (mFeedListAdapter != null) mFeedListAdapter.notifyDataSetChanged();
-                    if (mFeedItemListMyArticles != null) mFeedItemListMyArticles.remove(position);
-                    if (mFeedListAdapterMyArticles != null) mFeedListAdapterMyArticles.notifyDataSetChanged();
+                    if (mArticleItemList != null) mArticleItemList.remove(position);
+                    if (mArticleListAdapter != null) mArticleListAdapter.notifyDataSetChanged();
+                    if (mArticleItemListMyArticles != null) mArticleItemListMyArticles.remove(position);
+                    if (mArticleListAdapterMyArticles != null) mArticleListAdapterMyArticles.notifyDataSetChanged();
                     Log.d(LOG_TAG_FLA, response);
                 }
             }

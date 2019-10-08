@@ -1,12 +1,9 @@
-package com.projectreachout.PostFeed;
+package com.projectreachout.Article;
 
 import android.util.Log;
-import android.view.View;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.projectreachout.AppController;
 import com.projectreachout.Utilities.CallbackUtilities.OnServerRequestResponse;
@@ -54,7 +51,7 @@ public class GetArticleHandler {
     }
 
     private static void parseJsonFeed(OnServerRequestResponse responseInterface, int action, JSONArray response) {
-        List<FeedItem> feedItems = new ArrayList<>();
+        List<ArticleItem> articleItems = new ArrayList<>();
         for (int i = 0; i < response.length(); i++) {
             JSONObject feedObj = JSONParsingObjectFromArray(response, i);
             String url = getDomainUrl();
@@ -67,7 +64,7 @@ public class GetArticleHandler {
             String imageUrl = JSONParsingStringFromObject(feedObj, "image");
             String description = JSONParsingStringFromObject(feedObj, "desc");
 
-            FeedItem item = new FeedItem();
+            ArticleItem item = new ArticleItem();
 
             item.setId(id);
             item.setTeam_name(teamName);
@@ -81,8 +78,8 @@ public class GetArticleHandler {
 
             Log.v(TAG, id + "\n");
 
-            feedItems.add(item);
+            articleItems.add(item);
         }
-        responseInterface.onSuccess(action, feedItems, null );
+        responseInterface.onSuccess(action, articleItems, null );
     }
 }

@@ -16,8 +16,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.snackbar.Snackbar;
 import com.projectreachout.AppController;
-import com.projectreachout.PostFeed.FeedItem;
-import com.projectreachout.PostFeed.FeedListAdapter;
+import com.projectreachout.Article.ArticleItem;
+import com.projectreachout.Article.ArticleListAdapter;
 import com.projectreachout.R;
 
 import org.json.JSONArray;
@@ -38,11 +38,11 @@ import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class MyArticles extends AppCompatActivity {
 
-    public static FeedListAdapter mFeedListAdapterMyArticles;
+    public static ArticleListAdapter mArticleListAdapterMyArticles;
 
     private View mParentLayout;
 
-    public static List<FeedItem> mFeedItemListMyArticles;
+    public static List<ArticleItem> mArticleItemListMyArticles;
     private LinearLayout mErrorMessageLayout;
     private Button mRetryBtn;
 
@@ -63,10 +63,10 @@ public class MyArticles extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        mFeedItemListMyArticles = new ArrayList<>();
+        mArticleItemListMyArticles = new ArrayList<>();
 
-        mFeedListAdapterMyArticles = new FeedListAdapter(this, mFeedItemListMyArticles);
-        listView.setAdapter(mFeedListAdapterMyArticles);
+        mArticleListAdapterMyArticles = new ArticleListAdapter(this, mArticleItemListMyArticles);
+        listView.setAdapter(mArticleListAdapterMyArticles);
 
         loadData(REFRESH);
 
@@ -132,7 +132,7 @@ public class MyArticles extends AppCompatActivity {
     }
 
     private void displayErrorMessage() {
-        if (mFeedListAdapterMyArticles.isEmpty()) {
+        if (mArticleListAdapterMyArticles.isEmpty()) {
             mErrorMessageLayout.setVisibility(View.VISIBLE);
         } else {
             String errorMessage = "Couldn't update information from server...";
@@ -146,7 +146,7 @@ public class MyArticles extends AppCompatActivity {
     }
 
     private void parseJsonFeed(JSONArray response) {
-        mFeedItemListMyArticles.clear();
+        mArticleItemListMyArticles.clear();
         for (int i = response.length()-1; i >= 0; i--) {
             JSONObject feedObj = JSONParsingObjectFromArray(response, i);
 
@@ -166,7 +166,7 @@ public class MyArticles extends AppCompatActivity {
             String imageUrl = JSONParsingStringFromObject(feedObj, "image");
             String description = JSONParsingStringFromObject(feedObj, "desc");
 
-            FeedItem item = new FeedItem();
+            ArticleItem item = new ArticleItem();
 
             item.setId(id);
             item.setTeam_name(teamName);
@@ -178,9 +178,9 @@ public class MyArticles extends AppCompatActivity {
 
             item.setDescription(description);
 
-            mFeedItemListMyArticles.add(item);
+            mArticleItemListMyArticles.add(item);
         }
-        mFeedListAdapterMyArticles.notifyDataSetChanged();
+        mArticleListAdapterMyArticles.notifyDataSetChanged();
     }
 
     @Override

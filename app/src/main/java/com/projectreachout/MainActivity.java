@@ -37,13 +37,13 @@ import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 import com.projectreachout.AddNewEvent.AddEventActivity;
-import com.projectreachout.AddNewPost.AddNewPostFragment;
+import com.projectreachout.AddNewArticle.AddNewArticleFragment;
 import com.projectreachout.EditProfile.EditProfileActivity;
 import com.projectreachout.Event.EventMainFragment;
 import com.projectreachout.Event.Expenditures.ExpendituresMainFragment;
 import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.MyArticles.MyArticles;
-import com.projectreachout.PostFeed.FeedMainFragment;
+import com.projectreachout.Article.ArticleMainFragment;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NotificationUtilities.NotificationUtilities;
 
@@ -53,8 +53,8 @@ import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
 import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FeedMainFragment.OnFragmentInteractionListener,
-        AddNewPostFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
+        implements NavigationView.OnNavigationItemSelectedListener, ArticleMainFragment.OnFragmentInteractionListener,
+        AddNewArticleFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
         ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener, InstallStateUpdatedListener,
         MessageUtils.OnSnackBarActionListener {
 
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
 
         mFragmentManager = getSupportFragmentManager();
 
-        loadFragment(new FeedMainFragment(), FRAGMENT_HOME);
+        loadFragment(new ArticleMainFragment(), FRAGMENT_HOME);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else if (hasBackStack) {
             hasBackStack = false;
-            loadFragment(new FeedMainFragment(), FRAGMENT_HOME);
+            loadFragment(new ArticleMainFragment(), FRAGMENT_HOME);
         } else {
             finish();
         }
@@ -250,12 +250,12 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.nav_home: {
                 hasBackStack = false;
-                loadFragment(new FeedMainFragment(), FRAGMENT_HOME);
+                loadFragment(new ArticleMainFragment(), FRAGMENT_HOME);
                 break;
             }
             case R.id.nav_add_article: {
                 hasBackStack = true;
-                loadFragment(new AddNewPostFragment(), FRAGMENT_ADD_POST);
+                loadFragment(new AddNewArticleFragment(), FRAGMENT_ADD_POST);
                 break;
             }
             case R.id.nav_my_events: {
@@ -311,13 +311,13 @@ public class MainActivity extends AppCompatActivity
 
     private void inflateFeedMainFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new FeedMainFragment())
+                .replace(R.id.fl_abm_include, new ArticleMainFragment())
                 .commit();
     }
 
     private void inflateAddNewPostFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new AddNewPostFragment())
+                .replace(R.id.fl_abm_include, new AddNewArticleFragment())
                 .commit();
     }
 
