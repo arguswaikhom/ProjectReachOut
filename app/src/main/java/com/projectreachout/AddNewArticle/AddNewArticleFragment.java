@@ -1,4 +1,4 @@
-package com.projectreachout.AddNewPost;
+package com.projectreachout.AddNewArticle;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -22,8 +22,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.projectreachout.AppController;
-import com.projectreachout.ImageCompression.FileUtil;
-import com.projectreachout.ImageCompression.ImageCompression;
+import com.projectreachout.Utilities.ImageCompressionUtilities.FileUtil;
+import com.projectreachout.Utilities.ImageCompressionUtilities.ImageCompression;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
@@ -45,13 +45,13 @@ import static com.projectreachout.GeneralStatic.getDomainUrl;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link AddNewPostFragment.OnFragmentInteractionListener} interface
+ * {@link AddNewArticleFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link AddNewPostFragment#newInstance} factory method to
+ * Use the {@link AddNewArticleFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 
-public class AddNewPostFragment extends Fragment implements SingleUploadBroadcastReceiver.Delegate {
+public class AddNewArticleFragment extends Fragment implements SingleUploadBroadcastReceiver.Delegate {
     //Image request code
     private int PICK_IMAGE_REQUEST = 1;
 
@@ -70,7 +70,7 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
 
     private OnFragmentInteractionListener mListener;
 
-    public AddNewPostFragment() {
+    public AddNewArticleFragment() {
         // Required empty public constructor
     }
 
@@ -80,12 +80,12 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment AddNewPostFragment.
+     * @return A new instance of fragment AddNewArticleFragment.
      */
 
     // TODO: Rename and change types and number of parameters
-    public static AddNewPostFragment newInstance(String param1, String param2) {
-        AddNewPostFragment fragment = new AddNewPostFragment();
+    public static AddNewArticleFragment newInstance(String param1, String param2) {
+        AddNewArticleFragment fragment = new AddNewArticleFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -102,8 +102,8 @@ public class AddNewPostFragment extends Fragment implements SingleUploadBroadcas
         }
     }
 
-    public static final String LOG_TAG = AddNewPostFragment.class.getSimpleName();
-    public static final String TAG = AddNewPostFragment.class.getSimpleName();
+    public static final String LOG_TAG = AddNewArticleFragment.class.getSimpleName();
+    public static final String TAG = AddNewArticleFragment.class.getSimpleName();
 
 
     private ImageView mImageView;
