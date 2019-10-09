@@ -36,14 +36,14 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
-import com.projectreachout.AddNewEvent.AddEventActivity;
 import com.projectreachout.AddNewArticle.AddNewArticleFragment;
+import com.projectreachout.AddNewEvent.AddEventActivity;
+import com.projectreachout.Article.ArticleMainFragment;
 import com.projectreachout.EditProfile.EditProfileActivity;
 import com.projectreachout.Event.EventMainFragment;
 import com.projectreachout.Event.Expenditures.ExpendituresMainFragment;
 import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.MyArticles.MyArticles;
-import com.projectreachout.Article.ArticleMainFragment;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NotificationUtilities.NotificationUtilities;
 

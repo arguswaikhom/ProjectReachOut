@@ -1,5 +1,7 @@
 package com.projectreachout.AddNewArticle;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -21,91 +23,38 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.projectreachout.AppController;
-import com.projectreachout.Utilities.ImageCompressionUtilities.FileUtil;
-import com.projectreachout.Utilities.ImageCompressionUtilities.ImageCompression;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
+import com.projectreachout.Utilities.ImageCompressionUtilities.FileUtil;
+import com.projectreachout.Utilities.ImageCompressionUtilities.ImageCompression;
+import com.projectreachout.Utilities.ImagePickerUtilities.ImagePickerActivity;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.PermissionUtilities.DevicePermissionUtils;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static android.app.Activity.RESULT_OK;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AddNewArticleFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AddNewArticleFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-
-public class AddNewArticleFragment extends Fragment implements SingleUploadBroadcastReceiver.Delegate {
-    //Image request code
-    private int PICK_IMAGE_REQUEST = 1;
-
+public class AddNewArticleFragment extends Fragment implements SingleUploadBroadcastReceiver.Delegate, View.OnClickListener {
     private DevicePermissionUtils mDevicePermissionUtils;
-
     private File mActualImage;
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
 
-    public AddNewArticleFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddNewArticleFragment.
-     */
-
-    // TODO: Rename and change types and number of parameters
-    public static AddNewArticleFragment newInstance(String param1, String param2) {
-        AddNewArticleFragment fragment = new AddNewArticleFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    public static final String LOG_TAG = AddNewArticleFragment.class.getSimpleName();
     public static final String TAG = AddNewArticleFragment.class.getSimpleName();
-
-
     private ImageView mImageView;
     private EditText mDescriptionEditText;
     private Button mUploadImage;
@@ -114,38 +63,39 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
     private ProgressDialog mDialog;
 
     private SingleUploadBroadcastReceiver uploadReceiver;
+    private int REQUEST_IMAGE = 100;
+
+    public AddNewArticleFragment() {
+    }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_new_post, container, false);
-
         mDevicePermissionUtils = new DevicePermissionUtils(getContext());
         mDevicePermissionUtils.handlePermissions();
-
         uploadReceiver = new SingleUploadBroadcastReceiver();
-
         if (mListener != null) {
             mListener.onFragmentInteraction(Uri.parse(getString(R.string.title_add_article)));
         }
+        setUpUI(rootView);
+        return rootView;
+    }
 
+    private void setUpUI(View rootView) {
         mImageView = rootView.findViewById(R.id.iv_fanp_uploaded_image);
         mUploadImage = rootView.findViewById(R.id.btn_fanp_upload_picture);
         mSubmitPost = rootView.findViewById(R.id.btn_fanp_upload_post);
         mDescriptionEditText = rootView.findViewById(R.id.et_fanp_description);
 
-        /*TextView warningTV = rootView.findViewById(R.id.tv_wbl_notice);
-        warningTV.setVisibility(View.VISIBLE);
-        warningTV.setText(Html.fromHtml("<b>Warning:</b> \t" + getString(R.string.warning_no_image_compression)));*/
-
         mDialog = new ProgressDialog(getContext());
 
-        mUploadImage.setOnClickListener(this::chooseImage);
-
-        mSubmitPost.setOnClickListener(v -> upload());
-
-        return rootView;
+        mUploadImage.setOnClickListener(this);
+        mSubmitPost.setOnClickListener(this);
     }
 
     @Override
@@ -195,25 +145,6 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
         //your implementation
     }
 
-    private void chooseImage(View view) {
-        if (!mDevicePermissionUtils.hasAllPermissionsGranted()) {
-            MessageUtils.showShortToast(getContext(), "Permission Required");
-            mDevicePermissionUtils.requestAllPermissions();
-            return;
-        }
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -231,48 +162,79 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
-    public void showError(String errorMessage) {
-        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_fanp_upload_picture: {
+                onChooseImageClicked();
+                break;
+            }
+            case R.id.btn_fanp_upload_post: {
+                upload();
+                break;
+            }
+        }
+    }
+
+    private void onChooseImageClicked() {
+        Dexter.withActivity(getActivity())
+                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        if (report.areAllPermissionsGranted()) {
+                            showImagePickerOptions();
+                        }
+
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).check();
+    }
+
+    private void showImagePickerOptions() {
+        ImagePickerActivity.showImagePickerOptions(getContext(), new ImagePickerActivity.PickerOptionListener() {
+            @Override
+            public void onTakeCameraSelected() {
+                launchCameraIntent();
+            }
+
+            @Override
+            public void onChooseGallerySelected() {
+                launchGalleryIntent();
+            }
+        });
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK) {
-            if (data == null) {
-                showError("Failed to open picture!");
-                return;
-            }
-            try {
-                mActualImage = FileUtil.from(getContext(), data.getData());
-                mImageView.setImageBitmap(BitmapFactory.decodeFile(mActualImage.getAbsolutePath()));
-            } catch (IOException e) {
-                showError("Failed to read picture data!");
-                e.printStackTrace();
+        if (requestCode == REQUEST_IMAGE) {
+            if (resultCode == Activity.RESULT_OK) {
+                try {
+                    Uri uri = data.getParcelableExtra("path");
+                    mActualImage = FileUtil.from(getContext(), uri);
+                    mImageView.setImageBitmap(BitmapFactory.decodeFile(mActualImage.getAbsolutePath()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
     private void upload() {
         String url = getDomainUrl() + "/add_article/";
-
         String description = mDescriptionEditText.getText().toString().trim();
-
         String time_stamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         /*Map<String, String> map = new HashMap<>();
@@ -302,17 +264,13 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
 
             } catch (Exception exc) {
                 exc.printStackTrace();
-                Toast.makeText(getContext(), "Couldn't upload this picture...", Toast.LENGTH_SHORT).show();
+                MessageUtils.showShortToast(getContext(), "Couldn't upload this picture...");
             }
         } else {
-            Toast.makeText(getContext(), "No picture selected", Toast.LENGTH_SHORT).show();
+            MessageUtils.showShortToast(getContext(), "No picture selected");
         }
     }
-    /**
-     * Showing Alert Dialog with Settings option
-     * Navigates user to app settings
-     * NOTE: Keep proper title and message depending on your app
-     */
+
     private void showSettingsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
         builder.setTitle(getString(R.string.dialog_permission_title));
@@ -323,14 +281,24 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
         });
         builder.setNegativeButton(getString(android.R.string.cancel), (dialog, which) -> dialog.cancel());
         builder.show();
-
     }
 
-    // navigating user to app settings
     private void openSettings() {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         Uri uri = Uri.fromParts("package", Objects.requireNonNull(getActivity()).getPackageName(), null);
         intent.setData(uri);
         startActivityForResult(intent, 101);
+    }
+
+    private void launchCameraIntent() {
+        Intent intent = new Intent(getContext(), ImagePickerActivity.class);
+        intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_IMAGE);
+    }
+
+    private void launchGalleryIntent() {
+        Intent intent = new Intent(getContext(), ImagePickerActivity.class);
+        intent.putExtra(ImagePickerActivity.INTENT_IMAGE_PICKER_OPTION, ImagePickerActivity.REQUEST_GALLERY_IMAGE);
+        startActivityForResult(intent, REQUEST_IMAGE);
     }
 }
