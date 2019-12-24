@@ -27,10 +27,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.projectreachout.AppController;
 import com.projectreachout.ChangePassword.ChangePasswordActivity;
-import com.projectreachout.Utilities.ImageCompressionUtilities.FileUtil;
-import com.projectreachout.Utilities.ImageCompressionUtilities.ImageCompression;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
+import com.projectreachout.Utilities.ImageCompressionUtilities.FileUtil;
+import com.projectreachout.Utilities.ImageCompressionUtilities.ImageCompression;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.PermissionUtilities.DevicePermissionUtils;
 

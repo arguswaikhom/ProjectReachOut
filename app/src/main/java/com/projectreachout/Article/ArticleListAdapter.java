@@ -32,12 +32,12 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.projectreachout.Article.ArticleMainFragment.mArticleItemList;
+import static com.projectreachout.Article.ArticleMainFragment.mArticleListAdapter;
 import static com.projectreachout.GeneralStatic.getDateTime;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.MyArticles.MyArticles.mArticleItemListMyArticles;
 import static com.projectreachout.MyArticles.MyArticles.mArticleListAdapterMyArticles;
-import static com.projectreachout.Article.ArticleMainFragment.mArticleItemList;
-import static com.projectreachout.Article.ArticleMainFragment.mArticleListAdapter;
 
 public class ArticleListAdapter extends BaseAdapter {
 
