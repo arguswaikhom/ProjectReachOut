@@ -6,8 +6,8 @@ android {
         applicationId "com.projectreachout"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 7
-        versionName "1.3.11"
+        versionCode 8
+        versionName "1.4.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -24,22 +24,19 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     // Glide v4 uses this new annotation processor -- see https://bumptech.github.io/glide/doc/generatedapi.html
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
-    /*Dependencies for com.crown.binaryio.ChooseImageAndCrop*/
-    // ButterKnife
-    implementation 'com.jakewharton:butterknife:8.8.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
     // dexter permissions
     implementation 'com.karumi:dexter:5.0.0'
     // circular imageView
@@ -50,7 +47,6 @@ dependencies {
         exclude group: 'glide-parent'
     }
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
-    implementation 'com.github.yalantis:ucrop:2.2.2'
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation 'net.gotev:uploadservice:2.1'
@@ -64,4 +60,7 @@ dependencies {
 
     implementation 'com.jakewharton:butterknife:10.0.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
+
+    // uCrop Library
+    implementation 'com.github.yalantis:ucrop:2.2.4'
 }
