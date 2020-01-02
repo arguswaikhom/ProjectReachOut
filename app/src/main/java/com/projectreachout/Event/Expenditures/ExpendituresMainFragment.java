@@ -42,6 +42,7 @@ import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -145,7 +146,7 @@ public class ExpendituresMainFragment extends Fragment {
                 .appendPath("get_all_events")
                 .appendPath("");*/
 
-        String url = getDomainUrl() + "/get_all_events/";
+        String url = getDummyUrl() + "/get_all_events/";
 
 
         switch (action){
@@ -209,10 +210,10 @@ public class ExpendituresMainFragment extends Fragment {
         for (int i = jsonArray.length()-1; i >= 0; i--) {
             JSONObject eventItemJSONObj = JSONParsingObjectFromArray(jsonArray, i);
 
-            int eventId = JSONParsingIntFromObject(eventItemJSONObj, "event_id");
+            String eventId = JSONParsingStringFromObject(eventItemJSONObj, "event_id");
             String title = JSONParsingStringFromObject(eventItemJSONObj, "event_title");
-            String date = JSONParsingStringFromObject(eventItemJSONObj, "date");
-            String team = JSONParsingStringFromObject(eventItemJSONObj, "team_name");
+            String date = JSONParsingStringFromObject(eventItemJSONObj, "event_date");
+            String team = JSONParsingStringFromObject(eventItemJSONObj, "selected_teams");
             String assignBy = JSONParsingStringFromObject(eventItemJSONObj, "assigned_by");
             String investedAmount = JSONParsingStringFromObject(eventItemJSONObj, "investment_amount");
             String investmentInReturn = JSONParsingStringFromObject(eventItemJSONObj, "investment_return");

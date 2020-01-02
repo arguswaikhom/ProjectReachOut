@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventItem {
-    private int event_id;
+    private String event_id;
     private String event_title;
     private String date;
     private String team_name;
@@ -48,7 +48,7 @@ public class EventItem {
         return organizerCount;
     }
 
-    public void setEvent_id(int event_id) {
+    public void setEvent_id(String event_id) {
         this.event_id = event_id;
     }
 
@@ -68,7 +68,7 @@ public class EventItem {
         this.investmentAmount = investmentAmount;
     }
 
-    public int getEvent_id() {
+    public String getEvent_id() {
         return event_id;
     }
 

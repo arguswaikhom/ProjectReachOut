@@ -21,6 +21,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.projectreachout.AppController;
 import com.projectreachout.R;
 
@@ -36,6 +39,7 @@ import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -114,23 +118,23 @@ public class InvestmentFragment extends Fragment {
         mSubmitButton = rootView.findViewById(R.id.btn_sfi_submit);
 
         mAddInvestmentItemButton.setOnClickListener(v -> addNewInvestmentItem(new InvestmentItem()));
-        mSubmitButton.setOnClickListener(v -> submitInvestment());
-
+        mSubmitButton.setOnClickListener(v -> {
+            try {
+                submitInvestment();
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        });
         fetchEventInvestmentDetails();
-
         return rootView;
     }
 
     private void fetchEventInvestmentDetails() {
-        String url = getDomainUrl() + "/get_event_investment/";
-        String event_id = String.valueOf(AppController.getInstance().getGlobalEventId());
+        String url = getDummyUrl() + "/get_event_investment/";
+        String event_id = AppController.getInstance().getGlobalEventId();
 
         Map<String, String> param = new HashMap<>();
         param.put("event_id", event_id);
-
-        Log.v("aaaaa", url);
-        Log.v("aaaaa", event_id);
-
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
@@ -161,10 +165,10 @@ public class InvestmentFragment extends Fragment {
     }
 
     private void parseJsonFeed(JSONObject outputObj) {
-        String investmentAmount = JSONParsingStringFromObject(outputObj, "amount_invested");
-        String investmentOnReturn = JSONParsingStringFromObject(outputObj, "amount_recieved");
+        String investmentAmount = JSONParsingStringFromObject(outputObj, "investment_amount");
+        String investmentOnReturn = JSONParsingStringFromObject(outputObj, "investment_return");
 
-        JSONArray investmentList = JSONParsingArrayFromObject(outputObj, "investment_list");
+        JSONArray investmentList = JSONParsingArrayFromObject(outputObj, "investment_details");
 
         mInvestmentTableLayout.removeAllViews();
 
@@ -183,9 +187,9 @@ public class InvestmentFragment extends Fragment {
         mDifferentAmountTV.setText(diffAmount + "");
     }
 
-    private void submitInvestment() {
-        ArrayList<String> reasons = new ArrayList<>();
+    private void submitInvestment() throws JsonProcessingException {
         ArrayList<String> amountInvested = new ArrayList<>();
+        ArrayList<InvestmentItem> investmentItems = new ArrayList<>();
 
         boolean uploadReady = false;
 
@@ -209,20 +213,18 @@ public class InvestmentFragment extends Fragment {
 
             uploadReady = true;
 
-            reasons.add(investmentOn);
             amountInvested.add(amount);
+            investmentItems.add(new InvestmentItem(investmentOn, amount));
         }
 
         if (!uploadReady) return;
 
-        String url = getDomainUrl() + "/add_investment/";
-        String event_id = String.valueOf(AppController.getInstance().getGlobalEventId());
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String investment_details = ow.writeValueAsString(investmentItems);
+        Log.v(TAG, investment_details);
 
-        Map<String, String> map = new HashMap<>();
-        map.put("event_id", event_id);
-        map.put("investment_on_return", mAmountInReturnET.getText().toString().trim());
-        map.put("investment_on", reasons.toString());
-        map.put("amount", amountInvested.toString());
+        String url = getDummyUrl() + "/add_investment_details/";
+        String event_id = AppController.getInstance().getGlobalEventId();
 
         long total = 0;
         for (String x : amountInvested) {
@@ -230,24 +232,22 @@ public class InvestmentFragment extends Fragment {
         }
         mTotalAmountTextView.setText(String.valueOf(total));
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (response != null) {
-                    if (response.trim().equals("200")) {
-                        fetchEventInvestmentDetails();
-                        Log.v("aaaaa", "response :: " + response);
+        Map<String, String> map = new HashMap<>();
+        map.put("event_id", event_id);
+        map.put("investment_return", mAmountInReturnET.getText().toString().trim());
+        map.put("investment_amount", String.valueOf(total));
+        map.put("investment_details", investment_details);
 
-                    }
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            if (response != null) {
+                if (response.trim().equals("200")) {
+                    fetchEventInvestmentDetails();
                     Log.v("aaaaa", "response :: " + response);
                 }
-
+                Log.v("aaaaa", "response :: " + response);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }, error -> {
 
-            }
         }){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {

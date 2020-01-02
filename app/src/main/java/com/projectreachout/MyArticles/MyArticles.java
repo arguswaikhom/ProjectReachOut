@@ -35,6 +35,7 @@ import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 public class MyArticles extends AppCompatActivity {
 
@@ -81,7 +82,7 @@ public class MyArticles extends AppCompatActivity {
                 .appendPath("get_my_articles")
                 .appendPath("");*/
 
-        String url = getDomainUrl() + "/get_my_articles/";
+        String url = getDummyUrl() + "/get_my_articles/";
 
         switch (action) {
             case REFRESH: {
@@ -158,13 +159,13 @@ public class MyArticles extends AppCompatActivity {
 
             String url = getDomainUrl();
 
-            int id = JSONParsingIntFromObject(feedObj, "article_id");
+            String id = JSONParsingStringFromObject(feedObj, "id");
             String teamName = JSONParsingStringFromObject(feedObj, "team_name");
             String userName = JSONParsingStringFromObject(feedObj, "username");
             String timeStamp = JSONParsingStringFromObject(feedObj, "time_stamp");
             String profilePictureUrl = JSONParsingStringFromObject(feedObj, "profile_picture_url");
-            String imageUrl = JSONParsingStringFromObject(feedObj, "image");
-            String description = JSONParsingStringFromObject(feedObj, "desc");
+            String imageUrl = JSONParsingStringFromObject(feedObj, "image_url");
+            String description = JSONParsingStringFromObject(feedObj, "description");
 
             ArticleItem item = new ArticleItem();
 

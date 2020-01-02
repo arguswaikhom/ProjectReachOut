@@ -23,6 +23,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnPausedListener;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -43,13 +56,15 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 import static com.projectreachout.GeneralStatic.getDomainUrl;
 
-public class AddNewArticleFragment extends Fragment implements SingleUploadBroadcastReceiver.Delegate, View.OnClickListener {
+public class AddNewArticleFragment extends Fragment implements /*SingleUploadBroadcastReceiver.Delegate,*/ View.OnClickListener, OnUploadCompleted {
     private DevicePermissionUtils mDevicePermissionUtils;
     private File mActualImage;
     private OnFragmentInteractionListener mListener;
@@ -66,6 +81,33 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
     private int REQUEST_IMAGE = 100;
 
     public AddNewArticleFragment() {
+    }
+
+    @Override
+    public void onUploadCompleted(String imageUrl, String description) {
+        Map<String, Object> article = new HashMap<>();
+        article.put("image_url", imageUrl);
+        article.put("description", description);
+        article.put("time_stamp", new Timestamp(new Date()));
+        article.put("username", AppController.getInstance().getLoginUserUsername());
+        // article.put("image_storage_reference", FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl).toString());
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Article")
+                .add(article)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                    mDialog.dismiss();
+                    Toast.makeText(getContext(), "Upload Completed", Toast.LENGTH_SHORT).show();
+                    getActivity().onBackPressed();
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
     }
 
     @Override
@@ -114,7 +156,7 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
         }
     }
 
-    @Override
+    /*@Override
     public void onProgress(int progress) {
         Log.v(TAG, String.valueOf(progress));
         mDialog.setMessage("Loading. Please wait...   " + progress + "%");
@@ -143,7 +185,7 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
     @Override
     public void onCancelled() {
         //your implementation
-    }
+    }*/
 
     @Override
     public void onAttach(Context context) {
@@ -248,10 +290,11 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
         }
 
         if (path != null) {
-            String uploadId = UUID.randomUUID().toString();
+            /*String uploadId = UUID.randomUUID().toString();
             uploadReceiver.setDelegate(this);
-            uploadReceiver.setUploadID(uploadId);
-            try {
+            uploadReceiver.setUploadID(uploadId);*/
+            performUpload(path, description, this);
+            /*try {
                 new MultipartUploadRequest(Objects.requireNonNull(getContext()), uploadId, url)
                         .addHeader("Authorization", AppController.getInstance().getLoginCredential())
                         .addParameter("user_name", AppController.getInstance().getLoginUserUsername())
@@ -265,10 +308,46 @@ public class AddNewArticleFragment extends Fragment implements SingleUploadBroad
             } catch (Exception exc) {
                 exc.printStackTrace();
                 MessageUtils.showShortToast(getContext(), "Couldn't upload this picture...");
-            }
+            }*/
         } else {
             MessageUtils.showShortToast(getContext(), "No picture selected");
         }
+    }
+
+    private void performUpload(String path, final String description, OnUploadCompleted onUploadCompleted) {
+        Uri file = Uri.fromFile(new File(path));
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Article");
+        final StorageReference imgStrRef = storageReference.child(AppController.getInstance().getLoginUserUsername() + "_" + new Timestamp(new Date()) + "_" + file.getLastPathSegment());
+        UploadTask uploadTask = imgStrRef.putFile(file);
+        uploadTask.continueWithTask((Task<UploadTask.TaskSnapshot> task) -> {
+            if (!task.isSuccessful()) {
+                throw task.getException();
+            }
+            return imgStrRef.getDownloadUrl();
+        }).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Uri downloadUri = task.getResult();
+                onUploadCompleted.onUploadCompleted(downloadUri.toString(), description);
+            } else {
+                Toast.makeText(getActivity(), "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                //mImageUploadProgress = progress;
+                Log.v(TAG, "Upload is " + progress + "% done");
+                mDialog.setMessage("Loading. Please wait...   " + progress + "%");
+                mDialog.show();
+                //mImageUploadProgressBar.setProgress((int)progress);
+            }
+        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.v(TAG, "Upload is paused");
+            }
+        });
     }
 
     private void showSettingsDialog() {

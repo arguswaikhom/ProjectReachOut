@@ -47,7 +47,7 @@ public class AppController extends Application {
 
     private SharedPreferences mSharedPreferences;
 
-    private int globalEventId;
+    private String globalEventId;
 
     @Override
     public void onCreate() {
@@ -111,11 +111,11 @@ public class AppController extends Application {
         }
     }
 
-    public void setGlobalEventId(int gEventId) {
+    public void setGlobalEventId(String gEventId) {
         this.globalEventId = gEventId;
     }
 
-    public int getGlobalEventId() {
+    public String getGlobalEventId() {
         return globalEventId;
     }
 
