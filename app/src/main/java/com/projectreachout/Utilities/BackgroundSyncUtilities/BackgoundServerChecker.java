@@ -46,7 +46,7 @@ public class BackgoundServerChecker {
         Log.v("ooooo", NotificationPreferenceUtilities.getLastArticle() + " : " + NotificationPreferenceUtilities.getLastMyEvent());
 
         if (AppController.getInstance().isInternetAvailable()) {
-            performChecking(action);
+            //performChecking(action);
         }
     }
 

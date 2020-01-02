@@ -24,6 +24,7 @@ import com.projectreachout.AppController;
 import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
 import com.projectreachout.SingleEventDetailsAndModification.SingleEventDetailsActivity;
+import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,8 +35,11 @@ import java.util.Map;
 
 import static com.projectreachout.Event.Expenditures.ExpendituresMainFragment.mEventItemList;
 import static com.projectreachout.Event.Expenditures.ExpendituresMainFragment.mEventListAdapter;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.getDate;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
 
@@ -100,7 +104,7 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
         return convertView;
     }
 
-    private void showPopupMenu(View view, int event_id, int position) {
+    private void showPopupMenu(View view, String event_id, int position) {
         PopupMenu popup = new PopupMenu(view.getContext(), view);
 
         popup.inflate(R.menu.evn_eei_popup_menu);
@@ -138,8 +142,8 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
         popup.show();
     }
 
-    private void deleteEvent(int event_id, int position) {
-        String url = getDomainUrl() + "/delete_event/";
+    private void deleteEvent(String event_id, int position) {
+        String url = getDummyUrl() + "/delete_event/";
 
         /*Log.d(LOG_TAG, url);
         Log.d(LOG_TAG, String.valueOf(event_id));
@@ -151,7 +155,8 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
             @Override
             public void onResponse(String response) {
                 if (response != null) {
-                    if (response.trim().equals("200")) {
+                    if (JSONParsingStringFromObject(JSONParsingObjectFromString(response), "status").trim().equals("200")) {
+                        MessageUtils.showShortToast(getContext(), "Event deleted");
                         mEventItemList.remove(position);
                         mEventListAdapter.notifyDataSetChanged();
                     }

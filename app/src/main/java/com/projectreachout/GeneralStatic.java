@@ -192,7 +192,12 @@ public class GeneralStatic {
 
         return builder.build().toString();*/
         //return "http://10.24.48.78:8000";
+        // return "http://reachout.pythonanywhere.com";
         return "http://reachout.pythonanywhere.com";
+    }
+
+    public static String getDummyUrl() {
+        return "https://us-central1-thewebsite-90faa.cloudfunctions.net";
     }
 
     public static String getDate(String input) {

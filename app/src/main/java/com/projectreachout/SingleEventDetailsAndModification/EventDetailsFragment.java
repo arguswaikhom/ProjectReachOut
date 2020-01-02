@@ -53,6 +53,7 @@ import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
 import static com.projectreachout.GeneralStatic.getDate;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.GeneralStatic.getRandomInt;
 
 /**
@@ -165,9 +166,9 @@ public class EventDetailsFragment extends Fragment {
 
         String url = builder.build().toString();*/
 
-        String url = getDomainUrl() + "/get_event_details/";
+        String url = getDummyUrl() + "/get_event_details/";
 
-        String eventId = String.valueOf(AppController.getInstance().getGlobalEventId());
+        String eventId = AppController.getInstance().getGlobalEventId();
 
         Map<String, String> param = new HashMap<>();
         param.put("event_id", "" + eventId);
@@ -241,7 +242,7 @@ public class EventDetailsFragment extends Fragment {
 
         Log.v(TAG, "add new users ----- " + url);
 
-        String eventId = String.valueOf(AppController.getInstance().getGlobalEventId());
+        String eventId = AppController.getInstance().getGlobalEventId();
         ArrayList<String> newOrganizers = new ArrayList<>();
 
         for (int i = 0; i < mSelectedUsers.size(); i++) {
@@ -314,9 +315,9 @@ public class EventDetailsFragment extends Fragment {
         }
 
         String title = JSONParsingStringFromObject(eventItemJSONObj, "event_title");
-        String date = JSONParsingStringFromObject(eventItemJSONObj, "date");
+        String date = JSONParsingStringFromObject(eventItemJSONObj, "event_date");
         String assignBy = JSONParsingStringFromObject(eventItemJSONObj, "assigned_by");
-        String team = JSONParsingStringFromObject(eventItemJSONObj, "team_name");
+        String team = JSONParsingStringFromObject(eventItemJSONObj, "selected_teams");
         String description = JSONParsingStringFromObject(eventItemJSONObj, "description");
 
         if (mListener != null){
@@ -386,7 +387,7 @@ public class EventDetailsFragment extends Fragment {
 
     private void removeOrganizer(String userName) {
         String url = getDomainUrl() + "/remove_users_from_event/";
-        String event_id = String.valueOf(AppController.getInstance().getGlobalEventId());
+        String event_id = AppController.getInstance().getGlobalEventId();
 
         ArrayList<String> organizers = new ArrayList<>();
         organizers.add(userName);

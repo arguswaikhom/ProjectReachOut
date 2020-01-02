@@ -22,6 +22,8 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.projectreachout.AppController;
 import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.R;
@@ -36,6 +38,7 @@ import static com.projectreachout.Article.ArticleMainFragment.mArticleItemList;
 import static com.projectreachout.Article.ArticleMainFragment.mArticleListAdapter;
 import static com.projectreachout.GeneralStatic.getDateTime;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.MyArticles.MyArticles.mArticleItemListMyArticles;
 import static com.projectreachout.MyArticles.MyArticles.mArticleListAdapterMyArticles;
 
@@ -170,7 +173,7 @@ public class ArticleListAdapter extends BaseAdapter {
             int id = menuItem.getItemId();
             switch (id) {
                 case R.id.menu_eepm_delete: {
-                    deleteArticle(item.getId(), position);
+                    deleteArticle(item, position);
                 }
             }
             return true;
@@ -179,28 +182,24 @@ public class ArticleListAdapter extends BaseAdapter {
         popup.show();
     }
 
-    private void deleteArticle(int id, int position) {
-        String url = getDomainUrl() + "/delete_article/";
+    private void deleteArticle(ArticleItem article, int position) {
+        String url = getDummyUrl() + "/delete_article/";
 
         Map<String, String> param = new HashMap<>();
-        param.put("article_id", String.valueOf(id));
+        param.put("article_id", article.getId());
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (response != null) {
-                    if (mArticleItemList != null) mArticleItemList.remove(position);
-                    if (mArticleListAdapter != null) mArticleListAdapter.notifyDataSetChanged();
-                    if (mArticleItemListMyArticles != null) mArticleItemListMyArticles.remove(position);
-                    if (mArticleListAdapterMyArticles != null) mArticleListAdapterMyArticles.notifyDataSetChanged();
-                    Log.d(LOG_TAG_FLA, response);
-                }
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            if (response != null) {
+                if (mArticleItemList != null) mArticleItemList.remove(position);
+                if (mArticleListAdapter != null) mArticleListAdapter.notifyDataSetChanged();
+                if (mArticleItemListMyArticles != null) mArticleItemListMyArticles.remove(position);
+                if (mArticleListAdapterMyArticles != null) mArticleListAdapterMyArticles.notifyDataSetChanged();
+                StorageReference imageStorageReference = FirebaseStorage.getInstance().getReferenceFromUrl(article.getImage_url());
+                imageStorageReference.delete();
+                Log.d(LOG_TAG_FLA, response);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }, error -> {
 
-            }
         }){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {

@@ -204,7 +204,7 @@ public class EventMainFragment extends Fragment{
                 contributePeopleList.add(contributePeople);
             }
 
-            int event_id = JSONParsingIntFromObject(eventItemJSONObj, "event_id");
+            String event_id = JSONParsingStringFromObject(eventItemJSONObj, "event_id");
             String title = JSONParsingStringFromObject(eventItemJSONObj, "event_title");
             String date = JSONParsingStringFromObject(eventItemJSONObj, "date");
             String team = JSONParsingStringFromObject(eventItemJSONObj, "team_name");

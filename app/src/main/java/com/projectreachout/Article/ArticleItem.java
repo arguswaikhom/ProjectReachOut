@@ -2,7 +2,7 @@ package com.projectreachout.Article;
 
 public class ArticleItem {
 
-    private int id;
+    private String id;
     private String team_name;
     private String username;
     private String time_stamp;
@@ -13,7 +13,7 @@ public class ArticleItem {
     public ArticleItem() {
     }
 
-    public ArticleItem(int id, String team_name, String username, String time_stamp,
+    public ArticleItem(String id, String team_name, String username, String time_stamp,
                        String profile_picture_url, String image_url, String description) {
         this.id = id;
         this.team_name = team_name;
@@ -24,7 +24,7 @@ public class ArticleItem {
         this.description = description;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -52,7 +52,7 @@ public class ArticleItem {
         return description;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

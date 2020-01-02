@@ -79,7 +79,7 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
         return rootView;
     }
 
-    private int getLastVisibleArticleID() {
+    private String getLastVisibleArticleID() {
         return mArticleItemList.get(mArticleItemList.size() - 1).getId();
     }
 

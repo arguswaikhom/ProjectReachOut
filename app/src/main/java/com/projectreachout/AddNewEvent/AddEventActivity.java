@@ -52,6 +52,7 @@ import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
 import static com.projectreachout.GeneralStatic.TEAM_LIST;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.GeneralStatic.getMonthForInt;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
@@ -271,8 +272,9 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void setDate(int year, int month, int day) {
                 int realMonth = month + 1;
-                mDate = day + "-" + realMonth + "-" + year;
+                mDate = year + "-" + realMonth + "-" + day;
                 mShowDateTV.setText(day + " " + getMonthForInt(month) + " " + year);
+                Log.v(TAG, mDate);
             }
 
             @Override
@@ -305,11 +307,11 @@ public class AddEventActivity extends AppCompatActivity {
         }
 
         Map<String, String> param = new HashMap<>();
-        param.put("assign_by", username);
-        param.put("date", mDate);
-        param.put("title", title);
+        param.put("assigned_by", username);
+        param.put("event_date", mDate);
+        param.put("event_title", title);
         param.put("description", description);
-        param.put("selected_team", mSelectedTeam.toString());
+        param.put("selected_teams", mSelectedTeam.toString());
         param.put("organizers", organizersId.toString());
         param.put("event_leader", mEventLeader);
 
@@ -360,7 +362,7 @@ public class AddEventActivity extends AppCompatActivity {
 
         String url = builder.build().toString();*/
 
-        String url = getDomainUrl() + "/add_event/";
+        String url = getDummyUrl() + "/add_event/";
 
         Log.v(TAG, "URL: " + url);
 
@@ -411,7 +413,6 @@ public class AddEventActivity extends AppCompatActivity {
             }
         }).show();
     }
-
 
     ArrayList<String> selectedTeam = new ArrayList<>();
 
@@ -467,7 +468,7 @@ public class AddEventActivity extends AppCompatActivity {
         int month = c.get(Calendar.MONTH) + 1;      // month starts from 0
         int day = c.get(Calendar.DAY_OF_MONTH);
 
-        mDate = day + "-" + month + "-" + year;
+        mDate = year + "-" + month + "-" + day;
         mShowDateTV.setText(day + " " + getMonthForInt(month-1) + " " + year);
     }
 }

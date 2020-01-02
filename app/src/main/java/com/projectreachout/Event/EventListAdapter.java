@@ -39,13 +39,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.projectreachout.Event.EventMainFragment.mEventItemList;
 import static com.projectreachout.Event.EventMainFragment.mEventListAdapter;
+import static com.projectreachout.GeneralStatic.JSONParsingIntFromObject;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.getDate;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 
 public class EventListAdapter extends ArrayAdapter<EventItem> {
 
-    public static final String LOG_TAG = EventListAdapter.class.getSimpleName();
+    public static final String TAG = EventListAdapter.class.getSimpleName();
 
     public EventListAdapter(Context context, int resource, List<EventItem> objects) {
         super(context, resource, objects);
@@ -160,7 +164,7 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
         mTableLayout.addView(contributePeopleLinearLayout);
     }
 
-    private void showPopupMenu(View view, int event_id, int position) {
+    private void showPopupMenu(View view, String event_id, int position) {
         PopupMenu popup = new PopupMenu(view.getContext(), view);
         popup.inflate(R.menu.evn_eei_popup_menu);
 
@@ -197,32 +201,21 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
         popup.show();
     }
 
-    private void deleteEvent(int event_id, int position) {
-        String url = getDomainUrl() + "/delete_event/";
-
-        Log.d(LOG_TAG, url);
-        Log.d(LOG_TAG, String.valueOf(event_id));
+    private void deleteEvent(String event_id, int position) {
+        String url = getDummyUrl() + "/delete_event/";
 
         Map<String, String> param = new HashMap<>();
         param.put("event_id", String.valueOf(event_id));
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (response != null) {
-                    if (response.trim().equals("200")) {
-                        mEventItemList.remove(position);
-                        mEventListAdapter.notifyDataSetChanged();
-                    }
-                    Log.v("aaaaa", response);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+            if (response != null) {
+                if (JSONParsingStringFromObject(JSONParsingObjectFromString(response), "status").trim().equals("200")) {
+                    mEventItemList.remove(position);
+                    mEventListAdapter.notifyDataSetChanged();
                 }
+                Log.v(TAG, response);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.v("aaaaa", error.toString());
-            }
-        }){
+        }, error -> Log.v(TAG, error.toString())){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return AppController.getInstance().getLoginCredentialHeader();
