@@ -19,6 +19,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
 import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.Utilities.BackgroundSyncUtilities.BackgoundServerChecker;
 import com.projectreachout.Utilities.BackgroundSyncUtilities.NotificationAlarmReceiver;
@@ -46,6 +47,7 @@ public class AppController extends Application {
     private static AppController mInstance;
 
     private SharedPreferences mSharedPreferences;
+    private FirebaseAuth mFirebaseAuth;
 
     private String globalEventId;
 
@@ -54,18 +56,18 @@ public class AppController extends Application {
         super.onCreate();
         mInstance = this;
         mSharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
-
-        setUpAlarmManagerForNotificationSync();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        //setUpAlarmManagerForNotificationSync();
     }
 
-    private void setUpAlarmManagerForNotificationSync() {
+    /*private void setUpAlarmManagerForNotificationSync() {
         Intent intent = new Intent(this, NotificationAlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,intent, 0);
 
         int intervalMillis = (int) TimeUnit.MINUTES.toMillis(BackgoundServerChecker.INTERVAL_MINUTES);
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), intervalMillis, pendingIntent);
-    }
+    }*/
 
     public static synchronized AppController getInstance() {
         return mInstance;
@@ -77,6 +79,10 @@ public class AppController extends Application {
         }
 
         return mRequestQueue;
+    }
+
+    public FirebaseAuth getFirebaseAuth() {
+        return mFirebaseAuth;
     }
 
     public ImageLoader getImageLoader() {
