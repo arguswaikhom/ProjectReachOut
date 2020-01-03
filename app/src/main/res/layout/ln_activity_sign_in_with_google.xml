@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/iasiwg_root_layout"
+    android:background="@drawable/gradient_animation_list"
+    tools:context=".Login.SignInWithGoogleActivity">
+
+    <com.projectreachout.customfonts.TextView_break_bold
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:padding="16dp"
+        android:gravity="center"
+        android:text="Project ReachOut"
+        android:textColor="@color/white"
+        android:textSize="60sp"
+        android:fontFamily="sans-serif-light"
+        tools:ignore="HardcodedText" />
+
+    <com.shobhitpuri.custombuttons.GoogleSignInButton
+        android:id="@+id/iasiwg_sign_in_button"
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="64dp"
+        android:text="Sign in with Google"
+        app:isDarkTheme="true"
+        tools:ignore="HardcodedText" />
+
+    <!--<com.google.android.gms.common.SignInButton
+        android:id="@+id/siwga_sign_in_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign in with Google"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        tools:ignore="HardcodedText" />-->
+
+</RelativeLayout>
