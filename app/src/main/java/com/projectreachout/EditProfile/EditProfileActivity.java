@@ -25,7 +25,6 @@ import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.projectreachout.AppController;
-import com.projectreachout.ChangePassword.ChangePasswordActivity;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
 import com.projectreachout.User.User;
@@ -73,7 +72,6 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     private ImageView mProfilePictureIV;
 
     private Button mChooseProfilePictureBtn;
-    private Button mChangePasswordBtn;
     private Button mSubmitBtn;
 
     private View mWarningView;
@@ -122,7 +120,6 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
         mProfilePictureIV = findViewById(R.id.iv_eaep_user_profile_picture);
 
         mChooseProfilePictureBtn = findViewById(R.id.btn_eaep_choose_profile_picture);
-        mChangePasswordBtn = findViewById(R.id.btn_eaep_change_password);
         mSubmitBtn = findViewById(R.id.btn_eaep_submit);
 
         hideLayoutContainer();
@@ -130,7 +127,6 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
         fetchData();
 
         mChooseProfilePictureBtn.setOnClickListener(this::uploadPost);
-        mChangePasswordBtn.setOnClickListener(v -> startActivity(new Intent(this, ChangePasswordActivity.class)));
 
         mSubmitBtn.setOnClickListener(this);
     }
