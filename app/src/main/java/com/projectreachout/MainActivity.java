@@ -8,8 +8,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,6 +24,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.navigation.NavigationView;
@@ -43,40 +45,43 @@ import com.projectreachout.EditProfile.EditProfileActivity;
 import com.projectreachout.Event.EventMainFragment;
 import com.projectreachout.Event.Expenditures.ExpendituresMainFragment;
 import com.projectreachout.Login.LoginActivity;
+import com.projectreachout.Login.SignInWithGoogleActivity;
 import com.projectreachout.MyArticles.MyArticles;
+import com.projectreachout.User.User;
+import com.projectreachout.Utilities.ClearCacheData;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
+import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 import com.projectreachout.Utilities.NotificationUtilities.NotificationUtilities;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
 import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ArticleMainFragment.OnFragmentInteractionListener,
         AddNewArticleFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
         ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener, InstallStateUpdatedListener,
-        MessageUtils.OnSnackBarActionListener {
+        MessageUtils.OnSnackBarActionListener, OnHttpResponse {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private FragmentManager mFragmentManager;
-
     private View mHeaderView;
-
     private TextView mAccountTypeTV;
     private TextView mUsernameTV;
     private TextView mEmailTV;
     private TextView mUpdateAvailableTV;
-
+    private TextView guestNoteTV;
     private ImageView mUserProfilePictureIV;
-
     private Button mMyArticlesBtn;
     private Button mEditProfileBtn;
-
     private ImageButton mShareAppLinkIB;
-
-    private FrameLayout mUpdateAvailableFL;
+    private final int RC_GET_USER_DETAILS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,14 +100,20 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
+        /*if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
             setUpNavView();
         } else {
             toggle.setDrawerIndicatorEnabled(false);
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }
+        }*/
 
+        setUpNavView();
         inAppUpdateUtil();
+
+        showGuestNote();
+        showUpdateAvailable();
+
+        showUserDetails();
     }
 
     @Override
@@ -125,13 +136,13 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Menu menu = navigationView.getMenu();
-        if (AppController.getInstance().isSuperUserAccount()) {
+        /*if (AppController.getInstance().isSuperUserAccount()) {
             menu.findItem(R.id.nav_events).setVisible(true);
             menu.findItem(R.id.nav_add_event).setVisible(true);
         } else {
             menu.findItem(R.id.nav_events).setVisible(false);
             menu.findItem(R.id.nav_add_event).setVisible(false);
-        }
+        }*/
 
         mHeaderView = navigationView.getHeaderView(0);
 
@@ -143,8 +154,8 @@ public class MainActivity extends AppCompatActivity
         mEditProfileBtn = mHeaderView.findViewById(R.id.btn_nhm_edit_profile);
         mShareAppLinkIB = mHeaderView.findViewById(R.id.ib_nhm_share_app_link);
 
-        mUpdateAvailableFL = mHeaderView.findViewById(R.id.fl_nhm_update_available);
-        mUpdateAvailableTV = mHeaderView.findViewById(R.id.tv_wbl_notice);
+        mUpdateAvailableTV = mHeaderView.findViewById(R.id.cv_nhm_update_available).findViewById(R.id.tv_wbl_notice);
+        guestNoteTV = mHeaderView.findViewById(R.id.cv_nhm_guest_note).findViewById(R.id.tv_wbl_notice);
 
         mUpdateAvailableTV.setOnClickListener(this);
         mShareAppLinkIB.setOnClickListener(this);
@@ -154,29 +165,6 @@ public class MainActivity extends AppCompatActivity
 
     private void onClickedEditProfile(View view) {
         startActivity(new Intent(this, EditProfileActivity.class));
-    }
-
-    private void displayUserDetails() {
-        AppController appController = AppController.getInstance();
-
-        String username = appController.getLoginUserUsername();
-        String email = appController.getLoginUserEmail();
-        String profile_picture_url = appController.getLoginUserProfilePictureUrl();
-        String account_type = appController.getLoginUserAccountType();
-
-        mUsernameTV.setText(username);
-        mEmailTV.setText(email);
-        mAccountTypeTV.setText(account_type);
-
-        try {
-            Glide.with(this)
-                    .load(profile_picture_url)
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(mUserProfilePictureIV);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private void onClickedMyArticles(View view) {
@@ -202,11 +190,33 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
+        if (AppController.getInstance().getFirebaseAuth() == null) {
+            navigateToLoginPage();
+        }
+        /*if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
             login();
             displayUserDetails();
-        }
+        }*/
+        getUserDetails();
         NotificationUtilities.clearAllNotifications(this);
+    }
+
+    private void getUserDetails() {
+        String url = getDummyUrl() + "/get_user_details/";
+        String user_id = AppController.getInstance().getFirebaseAuth().getUid();
+        Map<String, String> param = new HashMap<>();
+        param.put("user_id", user_id);
+
+        Log.v(TAG, "User id: " + user_id);
+        Log.v(TAG, "Param: " + param.toString());
+
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, RC_GET_USER_DETAILS, null, param,this);
+        httpVolleyRequest.execute();
+    }
+
+    private void navigateToLoginPage() {
+        startActivity(new Intent(this, SignInWithGoogleActivity.class));
+        finish();
     }
 
     @Override
@@ -214,23 +224,15 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
     }
 
-    private void login() {
-        if (!AppController.getInstance().isUserLogin()) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (AppController.getInstance().getUserType() == LoginActivity.GUEST_USER) {
             getMenuInflater().inflate(R.menu.activity_main_option_menu, menu);
         }
         return true;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.amom_login: {
@@ -239,7 +241,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -289,8 +291,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void logOut() {
-        AppController.getInstance().logout();
-        startActivity(new Intent(this, LoginActivity.class));
+        AppController.getInstance().getFirebaseAuth().signOut();
+        AppController.getInstance().getGoogleSignInClient().signOut();
+        startActivity(new Intent(this, SignInWithGoogleActivity.class));
+        AppController.getInstance().clearSharedPreferences();
+        ClearCacheData.clear(this);
         finish();
     }
 
@@ -373,8 +378,9 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "inApp: inAppUpdateUtil() -> Update Available");
 
                 if(AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER){
-                    mUpdateAvailableFL.setVisibility(View.VISIBLE);
-                    mUpdateAvailableTV.setText("New update available!! Click here to update..");
+                    //mUpdateAvailableFL.setVisibility(View.VISIBLE);
+                    // mUpdateAvailableTV.setText("New update available!! Click here to update..");
+                    showUpdateAvailable();
                 }
             } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                 popupSnackBarForCompleteUpdate();
@@ -423,5 +429,49 @@ public class MainActivity extends AppCompatActivity
                 mAppUpdateManager.completeUpdate();
             }
         }
+    }
+
+    @Override
+    public void onHttpResponse(String response, int request) {
+        Log.v(TAG, response);
+        if (request == RC_GET_USER_DETAILS) {
+            AppController.getInstance().setUser(User.fromJson(response));
+            showUserDetails();
+        }
+    }
+
+    private void showUserDetails() {
+        User user = AppController.getInstance().getUser();
+        if (user.getUser_type() != null)
+            mAccountTypeTV.setText(user.getUser_type());
+        if (user.getDisplay_name() != null)
+            mUsernameTV.setText(user.getDisplay_name());
+        if (user.getEmail() != null)
+            mEmailTV.setText(user.getEmail());
+        if (URLUtil.isValidUrl(user.getProfile_image_url()))
+            Glide.with(getApplicationContext())
+                    .load(user.getProfile_image_url())
+                    .apply(new RequestOptions().circleCrop())
+                    .into(mUserProfilePictureIV);
+    }
+
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+        Log.v(TAG, ""  + error);
+    }
+
+    private void showGuestNote() {
+        String guestNote = "This app was designed only for people who work for Project ReachOut (PRO). Since your email is not in our database your account was created as a guest account.\n" +
+                "\n" +
+                "If you're a member of PRO contact one of our administrators.";
+
+        guestNoteTV.setVisibility(View.VISIBLE);
+        guestNoteTV.setText(guestNote);
+    }
+
+    private void showUpdateAvailable() {
+        String updateAvailableMsg = "New update available!! Click here to update..";
+        mUpdateAvailableTV.setVisibility(View.VISIBLE);
+        mUpdateAvailableTV.setText(updateAvailableMsg);
     }
 }

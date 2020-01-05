@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.projectreachout.R;
-import com.projectreachout.User.UserDetails;
+import com.projectreachout.User.User;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -59,11 +59,11 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
                 break;
             }
             case OPTION_ORGANIZERS:{
-                ArrayList<UserDetails> userDetailsArrayList = getArguments().getParcelableArrayList(ORGANIZER_LIST);
+                ArrayList<User> userArrayList = getArguments().getParcelableArrayList(ORGANIZER_LIST);
 
                 mTextView.setText("Selected Organizers");
 
-                OrganizersListAdapter organizersListAdapter = new OrganizersListAdapter(getContext(), R.layout.u_user_row_item, userDetailsArrayList);
+                OrganizersListAdapter organizersListAdapter = new OrganizersListAdapter(getContext(), R.layout.u_user_row_item, userArrayList);
                 mListView.setAdapter(organizersListAdapter);
                 break;
             }

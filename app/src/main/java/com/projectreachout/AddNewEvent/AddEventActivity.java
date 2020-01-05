@@ -33,7 +33,7 @@ import com.projectreachout.AddNewEvent.DateAndTimePicker.ResponseDate;
 import com.projectreachout.AppController;
 import com.projectreachout.R;
 import com.projectreachout.SelectPeople.SelectPeopleActivity;
-import com.projectreachout.User.UserDetails;
+import com.projectreachout.User.User;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,7 +51,6 @@ import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
 import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
 import static com.projectreachout.GeneralStatic.TEAM_LIST;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.GeneralStatic.getMonthForInt;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
@@ -79,7 +78,7 @@ public class AddEventActivity extends AppCompatActivity {
     private String mEventLeader;
     private int mEventLeaderIndex = -1;
     private ArrayList<String> mSelectedTeam = new ArrayList<>();
-    private ArrayList<UserDetails> mSelectedUsers = new ArrayList<>();
+    private ArrayList<User> mSelectedUsers = new ArrayList<>();
 
     private ProgressDialog mDialog;
 
@@ -153,8 +152,8 @@ public class AddEventActivity extends AppCompatActivity {
         String[] teamName = new String[mSelectedUsers.size()];
 
         for (int i=0; i<mSelectedUsers.size(); i++) {
-            UserDetails userDetails = mSelectedUsers.get(i);
-            teamName[i] = userDetails.getUser_name();
+            User user = mSelectedUsers.get(i);
+            teamName[i] = user.getUsername();
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -226,7 +225,7 @@ public class AddEventActivity extends AppCompatActivity {
 
                 boolean flag = false;
                 for (int i=0; i<mSelectedUsers.size(); i++) {
-                    if (mSelectedUsers.get(i).getUser_name().equals(mEventLeader)) {
+                    if (mSelectedUsers.get(i).getUsername().equals(mEventLeader)) {
                         flag = true;
                         break;
                     }
@@ -297,13 +296,13 @@ public class AddEventActivity extends AppCompatActivity {
         String title = mTitleET.getText().toString().trim();
         String description = mDescriptionET.getText().toString().trim();
 
-        // TODO: Implement getUser_name() and replace with the current user
+        // TODO: Implement getUsername() and replace with the current user
         String username = AppController.getInstance().getLoginUserUsername();
 
         List<String> organizersId = new ArrayList<>();
         for (int i = 0; i < mSelectedUsers.size(); i++) {
-            // organizersId.add(mSelectedUsers.get(i).getId());
-            organizersId.add(mSelectedUsers.get(i).getUser_name());
+            // organizersId.add(mSelectedUsers.get(i).getUser_id());
+            organizersId.add(mSelectedUsers.get(i).getUsername());
         }
 
         Map<String, String> param = new HashMap<>();
