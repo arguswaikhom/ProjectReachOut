@@ -28,7 +28,7 @@ import com.projectreachout.AppController;
 import com.projectreachout.Event.ContributePeople;
 import com.projectreachout.R;
 import com.projectreachout.SelectPeople.SelectPeopleActivity;
-import com.projectreachout.User.UserDetails;
+import com.projectreachout.User.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,7 +79,7 @@ public class EventDetailsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private ArrayList<UserDetails> mSelectedUsers = new ArrayList<>();
+    private ArrayList<User> mSelectedUsers = new ArrayList<>();
     private ArrayList<String> mExistingUsernames = new ArrayList<>();
 
     private SparseBooleanArray sparseBooleanArray = new SparseBooleanArray();
@@ -248,7 +248,7 @@ public class EventDetailsFragment extends Fragment {
         for (int i = 0; i < mSelectedUsers.size(); i++) {
             boolean repeated = false;
             for (int j = 0; j < mExistingUsernames.size(); j++) {
-                if (mSelectedUsers.get(i).getUser_name().equals(mExistingUsernames.get(j))) {
+                if (mSelectedUsers.get(i).getUsername().equals(mExistingUsernames.get(j))) {
                     repeated = true;
                     break;
                 } else {
@@ -256,7 +256,7 @@ public class EventDetailsFragment extends Fragment {
                 }
             }
             if (!repeated) {
-                newOrganizers.add(mSelectedUsers.get(i).getUser_name());
+                newOrganizers.add(mSelectedUsers.get(i).getUsername());
             }
         }
 

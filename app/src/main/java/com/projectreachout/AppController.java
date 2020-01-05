@@ -1,11 +1,8 @@
 package com.projectreachout;
 
 import android.Manifest;
-import android.app.AlarmManager;
 import android.app.Application;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -19,14 +16,15 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.projectreachout.Login.LoginActivity;
-import com.projectreachout.Utilities.BackgroundSyncUtilities.BackgoundServerChecker;
-import com.projectreachout.Utilities.BackgroundSyncUtilities.NotificationAlarmReceiver;
+import com.projectreachout.User.User;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class AppController extends Application {
     public static final String TAG = AppController.class.getSimpleName();
@@ -48,6 +46,7 @@ public class AppController extends Application {
 
     private SharedPreferences mSharedPreferences;
     private FirebaseAuth mFirebaseAuth;
+    private GoogleSignInClient mGoogleSignInClient;
 
     private String globalEventId;
 
@@ -57,6 +56,11 @@ public class AppController extends Application {
         mInstance = this;
         mSharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
         mFirebaseAuth = FirebaseAuth.getInstance();
+        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
         //setUpAlarmManagerForNotificationSync();
     }
 
@@ -83,6 +87,10 @@ public class AppController extends Application {
 
     public FirebaseAuth getFirebaseAuth() {
         return mFirebaseAuth;
+    }
+
+    public GoogleSignInClient getGoogleSignInClient() {
+        return mGoogleSignInClient;
     }
 
     public ImageLoader getImageLoader() {
@@ -163,19 +171,44 @@ public class AppController extends Application {
         return true;
     }
 
-    public void logout() {
+    public void clearSharedPreferences() {
         mSharedPreferences.edit().clear().apply();
+    }
+
+    public User getUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
+        return new User(
+                sharedPreferences.getString("user_id", null),
+                getLoginUserUsername(),
+                getLoginUserProfilePictureUrl(),
+                sharedPreferences.getString("display_name", null),
+                sharedPreferences.getString("email", null),
+                sharedPreferences.getString("phone_number", null),
+                getLoginUserAccountType(),
+                sharedPreferences.getString("bio", null)
+                );
+    }
+
+    public void setUser(User user) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString("user_id", user.getUser_id());
+        editor.putString(TAG_USERNAME, user.getUsername());
+        editor.putString(TAG_PROFILE_PICTURE_URL, user.getProfile_image_url());
+        editor.putString("display_name", user.getDisplay_name());
+        editor.putString(TAG_EMAIL, user.getEmail());
+        editor.putString("phone_number", user.getPhone_number());
+        editor.putString(TAG_ACCOUNT_TYPE, user.getUser_type());
+        editor.putString("bio", user.getBio());
+        editor.apply();
     }
 
     public String getLoginUserUsername() {
         SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
-        //return "bbake";
         return sharedPreferences.getString(TAG_USERNAME, null);
     }
 
     public String getLoginUserPassword() {
         SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
-        //return "bbake";
         return sharedPreferences.getString(TAG_PASSWORD, null);
     }
 
@@ -200,7 +233,7 @@ public class AppController extends Application {
     }
 
     public SharedPreferences getSharedPreferences() {
-        return  mSharedPreferences;
+        return mSharedPreferences;
     }
 
     public Map<String, String> getLoginCredentialHeader() {

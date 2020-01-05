@@ -16,8 +16,6 @@ import androidx.appcompat.widget.PopupMenu;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
@@ -37,7 +35,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import static com.projectreachout.Article.ArticleMainFragment.mArticleItemList;
 import static com.projectreachout.Article.ArticleMainFragment.mArticleListAdapter;
 import static com.projectreachout.GeneralStatic.getDateTime;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.MyArticles.MyArticles.mArticleItemListMyArticles;
 import static com.projectreachout.MyArticles.MyArticles.mArticleListAdapterMyArticles;
@@ -115,7 +112,7 @@ public class ArticleListAdapter extends BaseAdapter {
         }
 
         // user profile pic
-        //profilePicture.setImageUrl(item.getProfile_picture_url(), imageLoader);
+        //profilePicture.setImageUrl(item.getProfile_image_url(), imageLoader);
 
         CircleImageView profilePicture = convertView.findViewById(R.id.iv_pfi_profile_picture);
 

@@ -17,7 +17,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.projectreachout.AppController;
 import com.projectreachout.R;
-import com.projectreachout.User.UserDetails;
+import com.projectreachout.User.User;
 import com.projectreachout.User.UserDetailsAdapter;
 
 import org.json.JSONArray;
@@ -46,7 +46,7 @@ public class SelectPeopleActivity extends AppCompatActivity {
 
     ListView mListView;
     UserDetailsAdapter mUserDetailsAdapter;
-    List<UserDetails> mUserDetailsList;
+    List<User> mUserList;
     FloatingActionButton mSubmitFAB;
 
     @Override
@@ -64,8 +64,8 @@ public class SelectPeopleActivity extends AppCompatActivity {
 
         mListView = findViewById(R.id.lv_lvl_list_view);
 
-        mUserDetailsList = new ArrayList<>();
-        mUserDetailsAdapter = new UserDetailsAdapter(this, R.layout.u_user_row_item, mUserDetailsList);
+        mUserList = new ArrayList<>();
+        mUserDetailsAdapter = new UserDetailsAdapter(this, R.layout.u_user_row_item, mUserList);
 
         mListView.setAdapter(mUserDetailsAdapter);
 
@@ -75,11 +75,11 @@ public class SelectPeopleActivity extends AppCompatActivity {
         mListView.addHeaderView(textView);*/
 
         Intent intent = getIntent();
-        ArrayList<UserDetails> userDetailsArrayList = intent.getParcelableArrayListExtra(EXISTING_ORGANIZERS);
+        ArrayList<User> userArrayList = intent.getParcelableArrayListExtra(EXISTING_ORGANIZERS);
 
         fetchUserData();
 
-        /* TODO: Delete this SparseBooleanArray part and use setSelectedToExistingOrganisers(userDetailsArrayList)
+        /* TODO: Delete this SparseBooleanArray part and use setSelectedToExistingOrganisers(userArrayList)
          *   after item selection works based on user id
          */
         ArrayList<Integer> integerArrayList = intent.getIntegerArrayListExtra(SPARSE_BOOLEAN_ARRAY);
@@ -128,17 +128,17 @@ public class SelectPeopleActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(stringRequest);
     }
 
-    class ShortByName implements Comparator<UserDetails> {
+    class ShortByName implements Comparator<User> {
 
         @Override
-        public int compare(UserDetails user1, UserDetails user2) {
-            return user1.getUser_name().compareToIgnoreCase(user2.getUser_name());
+        public int compare(User user1, User user2) {
+            return user1.getUsername().compareToIgnoreCase(user2.getUsername());
         }
     }
 
     private void parseJsonFeed(JSONArray responseArray) {
 
-        List<UserDetails> userList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
 
         for (int i = 0; i < responseArray.length(); i++) {
             JSONObject user = JSONParsingObjectFromArray(responseArray, i);
@@ -147,10 +147,10 @@ public class SelectPeopleActivity extends AppCompatActivity {
             String username = JSONParsingStringFromObject(user, "username");
             String profile_picture_url = JSONParsingStringFromObject(user, "image");
 
-            UserDetails userDetails = new UserDetails();
-            userDetails.setId("" + user_id);
-            userDetails.setUser_name(username);
-            userDetails.setProfile_picture_url(getDomainUrl() + profile_picture_url);
+            User userDetails = new User();
+            userDetails.setUser_id("" + user_id);
+            userDetails.setUsername(username);
+            userDetails.setProfile_image_url(getDomainUrl() + profile_picture_url);
 
             userList.add(userDetails);
 
@@ -166,12 +166,12 @@ public class SelectPeopleActivity extends AppCompatActivity {
     private void returnSelectedOrganizers(View view, Intent intent) {
         ArrayList<Integer> arrayList = mUserDetailsAdapter.getSelectedItem();
 
-        ArrayList<UserDetails> userDetailsArrayList = new ArrayList<>();
+        ArrayList<User> userArrayList = new ArrayList<>();
         for (int i = 0; i < arrayList.size(); i++) {
             /*for(int j=0; j<mUserDetailsAdapter.getCount(); j++){
-                UserDetails userDetails = mUserDetailsAdapter.getItem(j);
-                if(Objects.requireNonNull(userDetails).getId().equals(String.valueOf(arrayList.get(i)))){
-                    userDetailsArrayList.add(userDetails);
+                User user = mUserDetailsAdapter.getItem(j);
+                if(Objects.requireNonNull(user).getUser_id().equals(String.valueOf(arrayList.get(i)))){
+                    userArrayList.add(user);
                     break;
                 }
             }*/
@@ -179,8 +179,8 @@ public class SelectPeopleActivity extends AppCompatActivity {
             /* TODO: Replace the below two lines of code with the above commented code after item selection works based on user id
              */
             Log.v(TAG, "index ----- " + arrayList.get(i) + " :::: " + arrayList.size());
-            UserDetails userDetails = mUserDetailsAdapter.getItem(arrayList.get(i));
-            userDetailsArrayList.add(userDetails);
+            User user = mUserDetailsAdapter.getItem(arrayList.get(i));
+            userArrayList.add(user);
         }
 
         Toast.makeText(view.getContext(), arrayList.size() + " Organizers Selected", Toast.LENGTH_SHORT).show();
@@ -192,7 +192,7 @@ public class SelectPeopleActivity extends AppCompatActivity {
         }
         intent.putIntegerArrayListExtra(SPARSE_BOOLEAN_ARRAY, integerArrayList);
 
-        intent.putParcelableArrayListExtra(SELECTED_ORGANIZERS, userDetailsArrayList);
+        intent.putParcelableArrayListExtra(SELECTED_ORGANIZERS, userArrayList);
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -206,7 +206,7 @@ public class SelectPeopleActivity extends AppCompatActivity {
              */
 
             // Item selection based on user id
-            /*int index = Integer.valueOf(mUserDetailsAdapter.getItem(position).getId());
+            /*int index = Integer.valueOf(mUserDetailsAdapter.getItem(position).getUser_id());
 
             if(mUserDetailsAdapter.mSelectedItems.get(index)){
                 mUserDetailsAdapter.mSelectedItems.delete(index);
@@ -229,10 +229,10 @@ public class SelectPeopleActivity extends AppCompatActivity {
         }
     };
 
-    private void setSelectedToExistingOrganisers(ArrayList<UserDetails> userDetailsArrayList, int[] ints) {
-        if (userDetailsArrayList != null && userDetailsArrayList.size() != 0) {
-            for (int i = 0; i < userDetailsArrayList.size(); i++) {
-                int userId = Integer.valueOf(userDetailsArrayList.get(i).getId());
+    private void setSelectedToExistingOrganisers(ArrayList<User> userArrayList, int[] ints) {
+        if (userArrayList != null && userArrayList.size() != 0) {
+            for (int i = 0; i < userArrayList.size(); i++) {
+                int userId = Integer.valueOf(userArrayList.get(i).getUser_id());
                 mUserDetailsAdapter.mSelectedItems.put(userId, true);
             }
         }
@@ -245,8 +245,8 @@ public class SelectPeopleActivity extends AppCompatActivity {
             String teamName = "Regular Volunteers";
             String profileThumbnailUrl = "https://api.androidhive.info/json/images/tom_hardy.jpg";
 
-            UserDetails userDetails = new UserDetails(Integer.toString(id), username, teamName, profileThumbnailUrl);
-            mUserDetailsAdapter.add(userDetails);
+            User user = new User(Integer.toString(id), username, teamName, profileThumbnailUrl);
+            mUserDetailsAdapter.add(user);
         }
         mUserDetailsAdapter.notifyDataSetChanged();
     }

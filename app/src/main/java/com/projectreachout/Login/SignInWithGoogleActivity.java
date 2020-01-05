@@ -13,8 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -27,7 +25,7 @@ import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
 public class SignInWithGoogleActivity extends AppCompatActivity implements View.OnClickListener, MessageUtils.OnSnackBarActionListener {
-    private GoogleSignInClient mGoogleSignInClient;
+    private View mParentView;
     private final int RC_SIGN_IN = 100;
     private final String TAG = SignInWithGoogleActivity.class.getSimpleName();
 
@@ -43,22 +41,16 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
             e.printStackTrace();
         }
 
+        mParentView = findViewById(android.R.id.content);
         RelativeLayout mRootLayout = findViewById(R.id.iasiwg_root_layout);
         GoogleSignInButton mSignInButton = findViewById(R.id.iasiwg_sign_in_button);
         mSignInButton.setOnClickListener(this);
 
         AnimationDrawable animationDrawable = (AnimationDrawable) mRootLayout.getBackground();
-        animationDrawable.setEnterFadeDuration(1500);
-        animationDrawable.setExitFadeDuration(1500);
+        animationDrawable.setEnterFadeDuration(2000);
+        animationDrawable.setExitFadeDuration(2000);
 
         animationDrawable.start();
-
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
     }
 
     @Override
@@ -67,8 +59,6 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
         FirebaseUser currentUser = AppController.getInstance().getFirebaseAuth().getCurrentUser();
         if (currentUser != null) {
             signedIn();
-        } else {
-            signInWithGoogle();
         }
     }
 
@@ -88,10 +78,10 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
-                MessageUtils.showActionIndefiniteSnackBar(getCurrentFocus(), "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
+                MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
                 Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
             } catch (Exception e) {
-                MessageUtils.showActionIndefiniteSnackBar(getCurrentFocus(), "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
+                MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
                 Log.w(TAG, "signInResult:failed=" + e.getStackTrace());
             }
         }
@@ -107,10 +97,10 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
                         if (user != null) {
                             signedIn();
                         } else {
-                            MessageUtils.showActionIndefiniteSnackBar(getCurrentFocus(), "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
+                            MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
                         }
                     } else {
-                        MessageUtils.showActionIndefiniteSnackBar(getCurrentFocus(), "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
+                        MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
                         Log.w(TAG, "signInWithCredential:failure", task.getException());
                     }
                 });
@@ -123,7 +113,7 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
     }
 
     private void signInWithGoogle() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        Intent signInIntent = AppController.getInstance().getGoogleSignInClient().getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 

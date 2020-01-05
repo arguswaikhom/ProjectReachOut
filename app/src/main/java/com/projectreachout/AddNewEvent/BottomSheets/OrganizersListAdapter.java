@@ -13,14 +13,14 @@ import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.projectreachout.R;
-import com.projectreachout.User.UserDetails;
+import com.projectreachout.User.User;
 
 import java.util.List;
 import java.util.Objects;
 
-public class OrganizersListAdapter extends ArrayAdapter<UserDetails> {
+public class OrganizersListAdapter extends ArrayAdapter<User> {
 
-    public OrganizersListAdapter(Context context, int resource, List<UserDetails> objects) {
+    public OrganizersListAdapter(Context context, int resource, List<User> objects) {
         super(context, resource, objects);
     }
 
@@ -31,13 +31,13 @@ public class OrganizersListAdapter extends ArrayAdapter<UserDetails> {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.u_user_row_item, parent, false);
         }
 
-        UserDetails userDetails = getItem(position);
+        User user = getItem(position);
 
         ImageView profileThumbnailImageView = convertView.findViewById(R.id.iv_uuri_profile_thumbnail);
         TextView usernameTextView = convertView.findViewById(R.id.tv_uuri_username);
 
-        String username = Objects.requireNonNull(userDetails).getUser_name();
-        String profileThumbnailUrl = Objects.requireNonNull(userDetails).getProfile_picture_url();
+        String username = Objects.requireNonNull(user).getUsername();
+        String profileThumbnailUrl = Objects.requireNonNull(user).getProfile_image_url();
 
         RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_person_black_124dp).error(R.drawable.ic_person_black_124dp).centerCrop().circleCrop();
 
