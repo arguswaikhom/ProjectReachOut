@@ -20,23 +20,23 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.projectreachout.AppController;
 import com.projectreachout.ChangePassword.ChangePasswordActivity;
 import com.projectreachout.R;
 import com.projectreachout.SingleUploadBroadcastReceiver;
+import com.projectreachout.User.User;
 import com.projectreachout.Utilities.ImageCompressionUtilities.FileUtil;
 import com.projectreachout.Utilities.ImageCompressionUtilities.ImageCompression;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
+import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 import com.projectreachout.Utilities.PermissionUtilities.DevicePermissionUtils;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,13 +46,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.GeneralStatic.getVolleyErrorMessage;
+import static com.projectreachout.GeneralStatic.isValidMobile;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
-public class EditProfileActivity extends AppCompatActivity implements SingleUploadBroadcastReceiver.Delegate {
+public class EditProfileActivity extends AppCompatActivity implements SingleUploadBroadcastReceiver.Delegate, OnHttpResponse, MessageUtils.OnSnackBarActionListener, View.OnClickListener {
 
     private final String TAG = EditProfileActivity.class.getSimpleName();
 
@@ -66,12 +66,8 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     //Uri to store the image uri
     private Uri filePath;
 
-    private EditText mFirstNameET;
-    private EditText mLastNameET;
     private EditText mUserNameET;
-    private EditText mEmailET;
     private EditText mPhoneNo;
-    private EditText mLocation;
     private EditText mBio;
 
     private ImageView mProfilePictureIV;
@@ -81,9 +77,11 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     private Button mSubmitBtn;
 
     private View mWarningView;
+    private View mParentView;
 
     private TextView mWarningTV;
     private TextView mAccountType;
+    private TextView mEmailTV;
 
     private LinearLayout mContentLL;
 
@@ -91,6 +89,8 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     private ProgressDialog mDialog;
 
     private SingleUploadBroadcastReceiver uploadReceiver;
+    private final int RC_GET_USER_DETAILS = 1;
+    private final int RC_UPDATE_USER_DETAILS = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,18 +107,16 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
         mProgressBar = findViewById(R.id.pb_eaep_progress_bar);
 
+        mParentView = findViewById(android.R.id.content);
         mWarningView = findViewById(R.id.warning_view_eaep);
         mWarningView.setVisibility(View.GONE);
 
         mWarningTV = findViewById(R.id.tv_wbl_notice);
         mAccountType = findViewById(R.id.tv_eaep_account_type);
 
-        mFirstNameET = findViewById(R.id.et_eaep_first_name);
-        mLastNameET = findViewById(R.id.et_eaep_last_name);
         mUserNameET = findViewById(R.id.et_eaep_username);
-        mEmailET = findViewById(R.id.et_eaep_email);
+        mEmailTV = findViewById(R.id.tv_eaep_email);
         mPhoneNo = findViewById(R.id.et_eaep_phone_no);
-        mLocation = findViewById(R.id.et_eaep_location);
         mBio = findViewById(R.id.et_eaep_bio);
 
         mProfilePictureIV = findViewById(R.id.iv_eaep_user_profile_picture);
@@ -134,66 +132,30 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
         mChooseProfilePictureBtn.setOnClickListener(this::uploadPost);
         mChangePasswordBtn.setOnClickListener(v -> startActivity(new Intent(this, ChangePasswordActivity.class)));
 
-        mSubmitBtn.setOnClickListener(this::onClickedSubmit);
+        mSubmitBtn.setOnClickListener(this);
     }
 
     private void fetchData() {
-        String url = getDomainUrl() + "/get_user_details/";
+        String url = getDummyUrl() + "/get_user_details/";
+        String user_id = AppController.getInstance().getFirebaseAuth().getUid();
         Map<String, String> param = new HashMap<>();
-        param.put("username", AppController.getInstance().getLoginUserUsername());
+        param.put("user_id", user_id);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
-            if (response != null) {
-                if (!response.equals("401")) {
-                    showLayoutContainer();
-                    hideProgressBar();
-                    parseData(response);
-                }
-            }
-        }, error -> {
-            hideProgressBar();
-            Toast.makeText(EditProfileActivity.this, getVolleyErrorMessage(error.toString()), Toast.LENGTH_SHORT).show();
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return AppController.getInstance().getLoginCredentialHeader();
-            }
-
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                return param;
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(stringRequest);
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, RC_GET_USER_DETAILS, null, param,this);
+        httpVolleyRequest.execute();
     }
 
     private void parseData(String response) {
-        JSONObject jsonObject = JSONParsingObjectFromString(response);
+        User user = User.fromJson(response);
+        AppController.getInstance().setUser(user);
 
-        String username = JSONParsingStringFromObject(jsonObject, "username");
-        String firstName = JSONParsingStringFromObject(jsonObject, "first_name");
-        String lastName = JSONParsingStringFromObject(jsonObject, "last_name");
-        String phoneNo = JSONParsingStringFromObject(jsonObject, "phone");
-        String email = JSONParsingStringFromObject(jsonObject, "email");
-        String address = JSONParsingStringFromObject(jsonObject, "address");
-        String bio = JSONParsingStringFromObject(jsonObject, "bio");
-        String profilePictureUrl = getDomainUrl() + JSONParsingStringFromObject(jsonObject, "avatar");
-        String accountType = JSONParsingStringFromObject(jsonObject, "account_type");
+        mAccountType.setText(user.getUser_type());
+        mUserNameET.setText(user.getDisplay_name());
+        mPhoneNo.setText(user.getPhone_number());
+        mEmailTV.setText(user.getEmail());
+        mBio.setText(user.getBio());
 
-        mAccountType.setText(accountType);
-
-        mUserNameET.setText(username);
-        mFirstNameET.setText(firstName);
-        mLastNameET.setText(lastName);
-        mPhoneNo.setText(phoneNo);
-        mEmailET.setText(email);
-        mLocation.setText(address);
-        mBio.setText(bio);
-
-        Glide.with(this).load(profilePictureUrl).apply(RequestOptions.circleCropTransform()).into(mProfilePictureIV);
-
-        AppController.getInstance().saveLoginUserCredentials(username, AppController.getInstance().getLoginUserPassword(), email, profilePictureUrl, accountType);
+        Glide.with(getApplicationContext()).load(user.getProfile_image_url()).apply(RequestOptions.circleCropTransform()).into(mProfilePictureIV);
     }
 
     private void uploadPost(View view) {
@@ -287,23 +249,18 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
         }
     }
 
-    private void onClickedSubmit(View view) {
-        String userName = mUserNameET.getText().toString();
-        String firstName = mFirstNameET.getText().toString().trim();
-        String lastName = mLastNameET.getText().toString().trim();
+    private void onClickedSubmit() {
+        String displayName = mUserNameET.getText().toString();
         String phoneNo = mPhoneNo.getText().toString().trim();
-        String email = mEmailET.getText().toString().trim();
-        String address = mLocation.getText().toString().trim();
         String bio = mBio.getText().toString().trim();
 
-
-        if (userName.equals("")) {
+        if (displayName.equals("")) {
             showWarning("UserName can't be empty");
             showKeyBoard(mUserNameET);
             return;
         }
 
-        /*if (!email.equals("")) {
+        if (!phoneNo.equals("")) {
             if (!isValidMobile(phoneNo)) {
                 showWarning("Invalid Phone no.");
                 showKeyBoard(mPhoneNo);
@@ -311,63 +268,18 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
             }
         }
 
-        if (!email.equals("")) {
-            if (!isValidEmail(email)) {
-                showWarning("Invalid email address");
-                showKeyBoard(mUserNameET);
-                return;
-            }
-        }*/
-
         hideWarningView();
 
-        String url = getDomainUrl() + "/update_user_details/";
-
+        String url = getDummyUrl() + "/update_user_details/";
         Map<String, String> param = new HashMap<>();
-        param.put("requested_user", AppController.getInstance().getLoginUserUsername());
-        param.put("username", userName);
-        param.put("first_name", firstName);
-        param.put("last_name", lastName);
-        param.put("phone", phoneNo);
-        param.put("email", email);
-        param.put("address", address);
+        param.put("user_id", AppController.getInstance().getFirebaseAuth().getUid());
         param.put("bio", bio);
+        param.put("display_name", displayName);
+        param.put("phone_number", phoneNo);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
-            if (response != null) {
-                if (response.trim().equals("409")) {
-                    showWarning("Username already exist!! Try another name...");
-                } else if (!response.trim().equals("401")) {
-                    Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
-                    saveUserInfo(response);
-                }
-            }
-        }, error -> showWarning(getVolleyErrorMessage(error.toString()))) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return AppController.getInstance().getLoginCredentialHeader();
-            }
-
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                return param;
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(stringRequest);
-    }
-
-    private void saveUserInfo(String response) {
-        JSONObject jsonObject = JSONParsingObjectFromString(response);
-
-        String username = JSONParsingStringFromObject(jsonObject, "username");
-        String email = JSONParsingStringFromObject(jsonObject, "email");
-        String profile_picture_url = getDomainUrl() + JSONParsingStringFromObject(jsonObject, "avatar");
-        String accountType = JSONParsingStringFromObject(jsonObject, "account_type");
-
-        AppController.getInstance().saveLoginUserCredentials(username, AppController.getInstance().getLoginUserPassword(), email, profile_picture_url, accountType);
-
-        onBackPressed();
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, RC_UPDATE_USER_DETAILS,
+                null, param,this);
+        httpVolleyRequest.execute();
     }
 
     private void hideWarningView() {
@@ -440,5 +352,51 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
     @Override
     public void onCancelled() {
 
+    }
+
+    @Override
+    public void onHttpResponse(String response, int request) {
+        Log.v(TAG, "Http response\n\n" + request + "\n\n" +  response + "\n\n");
+        switch (request) {
+            case RC_GET_USER_DETAILS: {
+                showLayoutContainer();
+                hideProgressBar();
+                parseData(response);
+                break;
+            }
+            case RC_UPDATE_USER_DETAILS: {
+                if (response.trim().equals("200")) {
+                    Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show();
+                    onBackPressed();
+                } else {
+                    MessageUtils.showActionIndefiniteSnackBar(mParentView, "Update failed!!", "RETRY", RC_UPDATE_USER_DETAILS, this);
+                }
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+        if (request == RC_GET_USER_DETAILS) {
+            hideProgressBar();
+            Toast.makeText(EditProfileActivity.this, getVolleyErrorMessage(error.toString()), Toast.LENGTH_SHORT).show();
+        } else if (request == RC_UPDATE_USER_DETAILS) {
+            showWarning(getVolleyErrorMessage(error.toString()));
+        }
+    }
+
+    @Override
+    public void onActionBarClicked(View view, int requestCode) {
+        if (requestCode == RC_UPDATE_USER_DETAILS) {
+            onClickedSubmit();
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.btn_eaep_submit) {
+            onClickedSubmit();
+        }
     }
 }
