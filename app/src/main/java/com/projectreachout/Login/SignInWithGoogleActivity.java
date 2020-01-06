@@ -11,20 +11,24 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.VolleyError;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.projectreachout.AppController;
 import com.projectreachout.MainActivity;
 import com.projectreachout.R;
+import com.projectreachout.User.User;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
-public class SignInWithGoogleActivity extends AppCompatActivity implements View.OnClickListener, MessageUtils.OnSnackBarActionListener {
+public class SignInWithGoogleActivity extends AppCompatActivity implements View.OnClickListener, MessageUtils.OnSnackBarActionListener, OnHttpResponse {
     private View mParentView;
     private final int RC_SIGN_IN = 100;
     private final String TAG = SignInWithGoogleActivity.class.getSimpleName();
@@ -56,9 +60,9 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = AppController.getInstance().getFirebaseAuth().getCurrentUser();
-        if (currentUser != null) {
-            signedIn();
+        FirebaseAuth auth = AppController.getInstance().getFirebaseAuth();
+        if (auth != null && auth.getCurrentUser() != null) {
+            navigateMainActivity();
         }
     }
 
@@ -95,7 +99,7 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
                         Log.d(TAG, "signInWithCredential:success");
                         FirebaseUser user = AppController.getInstance().getFirebaseAuth().getCurrentUser();
                         if (user != null) {
-                            signedIn();
+                            FetchUserDetails.fetch(this, 0);
                         } else {
                             MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
                         }
@@ -106,7 +110,7 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
                 });
     }
 
-    private void signedIn() {
+    private void navigateMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
@@ -122,5 +126,19 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
         if (requestCode == RC_SIGN_IN) {
             signInWithGoogle();
         }
+    }
+
+    @Override
+    public void onHttpResponse(String response, int request) {
+        Log.v(TAG, response);
+        if (request == 0) {
+            AppController.getInstance().setUser(User.fromJson(response));
+            navigateMainActivity();
+        }
+    }
+
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+
     }
 }

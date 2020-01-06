@@ -296,7 +296,7 @@ public class AddEventActivity extends AppCompatActivity {
         String title = mTitleET.getText().toString().trim();
         String description = mDescriptionET.getText().toString().trim();
 
-        // TODO: Implement getUsername() and replace with the current user
+        // TODO: Implement getDisplay_name() and replace with the current user
         String username = AppController.getInstance().getLoginUserUsername();
 
         List<String> organizersId = new ArrayList<>();

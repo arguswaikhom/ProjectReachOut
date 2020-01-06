@@ -55,12 +55,6 @@ public class AppController extends Application {
         super.onCreate();
         mInstance = this;
         mSharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
         //setUpAlarmManagerForNotificationSync();
     }
 
@@ -86,11 +80,29 @@ public class AppController extends Application {
     }
 
     public FirebaseAuth getFirebaseAuth() {
+        if (mFirebaseAuth == null) {
+            return FirebaseAuth.getInstance();
+        }
         return mFirebaseAuth;
     }
 
     public GoogleSignInClient getGoogleSignInClient() {
+        if (mGoogleSignInClient == null) {
+            GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+            return GoogleSignIn.getClient(this, googleSignInOptions);
+        }
         return mGoogleSignInClient;
+    }
+
+    public void setFirebaseAuth(FirebaseAuth firebaseAuth) {
+        this.mFirebaseAuth = firebaseAuth;
+    }
+
+    public void setGoogleSignInClient(GoogleSignInClient googleSignInClient) {
+        this.mGoogleSignInClient = googleSignInClient;
     }
 
     public ImageLoader getImageLoader() {
@@ -186,7 +198,7 @@ public class AppController extends Application {
                 sharedPreferences.getString("phone_number", null),
                 getLoginUserAccountType(),
                 sharedPreferences.getString("bio", null)
-                );
+        );
     }
 
     public void setUser(User user) {
@@ -243,7 +255,11 @@ public class AppController extends Application {
     }
 
     public boolean isSuperUserAccount() {
-        return getLoginUserAccountType().equals("superuser");
+        return getLoginUserAccountType().equals(GeneralStatic.USER_SUPER);
+    }
+
+    public boolean isStaffUserAccount() {
+        return getLoginUserAccountType().equals(GeneralStatic.USER_STAFF);
     }
 
     public boolean hasPermissionGranted() {

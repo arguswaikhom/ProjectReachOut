@@ -16,7 +16,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.snackbar.Snackbar;
 import com.projectreachout.AppController;
-import com.projectreachout.Article.ArticleItem;
+import com.projectreachout.Article.Article;
 import com.projectreachout.Article.ArticleListAdapter;
 import com.projectreachout.R;
 
@@ -29,12 +29,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingIntFromObject;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 public class MyArticles extends AppCompatActivity {
@@ -43,7 +40,7 @@ public class MyArticles extends AppCompatActivity {
 
     private View mParentLayout;
 
-    public static List<ArticleItem> mArticleItemListMyArticles;
+    public static List<Article> mArticleItemListMyArticles;
     private LinearLayout mErrorMessageLayout;
     private Button mRetryBtn;
 
@@ -150,35 +147,7 @@ public class MyArticles extends AppCompatActivity {
         mArticleItemListMyArticles.clear();
         for (int i = response.length()-1; i >= 0; i--) {
             JSONObject feedObj = JSONParsingObjectFromArray(response, i);
-
-            /*Uri.Builder builder = new Uri.Builder();
-            builder.scheme(getString(R.string.http))
-                    .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no));
-
-            String url = builder.build().toString();*/
-
-            String url = getDomainUrl();
-
-            String id = JSONParsingStringFromObject(feedObj, "id");
-            String teamName = JSONParsingStringFromObject(feedObj, "team_name");
-            String userName = JSONParsingStringFromObject(feedObj, "username");
-            String timeStamp = JSONParsingStringFromObject(feedObj, "time_stamp");
-            String profilePictureUrl = JSONParsingStringFromObject(feedObj, "profile_picture_url");
-            String imageUrl = JSONParsingStringFromObject(feedObj, "image_url");
-            String description = JSONParsingStringFromObject(feedObj, "description");
-
-            ArticleItem item = new ArticleItem();
-
-            item.setId(id);
-            item.setTeam_name(teamName);
-            item.setUsername(userName);
-            item.setTime_stamp(timeStamp);
-
-            item.setProfile_picture_url(url + profilePictureUrl);
-            item.setImage_url(url + imageUrl);
-
-            item.setDescription(description);
-
+            Article item = Article.fromJson(feedObj.toString());
             mArticleItemListMyArticles.add(item);
         }
         mArticleListAdapterMyArticles.notifyDataSetChanged();

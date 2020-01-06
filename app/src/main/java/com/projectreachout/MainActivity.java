@@ -24,7 +24,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -44,24 +43,19 @@ import com.projectreachout.Article.ArticleMainFragment;
 import com.projectreachout.EditProfile.EditProfileActivity;
 import com.projectreachout.Event.EventMainFragment;
 import com.projectreachout.Event.Expenditures.ExpendituresMainFragment;
+import com.projectreachout.Login.FetchUserDetails;
 import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.Login.SignInWithGoogleActivity;
 import com.projectreachout.MyArticles.MyArticles;
 import com.projectreachout.User.User;
 import com.projectreachout.Utilities.ClearCacheData;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
-import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
 import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
-import com.projectreachout.Utilities.NotificationUtilities.NotificationUtilities;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
 import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ArticleMainFragment.OnFragmentInteractionListener,
@@ -109,10 +103,6 @@ public class MainActivity extends AppCompatActivity
 
         setUpNavView();
         inAppUpdateUtil();
-
-        showGuestNote();
-        showUpdateAvailable();
-
         showUserDetails();
     }
 
@@ -136,13 +126,17 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Menu menu = navigationView.getMenu();
-        /*if (AppController.getInstance().isSuperUserAccount()) {
+        if (AppController.getInstance().isSuperUserAccount()) {
+            menu.findItem(R.id.nav_home).setVisible(true);
+            menu.findItem(R.id.nav_add_article).setVisible(true);
+            menu.findItem(R.id.nav_my_events).setVisible(true);
             menu.findItem(R.id.nav_events).setVisible(true);
             menu.findItem(R.id.nav_add_event).setVisible(true);
-        } else {
-            menu.findItem(R.id.nav_events).setVisible(false);
-            menu.findItem(R.id.nav_add_event).setVisible(false);
-        }*/
+        } else if (AppController.getInstance().isStaffUserAccount()) {
+            menu.findItem(R.id.nav_home).setVisible(true);
+            menu.findItem(R.id.nav_add_article).setVisible(true);
+            menu.findItem(R.id.nav_my_events).setVisible(true);
+        }
 
         mHeaderView = navigationView.getHeaderView(0);
 
@@ -184,7 +178,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             finish();
         }
-        //super.onBackPressed();
     }
 
     @Override
@@ -193,25 +186,8 @@ public class MainActivity extends AppCompatActivity
         if (AppController.getInstance().getFirebaseAuth() == null) {
             navigateToLoginPage();
         }
-        /*if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
-            login();
-            displayUserDetails();
-        }*/
-        getUserDetails();
-        NotificationUtilities.clearAllNotifications(this);
-    }
-
-    private void getUserDetails() {
-        String url = getDummyUrl() + "/get_user_details/";
-        String user_id = AppController.getInstance().getFirebaseAuth().getUid();
-        Map<String, String> param = new HashMap<>();
-        param.put("user_id", user_id);
-
-        Log.v(TAG, "User id: " + user_id);
-        Log.v(TAG, "Param: " + param.toString());
-
-        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, RC_GET_USER_DETAILS, null, param,this);
-        httpVolleyRequest.execute();
+        FetchUserDetails.fetch(this, RC_GET_USER_DETAILS);
+        // NotificationUtilities.clearAllNotifications(this);
     }
 
     private void navigateToLoginPage() {
@@ -293,6 +269,8 @@ public class MainActivity extends AppCompatActivity
     private void logOut() {
         AppController.getInstance().getFirebaseAuth().signOut();
         AppController.getInstance().getGoogleSignInClient().signOut();
+        AppController.getInstance().setFirebaseAuth(null);
+        AppController.getInstance().setGoogleSignInClient(null);
         startActivity(new Intent(this, SignInWithGoogleActivity.class));
         AppController.getInstance().clearSharedPreferences();
         ClearCacheData.clear(this);
@@ -377,7 +355,7 @@ public class MainActivity extends AppCompatActivity
                 requestUpdate(appUpdateInfo);
                 Log.d(TAG, "inApp: inAppUpdateUtil() -> Update Available");
 
-                if(AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER){
+                if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
                     //mUpdateAvailableFL.setVisibility(View.VISIBLE);
                     // mUpdateAvailableTV.setText("New update available!! Click here to update..");
                     showUpdateAvailable();
@@ -457,7 +435,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onHttpErrorResponse(VolleyError error, int request) {
-        Log.v(TAG, ""  + error);
+        Log.v(TAG, "" + error);
     }
 
     private void showGuestNote() {

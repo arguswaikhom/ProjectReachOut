@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.projectreachout.R;
-import com.projectreachout.Utilities.BackgroundSyncUtilities.BackgoundServerChecker;
 import com.projectreachout.Utilities.CallbackUtilities.OnServerRequestResponse;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
     private OnFragmentInteractionListener mListener;
     public static ArticleListAdapter mArticleListAdapter;
 
-    public static List<ArticleItem> mArticleItemList;
+    public static List<Article> mArticleList;
     private LinearLayout mErrorMessageLayout;
     private Button mRetryBtn;
 
@@ -49,7 +48,7 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
     @Override
     public void onStart() {
         super.onStart();
-        BackgoundServerChecker.backgroundCheck(BackgoundServerChecker.ACTION_ARTICLE_ONLY);
+        //BackgoundServerChecker.backgroundCheck(BackgoundServerChecker.ACTION_ARTICLE_ONLY);
     }
 
     @Override
@@ -69,9 +68,9 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
         mRetryBtn = rootView.findViewById(R.id.btn_nel_retry);
         mListViewProgressBarFooterView = LayoutInflater.from(getContext()).inflate(R.layout.footer_progress_bar_layout, mListView, false);
 
-        mArticleItemList = new ArrayList<>();
+        mArticleList = new ArrayList<>();
 
-        mArticleListAdapter = new ArticleListAdapter(getActivity(), mArticleItemList);
+        mArticleListAdapter = new ArticleListAdapter(getActivity(), mArticleList);
         mListView.setAdapter(mArticleListAdapter);
 
         GetArticleHandler.loadArticles(this, GetArticleHandler.REFRESH, GetArticleHandler.REFRESH_VALUE);
@@ -80,7 +79,7 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
     }
 
     private String getLastVisibleArticleID() {
-        return mArticleItemList.get(mArticleItemList.size() - 1).getId();
+        return mArticleList.get(mArticleList.size() - 1).getId();
     }
 
     private void displayErrorMessage() {
@@ -121,10 +120,10 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
             return;
         }
         if (responseCode == GetArticleHandler.REFRESH) {
-            mArticleItemList.clear();
-            mArticleItemList.addAll((Collection<? extends ArticleItem>) response);
+            mArticleList.clear();
+            mArticleList.addAll((Collection<? extends Article>) response);
         } else if (responseCode == GetArticleHandler.LOAD_MORE) {
-            mArticleItemList.addAll((Collection<? extends ArticleItem>) response);
+            mArticleList.addAll((Collection<? extends Article>) response);
         }
         mArticleListAdapter.notifyDataSetChanged();
         mListView.removeFooterView(mListViewProgressBarFooterView);
@@ -137,11 +136,11 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
 
     @Override
     public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (!hasLockedLoadMore && firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
+        /*if (!hasLockedLoadMore && firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
             mListView.addFooterView(mListViewProgressBarFooterView);
             hasLockedLoadMore = true;
             GetArticleHandler.loadArticles(this, GetArticleHandler.LOAD_MORE, getLastVisibleArticleID());
-        }
+        }*/
     }
 
     public interface OnFragmentInteractionListener {

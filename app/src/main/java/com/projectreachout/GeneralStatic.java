@@ -50,6 +50,11 @@ public class GeneralStatic {
     public static final String FRAGMENT_EVENTS = "events";
     public static final String FRAGMENT_EXPENDITURES = "expenditures";
 
+    public static final String USER_SUPER = "superuser";
+    public static final String USER_STAFF = "staff";
+    public static final String USER_GUEST = "guest";
+
+
     public static int gEventId = -1;
 
     public static final int[] FIXED_ID_100 = getRandomInt(1000, 100000, 100);
