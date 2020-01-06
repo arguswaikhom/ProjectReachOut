@@ -57,7 +57,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="12dp"
         android:gravity="center"
-        android:text="@string/username"
+        android:text="@string/display_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/black"
         android:textStyle="bold"
@@ -120,10 +120,12 @@
 
         <include
             android:id="@+id/cv_nhm_update_available"
-            layout="@layout/warning_board_layout" />
+            layout="@layout/warning_board_layout"
+            android:visibility="gone" />
 
         <include
             android:id="@+id/cv_nhm_guest_note"
-            layout="@layout/warning_board_layout" />
+            layout="@layout/warning_board_layout"
+            android:visibility="gone" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

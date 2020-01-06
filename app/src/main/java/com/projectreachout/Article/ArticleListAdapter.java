@@ -23,7 +23,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.projectreachout.AppController;
-import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.R;
 
 import java.util.HashMap;
@@ -32,7 +31,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.projectreachout.Article.ArticleMainFragment.mArticleItemList;
+import static com.projectreachout.Article.ArticleMainFragment.mArticleList;
 import static com.projectreachout.Article.ArticleMainFragment.mArticleListAdapter;
 import static com.projectreachout.GeneralStatic.getDateTime;
 import static com.projectreachout.GeneralStatic.getDummyUrl;
@@ -45,24 +44,22 @@ public class ArticleListAdapter extends BaseAdapter {
 
     private Activity activity;
     private LayoutInflater inflater;
-    private List<ArticleItem> articleItems;
+    private List<Article> articles;
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
-    public ArticleListAdapter(Activity activity, List<ArticleItem> articleItems) {
+    public ArticleListAdapter(Activity activity, List<Article> articles) {
         this.activity = activity;
-        this.articleItems = articleItems;
+        this.articles = articles;
     }
-
-
 
     @Override
     public int getCount() {
-        return articleItems.size();
+        return articles.size();
     }
 
     @Override
     public Object getItem(int location) {
-        return articleItems.get(location);
+        return articles.get(location);
     }
 
     @Override
@@ -87,11 +84,11 @@ public class ArticleListAdapter extends BaseAdapter {
         ArticleImageView articleImageView = convertView.findViewById(R.id.iv_pfi_post_image);
         ImageButton optionsImageButton = convertView.findViewById(R.id.ibtn_pfi_overflow_button);
 
-        final ArticleItem item = articleItems.get(position);
+        final Article item = articles.get(position);
 
-        teamName.setText(item.getTeam_name());
+        //teamName.setText(item.getTeam_name());
 
-        userName.setText(item.getUsername());
+        userName.setText(item.getDisplay_name());
 
         // Converting timestamp into x ago format
         /*CharSequence timeAgo = DateUtils.getRelativeTimeSpanString(
@@ -119,7 +116,7 @@ public class ArticleListAdapter extends BaseAdapter {
         RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_person_black_124dp).error(R.drawable.ic_person_black_124dp).centerCrop().circleCrop();
 
         Glide.with(profilePicture.getContext())
-                .load(item.getProfile_picture_url())
+                .load(item.getAvatar())
                 .apply(requestOptions)
                 .into(profilePicture);
 
@@ -141,26 +138,24 @@ public class ArticleListAdapter extends BaseAdapter {
             articleImageView.setVisibility(View.GONE);
         }
 
-        if (AppController.getInstance().getUserType() != LoginActivity.AUTHORISED_USER) {
-            optionsImageButton.setVisibility(View.GONE);
-        }else if (item.getUsername().trim().equals(AppController.getInstance().getLoginUserUsername().trim())){
+        // TODO: remove this after share article implementation
+        if (AppController.getInstance().getFirebaseAuth().getUid().equals(item.getUser_id())){
             optionsImageButton.setVisibility(View.VISIBLE);
         } else {
             optionsImageButton.setVisibility(View.GONE);
         }
-
         optionsImageButton.setOnClickListener(v -> showPopupMenu(v, item, position));
 
         return convertView;
     }
 
-    private void showPopupMenu(View view, ArticleItem item, int position) {
+    private void showPopupMenu(View view, Article item, int position) {
 
         PopupMenu popup = new PopupMenu(view.getContext(), view);
         popup.inflate(R.menu.evn_eei_popup_menu);
 
         Menu overFlowMenu = popup.getMenu();
-        if (AppController.getInstance().getLoginUserUsername().equals(item.getUsername().trim())) {
+        if (AppController.getInstance().getFirebaseAuth().getUid().equals(item.getUser_id())) {
             overFlowMenu.findItem(R.id.menu_eepm_delete).setVisible(true);
         } else {
             overFlowMenu.findItem(R.id.menu_eepm_delete).setVisible(false);
@@ -179,7 +174,7 @@ public class ArticleListAdapter extends BaseAdapter {
         popup.show();
     }
 
-    private void deleteArticle(ArticleItem article, int position) {
+    private void deleteArticle(Article article, int position) {
         String url = getDummyUrl() + "/delete_article/";
 
         Map<String, String> param = new HashMap<>();
@@ -187,7 +182,7 @@ public class ArticleListAdapter extends BaseAdapter {
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
             if (response != null) {
-                if (mArticleItemList != null) mArticleItemList.remove(position);
+                if (mArticleList != null) mArticleList.remove(position);
                 if (mArticleListAdapter != null) mArticleListAdapter.notifyDataSetChanged();
                 if (mArticleItemListMyArticles != null) mArticleItemListMyArticles.remove(position);
                 if (mArticleListAdapterMyArticles != null) mArticleListAdapterMyArticles.notifyDataSetChanged();
