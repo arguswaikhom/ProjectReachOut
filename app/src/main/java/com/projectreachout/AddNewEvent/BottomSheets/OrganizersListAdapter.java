@@ -2,6 +2,7 @@ package com.projectreachout.AddNewEvent.BottomSheets;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -16,9 +17,9 @@ import com.projectreachout.R;
 import com.projectreachout.User.User;
 
 import java.util.List;
-import java.util.Objects;
 
 public class OrganizersListAdapter extends ArrayAdapter<User> {
+    private static final String TAG = OrganizersListAdapter.class.getSimpleName();
 
     public OrganizersListAdapter(Context context, int resource, List<User> objects) {
         super(context, resource, objects);
@@ -36,8 +37,9 @@ public class OrganizersListAdapter extends ArrayAdapter<User> {
         ImageView profileThumbnailImageView = convertView.findViewById(R.id.iv_uuri_profile_thumbnail);
         TextView usernameTextView = convertView.findViewById(R.id.tv_uuri_username);
 
-        String username = Objects.requireNonNull(user).getUsername();
-        String profileThumbnailUrl = Objects.requireNonNull(user).getProfile_image_url();
+        String username = user.getDisplay_name();
+        Log.v(TAG, user + "");
+        String profileThumbnailUrl = user.getProfile_image_url();
 
         RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_person_black_124dp).error(R.drawable.ic_person_black_124dp).centerCrop().circleCrop();
 

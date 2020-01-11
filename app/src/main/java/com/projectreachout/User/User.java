@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 
 public class User implements Parcelable {
-
     private String user_id;
     private String username;
     private String team_name;
@@ -84,25 +83,6 @@ public class User implements Parcelable {
         return new Gson().fromJson(jsonString, User.class);
     }
 
-    protected User(Parcel in) {
-        user_id = in.readString();
-        username = in.readString();
-        team_name = in.readString();
-        profile_image_url = in.readString();
-    }
-
-    public static final Creator<User> CREATOR = new Creator<User>() {
-        @Override
-        public User createFromParcel(Parcel in) {
-            return new User(in);
-        }
-
-        @Override
-        public User[] newArray(int size) {
-            return new User[size];
-        }
-    };
-
     public String getUser_id() {
         return user_id;
     }
@@ -135,19 +115,6 @@ public class User implements Parcelable {
         this.profile_image_url = profile_image_url;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(user_id);
-        dest.writeString(username);
-        dest.writeString(team_name);
-        dest.writeString(profile_image_url);
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -161,4 +128,46 @@ public class User implements Parcelable {
                 this.user_type + " " +
                 this.bio + " ";
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.user_id);
+        dest.writeString(this.username);
+        dest.writeString(this.team_name);
+        dest.writeString(this.profile_image_url);
+        dest.writeString(this.display_name);
+        dest.writeString(this.email);
+        dest.writeString(this.phone_number);
+        dest.writeString(this.user_type);
+        dest.writeString(this.bio);
+    }
+
+    protected User(Parcel in) {
+        this.user_id = in.readString();
+        this.username = in.readString();
+        this.team_name = in.readString();
+        this.profile_image_url = in.readString();
+        this.display_name = in.readString();
+        this.email = in.readString();
+        this.phone_number = in.readString();
+        this.user_type = in.readString();
+        this.bio = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }

@@ -1,7 +1,6 @@
 package com.projectreachout.AddNewEvent;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -21,11 +20,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.snackbar.Snackbar;
 import com.projectreachout.AddNewEvent.BottomSheets.BottomSheetFragment;
 import com.projectreachout.AddNewEvent.DateAndTimePicker.DatePickerFragment;
@@ -34,6 +30,8 @@ import com.projectreachout.AppController;
 import com.projectreachout.R;
 import com.projectreachout.SelectPeople.SelectPeopleActivity;
 import com.projectreachout.User.User;
+import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,7 +53,7 @@ import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.GeneralStatic.getMonthForInt;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
-public class AddEventActivity extends AppCompatActivity {
+public class AddEventActivity extends AppCompatActivity implements OnHttpResponse {
 
     private static final String TAG = AddEventActivity.class.getSimpleName();
 
@@ -76,6 +74,7 @@ public class AddEventActivity extends AppCompatActivity {
 
     private String mDate;
     private String mEventLeader;
+    private String mEventLeaderId;
     private int mEventLeaderIndex = -1;
     private ArrayList<String> mSelectedTeam = new ArrayList<>();
     private ArrayList<User> mSelectedUsers = new ArrayList<>();
@@ -133,6 +132,7 @@ public class AddEventActivity extends AppCompatActivity {
     }
 
     String eventLeader = null;
+    String eventLeaderId = null;
     int eventLeaderIndex = -1;
 
     private void selectEventLeader(View view) {
@@ -153,27 +153,24 @@ public class AddEventActivity extends AppCompatActivity {
 
         for (int i=0; i<mSelectedUsers.size(); i++) {
             User user = mSelectedUsers.get(i);
-            teamName[i] = user.getUsername();
+            teamName[i] = user.getDisplay_name();
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(title);
-        builder.setSingleChoiceItems(teamName, mEventLeaderIndex, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                eventLeader = teamName[which];
-                eventLeaderIndex = which;
-            }
+        builder.setSingleChoiceItems(teamName, mEventLeaderIndex, (dialog, which) -> {
+            eventLeader = teamName[which];
+            eventLeaderId = mSelectedUsers.get(which).getUser_id();
+            Log.v(TAG, "eventLeader: " + eventLeader + " : " + mSelectedUsers.get(which).getDisplay_name());
+            eventLeaderIndex = which;
         }).setPositiveButton("OK", (dialog, which) -> {
             mEventLeader = eventLeader;
+            mEventLeaderId = eventLeaderId;
             mEventLeaderIndex = eventLeaderIndex;
             mShowEventLeaderTV.setText(mEventLeader);
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        }).setNegativeButton("Cancel", (dialog, which) -> {
 
-            }
         });
 
         builder.create().show();
@@ -216,6 +213,7 @@ public class AddEventActivity extends AppCompatActivity {
                 for (int i = 0; i < integerArrayList.size(); i++) {
                     sparseBooleanArray.put(integerArrayList.get(i), true);
                 }
+                Log.v(TAG, mSelectedUsers.toString());
 
                 if (mSelectedUsers.size() == 0) {
                     mShowOrganizersTV.setText("None");
@@ -225,7 +223,7 @@ public class AddEventActivity extends AppCompatActivity {
 
                 boolean flag = false;
                 for (int i=0; i<mSelectedUsers.size(); i++) {
-                    if (mSelectedUsers.get(i).getUsername().equals(mEventLeader)) {
+                    if (mSelectedUsers.get(i).getDisplay_name().equals(mEventLeader)) {
                         flag = true;
                         break;
                     }
@@ -297,12 +295,12 @@ public class AddEventActivity extends AppCompatActivity {
         String description = mDescriptionET.getText().toString().trim();
 
         // TODO: Implement getDisplay_name() and replace with the current user
-        String username = AppController.getInstance().getLoginUserUsername();
+        String username = AppController.getInstance().getFirebaseAuth().getUid();
 
         List<String> organizersId = new ArrayList<>();
         for (int i = 0; i < mSelectedUsers.size(); i++) {
             // organizersId.add(mSelectedUsers.get(i).getUser_id());
-            organizersId.add(mSelectedUsers.get(i).getUsername());
+            organizersId.add(mSelectedUsers.get(i).getUser_id());
         }
 
         Map<String, String> param = new HashMap<>();
@@ -312,19 +310,9 @@ public class AddEventActivity extends AppCompatActivity {
         param.put("description", description);
         param.put("selected_teams", mSelectedTeam.toString());
         param.put("organizers", organizersId.toString());
-        param.put("event_leader", mEventLeader);
-
-        /*String play = username + "\n\n" +
-                mDate + "\n\n" +
-                title + "\n\n" +
-                description + "\n\n" +
-                mSelectedTeam.toString() + "\n\n" +
-                organizersId.toString() + "\n\n\n";
-
-        Log.v(TAG, play);*/
+        param.put("event_leader", mEventLeaderId);
 
         Log.v(TAG, "MAP: \n\n\n" + param.toString() + "\n\n\n");
-
         return param;
     }
 
@@ -352,60 +340,21 @@ public class AddEventActivity extends AppCompatActivity {
         }
 
         Map<String, String> param = getMappedData();
-
-        /*Uri.Builder builder = new Uri.Builder();
-        builder.scheme(getString(R.string.http))
-                .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("add_event")
-                .appendPath("");
-
-        String url = builder.build().toString();*/
-
         String url = getDummyUrl() + "/add_event/";
 
-        Log.v(TAG, "URL: " + url);
+        Log.v(TAG, param.toString());
 
         mDialog.setMessage("Loading. Please wait...   ");
         mDialog.show();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String output) {
-                Log.v(TAG, output);
-                if (output.trim().equals("200")) {
-                    mDialog.dismiss();
-                    Toast.makeText(AddEventActivity.this, "Event Added", Toast.LENGTH_SHORT).show();
-                    onBackPressed();
-                } else {
-                    mDialog.dismiss();
-                    displayErrorMessage(view);
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.v(TAG, error.toString());
-                mDialog.dismiss();
-                displayErrorMessage(view);
-            }
-        }){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return AppController.getInstance().getLoginCredentialHeader();
-            }
-
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                return param;
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(stringRequest);
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, 0, null, param, this);
+        httpVolleyRequest.execute();
     }
 
-    private void displayErrorMessage(View view) {
+    private void displayErrorMessage() {
         String errorMessage = "Couldn't update information to server...";
-        Snackbar.make(view, errorMessage, Snackbar.LENGTH_INDEFINITE).setAction("Retry", new View.OnClickListener() {
+        View parentView = findViewById(android.R.id.content);
+        Snackbar.make(parentView, errorMessage, Snackbar.LENGTH_INDEFINITE).setAction("Retry", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 submitEvent(v);
@@ -469,5 +418,29 @@ public class AddEventActivity extends AppCompatActivity {
 
         mDate = year + "-" + month + "-" + day;
         mShowDateTV.setText(day + " " + getMonthForInt(month-1) + " " + year);
+    }
+
+    @Override
+    public void onHttpResponse(String response, int request) {
+        Log.v(TAG, response);
+        if (request == 0) {
+            if (response.trim().equals("200")) {
+                mDialog.dismiss();
+                Toast.makeText(AddEventActivity.this, "Event Added", Toast.LENGTH_SHORT).show();
+                onBackPressed();
+            } else {
+                mDialog.dismiss();
+                displayErrorMessage();
+            }
+        }
+    }
+
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+        Log.v(TAG, error.toString());
+        if (request == 0) {
+            mDialog.dismiss();
+            displayErrorMessage();
+        }
     }
 }

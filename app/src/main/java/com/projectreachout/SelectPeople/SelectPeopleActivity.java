@@ -11,14 +11,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.VolleyError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.projectreachout.AppController;
 import com.projectreachout.R;
 import com.projectreachout.User.User;
 import com.projectreachout.User.UserDetailsAdapter;
+import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,20 +27,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.FIXED_ID_100;
 import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingIntFromObject;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.GeneralStatic.getRandomString;
 
-public class SelectPeopleActivity extends AppCompatActivity {
+public class SelectPeopleActivity extends AppCompatActivity implements OnHttpResponse {
 
     private static final String TAG = SelectPeopleActivity.class.getSimpleName();
 
@@ -82,6 +79,7 @@ public class SelectPeopleActivity extends AppCompatActivity {
         /* TODO: Delete this SparseBooleanArray part and use setSelectedToExistingOrganisers(userArrayList)
          *   after item selection works based on user id
          */
+
         ArrayList<Integer> integerArrayList = intent.getIntegerArrayListExtra(SPARSE_BOOLEAN_ARRAY);
         for (int i = 0; i < integerArrayList.size(); i++) {
             mUserDetailsAdapter.mSelectedItems.put(integerArrayList.get(i), true);
@@ -103,58 +101,37 @@ public class SelectPeopleActivity extends AppCompatActivity {
     }
 
     private void fetchUserData() {
-        /*Uri.Builder builder = new Uri.Builder();
-        builder.scheme(getString(R.string.http))
-                .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("all_users")
-                .appendPath("");
+        String url = getDummyUrl() + "/get_users/";
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.GET, url, null, 0, this);
+        httpVolleyRequest.execute();
+    }
 
-        String url = builder.build().toString();*/
+    @Override
+    public void onHttpResponse(String response, int request) {
+        if (request == 0) {
+            parseJsonFeed(JSONParsingArrayFromString(response));
+            Log.d(TAG, response);
+        }
+    }
 
-        String url = getDomainUrl() + "/all_users/";
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, output -> {
-            if (output != null) {
-                parseJsonFeed(JSONParsingArrayFromString(output));
-                Log.d(TAG, output);
-            }
-        }, error -> Log.d(TAG, error.toString())){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return AppController.getInstance().getLoginCredentialHeader();
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(stringRequest);
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+        Log.d(TAG, error.toString());
     }
 
     class ShortByName implements Comparator<User> {
-
         @Override
         public int compare(User user1, User user2) {
-            return user1.getUsername().compareToIgnoreCase(user2.getUsername());
+            return user1.getDisplay_name().compareToIgnoreCase(user2.getDisplay_name());
         }
     }
 
     private void parseJsonFeed(JSONArray responseArray) {
-
         List<User> userList = new ArrayList<>();
 
         for (int i = 0; i < responseArray.length(); i++) {
             JSONObject user = JSONParsingObjectFromArray(responseArray, i);
-
-            int user_id = JSONParsingIntFromObject(user, "id");
-            String username = JSONParsingStringFromObject(user, "username");
-            String profile_picture_url = JSONParsingStringFromObject(user, "image");
-
-            User userDetails = new User();
-            userDetails.setUser_id("" + user_id);
-            userDetails.setUsername(username);
-            userDetails.setProfile_image_url(getDomainUrl() + profile_picture_url);
-
-            userList.add(userDetails);
-
-            // mUserDetailsAdapter.add(userDetails);
+            userList.add(User.fromJson(user.toString()));
         }
 
         Collections.sort(userList, new ShortByName());
