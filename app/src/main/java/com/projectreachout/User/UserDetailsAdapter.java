@@ -52,7 +52,7 @@ public class UserDetailsAdapter extends ArrayAdapter<User> {
 
         User user = getItem(position);
 
-        String username = Objects.requireNonNull(user).getUsername();
+        String username = Objects.requireNonNull(user).getDisplay_name();
         String profileThumbnailUrl = Objects.requireNonNull(user).getProfile_image_url();
 
         ImageView profileThumbnailImageView = convertView.findViewById(R.id.iv_uuri_profile_thumbnail);
