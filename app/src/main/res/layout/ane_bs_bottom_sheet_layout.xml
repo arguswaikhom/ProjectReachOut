@@ -31,7 +31,7 @@
         android:layout_height="0.5dp"
         android:background="@color/colorPrimary" />
 
-    <com.projectreachout.AddNewEvent.BottomSheets.BottomSheetListView
+    <com.projectreachout.Event.AddEvent.BottomSheets.BottomSheetListView
         android:id="@+id/bslv_abbsl_list_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"

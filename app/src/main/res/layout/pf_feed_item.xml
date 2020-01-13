@@ -78,7 +78,7 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <com.projectreachout.Article.ArticleImageView
+    <com.projectreachout.Article.GetArticle.ArticleImageView
         android:id="@+id/iv_pfi_post_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

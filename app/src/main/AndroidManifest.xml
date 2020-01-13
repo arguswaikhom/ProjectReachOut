@@ -45,7 +45,7 @@
             android:parentActivityName=".MainActivity"
             tools:ignore="InnerclassSeparator" />
         <activity
-            android:name=".MyArticles.MyArticles"
+            android:name=".Article.MyArticles.MyArticles"
             android:label="@string/title_my_articles"
             tools:ignore="InnerclassSeparator" />
         <activity
@@ -63,7 +63,7 @@
             </intent-filter>-->
         </activity>
         <activity
-            android:name=".SingleEventDetailsAndModification.SingleEventDetailsActivity"
+            android:name=".Event.EventDetailsAndModification.SingleEventDetailsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeSingleEventDetailsAndModification"
             tools:ignore="InnerclassSeparator" />
@@ -74,7 +74,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             tools:ignore="InnerclassSeparator" />
         <activity
-            android:name=".AddNewEvent.AddEventActivity"
+            android:name=".Event.AddEvent.AddEventActivity"
             android:screenOrientation="portrait"
             tools:ignore="InnerclassSeparator" />
         <activity
