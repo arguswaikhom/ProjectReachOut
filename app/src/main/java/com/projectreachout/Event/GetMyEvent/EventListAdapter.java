@@ -24,10 +24,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.projectreachout.AppController;
 import com.projectreachout.Event.EventDetailsAndModification.SingleEventDetailsActivity;
+import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
-
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.projectreachout.User.User;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,8 +38,6 @@ import static com.projectreachout.Event.GetMyEvent.EventMainFragment.mEventItemL
 import static com.projectreachout.Event.GetMyEvent.EventMainFragment.mEventListAdapter;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDate;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.getDummyUrl;
 
 
@@ -57,70 +54,49 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
     @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         if (convertView == null) {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.evn_event_item, parent, false);
         }
 
-        EventItem currentEventItem = getItem(position);
-
+        EventItem eventItem = getItem(position);
         TextView eventTitleTextView = convertView.findViewById(R.id.tv_eeei_event_title);
         TextView teamNameTextView = convertView.findViewById(R.id.tv_eeei_team_name);
         TextView dateTextView = convertView.findViewById(R.id.tv_eeei_date);
         TextView descriptionTextView = convertView.findViewById(R.id.tv_eei_description);
-        ImageButton  overflowImageButton = convertView.findViewById(R.id.ibtn_eeei_overflow_button);
+        ImageButton overflowImageButton = convertView.findViewById(R.id.ibtn_eeei_overflow_button);
         mTableLayout = convertView.findViewById(R.id.tl_eei_contribute_people);
 
         mTableLayout.removeAllViews();
+        eventTitleTextView.setText(eventItem.getEvent_title());
 
-        String eventTitle = currentEventItem.getEvent_title();
-        String date = currentEventItem.getDate();
-        String teamName = currentEventItem.getTeam_name();
-        String description = currentEventItem.getDescription();
-        String eventLeader = currentEventItem.getEventLeader();
-
-        List<ContributePeople> contributePeopleList = currentEventItem.getContribute_people_list();
-
-        eventTitleTextView.setText(eventTitle);
-
-        try {
-            JSONArray teams = new JSONArray(teamName);
-            teamNameTextView.setText("");
-            for (int i=0; i<teams.length(); i++) {
-                teamNameTextView.append(teams.getString(i));
-                if (i != teams.length()-1) {
-                    teamNameTextView.append(", ");
-                }
+        String[] teams = eventItem.getSelected_teams();
+        teamNameTextView.setText("");
+        for (int i = 0; i < teams.length; i++) {
+            teamNameTextView.append(teams[i]);
+            if (i != teams.length - 1) {
+                teamNameTextView.append(", ");
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            teamNameTextView.setVisibility(View.INVISIBLE);
         }
-
         //teamNameTextView.setText(teamName);
-        descriptionTextView.setText(description);
-
-
+        descriptionTextView.setText(eventItem.getDescription());
         //dateTextView.setText(getTimeAgo(date));
-        dateTextView.setText(getDate(date));
+        dateTextView.setText(eventItem.getEvent_date());
 
-        for (int i = 0; i < contributePeopleList.size(); i++) {
-            addContributor(contributePeopleList.get(i));
+        User[] organizers = eventItem.getOrganizers();
+        for (int i = 0; i < organizers.length; i++) {
+            addContributor(organizers[i]);
         }
 
-        if (AppController.getInstance().getLoginUserAccountType().equals("superuser") || AppController.getInstance().getLoginUserUsername().equals(eventLeader)) {
+        if (AppController.getInstance().getLoginUserAccountType().equals("superuser") || AppController.getInstance().getFirebaseAuth().getUid().equals(eventItem.getEvent_leader())) {
             overflowImageButton.setVisibility(View.VISIBLE);
         } else {
             overflowImageButton.setVisibility(View.GONE);
         }
-
-        overflowImageButton.setOnClickListener(v -> showPopupMenu(v, currentEventItem.getEvent_id(), position));
-
+        overflowImageButton.setOnClickListener(v -> showPopupMenu(v, eventItem.getEvent_id(), position));
         return convertView;
     }
 
-    private void addContributor(ContributePeople contributePeople){
-
+    private void addContributor(User user) {
         /* Synchronise indices with changes in the evn_contribute_people_item.xml layouts
          * i.e. change the below index ids according to the changes in the xml layout of the contributePeopleLinearLayout
          */
@@ -143,15 +119,11 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
         CircleImageView profilePictureImageView = (CircleImageView) linearLayout.getChildAt(INDEX_PROFILE_PICTURE_TEXT_VIEW);
         TextView userNameTextView = (TextView) linearLayout.getChildAt(INDEX_USER_NAME_TEXT_VIEW);
 
-        String profilePictureUrl = contributePeople.getProfile_picture_url();
-        String userName = contributePeople.getUser_name();
+        String profilePictureUrl = user.getProfile_image_url();
+        String userName = user.getDisplay_name();
 
-        //if (profilePictureUrl != null) {
-            RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_person_black_124dp)
-                    .error(R.drawable.ic_person_black_124dp).circleCrop();
-
-            Glide.with(getContext()).load(getDomainUrl() + profilePictureUrl).apply(requestOptions).into(profilePictureImageView);
-       // }
+        RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_person_black_124dp).error(R.drawable.ic_person_black_124dp).circleCrop();
+        Glide.with(getContext()).load(profilePictureUrl).apply(requestOptions).into(profilePictureImageView);
 
         userNameTextView.setText(userName);
 
@@ -212,7 +184,7 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
                 }
                 Log.v(TAG, response);
             }
-        }, error -> Log.v(TAG, error.toString())){
+        }, error -> Log.v(TAG, error.toString())) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return AppController.getInstance().getLoginCredentialHeader();

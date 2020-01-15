@@ -18,16 +18,12 @@ import androidx.appcompat.widget.PopupMenu;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.projectreachout.AppController;
 import com.projectreachout.Event.EventDetailsAndModification.SingleEventDetailsActivity;
-import com.projectreachout.Event.GetMyEvent.EventItem;
+import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -67,21 +63,16 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
         TextView investmentInReturnAmountTV = convertView.findViewById(R.id.tv_eeei_in_return_amount);
         TextView descriptionTV = convertView.findViewById(R.id.tv_eeei_description);
 
-        try {
-            JSONArray teams = new JSONArray(eventItem.getTeam_name());
-            teamNameTV.setText("");
-            for (int i=0; i<teams.length(); i++) {
-                teamNameTV.append(teams.getString(i));
-                if (i != teams.length()-1) {
-                    teamNameTV.append(", ");
-                }
+        String[] teams = eventItem.getSelected_teams();
+        teamNameTV.setText("");
+        for (int i=0; i<teams.length; i++) {
+            teamNameTV.append(teams[i]);
+            if (i != teams.length-1) {
+                teamNameTV.append(", ");
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            teamNameTV.setVisibility(View.INVISIBLE);
         }
 
-        String eventLeader = eventItem.getEventLeader();
+        String eventLeader = eventItem.getEvent_leader().getDisplay_name();
 
         if (AppController.getInstance().getLoginUserAccountType().equals("superuser") || AppController.getInstance().getLoginUserUsername().equals(eventLeader)) {
             optionEB.setVisibility(View.VISIBLE);
@@ -93,11 +84,11 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
 
         titleTV.setText(eventItem.getEvent_title());
         //teamNameTV.setText(eventItem.getTeam_name());
-        dateTV.setText(getDate(eventItem.getDate()));
-        assignedByTV.setText(Html.fromHtml("<font color='#000000'>Assign by: </font>" + "<i>" + eventItem.getAssignBy() + "</i>"));
-        organizerCountTV.setText(Html.fromHtml("<font color='#000000'>Organizer: </font>" + "<i>" + eventItem.getOrganizerCount() + "</i>"));
-        investedAmountTV.setText(Html.fromHtml("<font color='#000000'>Invested: </font>" + "<i>" + eventItem.getInvestmentAmount() + "</i>"));
-        investmentInReturnAmountTV.setText(Html.fromHtml("<font color='#000000'>In Return: </font>" + "<i>" + eventItem.getInvestmentInReturn() + "</i>"));
+        dateTV.setText(getDate(eventItem.getEvent_date()));
+        assignedByTV.setText(Html.fromHtml("<font color='#000000'>Assign by: </font>" + "<i>" + eventItem.getAssigned_by().getDisplay_name() + "</i>"));
+        organizerCountTV.setText(Html.fromHtml("<font color='#000000'>Organizer: </font>" + "<i>" + eventItem.getOrganizers().length + "</i>"));
+        investedAmountTV.setText(Html.fromHtml("<font color='#000000'>Invested: </font>" + "<i>" + eventItem.getInvestment_amount() + "</i>"));
+        investmentInReturnAmountTV.setText(Html.fromHtml("<font color='#000000'>In Return: </font>" + "<i>" + eventItem.getInvestment_return() + "</i>"));
         descriptionTV.setText(eventItem.getDescription());
 
         return convertView;
@@ -162,12 +153,7 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
                     Log.v("aaaaa", response);
                 }
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.v("aaaaa", error.toString());
-            }
-        }){
+        }, error -> Log.v("aaaaa", error.toString())){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return AppController.getInstance().getLoginCredentialHeader();

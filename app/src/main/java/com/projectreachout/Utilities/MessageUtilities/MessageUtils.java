@@ -25,11 +25,6 @@ public class MessageUtils {
     }
 
     public static void showActionIndefiniteSnackBar(View view, String message, String actionMsg, int requestCode, OnSnackBarActionListener onSnackbarActionListener) {
-        Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE).setAction(actionMsg, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSnackbarActionListener.onActionBarClicked(view, requestCode);
-            }
-        }).show();
+        Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE).setAction(actionMsg, view1 -> onSnackbarActionListener.onActionBarClicked(view1, requestCode)).show();
     }
 }

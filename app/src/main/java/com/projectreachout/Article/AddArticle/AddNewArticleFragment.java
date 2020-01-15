@@ -27,8 +27,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
@@ -303,7 +301,7 @@ public class AddNewArticleFragment extends Fragment implements /*SingleUploadBro
     private void performUpload(String path, final String description, OnUploadCompleted onUploadCompleted) {
         Uri file = Uri.fromFile(new File(path));
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Article");
-        final StorageReference imgStrRef = storageReference.child(AppController.getInstance().getLoginUserUsername() + "_" + new Timestamp(new Date()) + "_" + file.getLastPathSegment());
+        final StorageReference imgStrRef = storageReference.child(AppController.getInstance().getFirebaseAuth().getUid() + "_" + new Date().getTime() + "_" + file.getLastPathSegment());
         UploadTask uploadTask = imgStrRef.putFile(file);
         uploadTask.continueWithTask((Task<UploadTask.TaskSnapshot> task) -> {
             if (!task.isSuccessful()) {
@@ -318,22 +316,14 @@ public class AddNewArticleFragment extends Fragment implements /*SingleUploadBro
                 Toast.makeText(getActivity(), "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                //mImageUploadProgress = progress;
-                Log.v(TAG, "Upload is " + progress + "% done");
-                mDialog.setMessage("Loading. Please wait...   " + progress + "%");
-                mDialog.show();
-                //mImageUploadProgressBar.setProgress((int)progress);
-            }
-        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.v(TAG, "Upload is paused");
-            }
-        });
+        uploadTask.addOnProgressListener(taskSnapshot -> {
+            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+            //mImageUploadProgress = progress;
+            Log.v(TAG, "Upload is " + progress + "% done");
+            mDialog.setMessage("Loading. Please wait...   " + progress + "%");
+            mDialog.show();
+            //mImageUploadProgressBar.setProgress((int)progress);
+        }).addOnPausedListener(taskSnapshot -> Log.v(TAG, "Upload is paused"));
     }
 
     private void showSettingsDialog() {

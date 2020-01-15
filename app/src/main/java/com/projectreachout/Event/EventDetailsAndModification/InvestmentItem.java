@@ -1,5 +1,7 @@
 package com.projectreachout.Event.EventDetailsAndModification;
 
+import com.google.gson.Gson;
+
 public class InvestmentItem {
 
     private String investment_on = "";
@@ -13,12 +15,8 @@ public class InvestmentItem {
         this.amount = amount;
     }
 
-    public void setInvestment_on(String investment_on) {
-        this.investment_on = investment_on;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
+    public static InvestmentItem fromJson(String jsonString) {
+        return new Gson().fromJson(jsonString, InvestmentItem.class);
     }
 
     public String getInvestment_on() {

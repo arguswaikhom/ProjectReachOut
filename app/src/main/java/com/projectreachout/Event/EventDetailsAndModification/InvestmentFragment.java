@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,6 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.projectreachout.AppController;
 import com.projectreachout.R;
+import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,20 +41,10 @@ import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.getDummyUrl;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link InvestmentFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link InvestmentFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class InvestmentFragment extends Fragment {
+public class InvestmentFragment extends Fragment implements OnHttpResponse {
 
     private final String TAG = InvestmentFragment.class.getSimpleName();
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -65,24 +56,6 @@ public class InvestmentFragment extends Fragment {
 
     public InvestmentFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment InvestmentFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static InvestmentFragment newInstance(String param1, String param2) {
-        InvestmentFragment fragment = new InvestmentFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -104,9 +77,7 @@ public class InvestmentFragment extends Fragment {
     private Button mSubmitButton;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.sedam_fragment_investment, container, false);
 
         mInvestmentTableLayout = rootView.findViewById(R.id.tl_sfi_investment);
@@ -130,54 +101,22 @@ public class InvestmentFragment extends Fragment {
 
     private void fetchEventInvestmentDetails() {
         String url = getDummyUrl() + "/get_event_investment/";
-        String event_id = AppController.getInstance().getGlobalEventId();
-
         Map<String, String> param = new HashMap<>();
-        param.put("event_id", event_id);
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (response != null) {
-                    Log.v("aaaaa", response);
-                    parseJsonFeed(JSONParsingObjectFromString(response));
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.v("aaaaa", error.toString());
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return AppController.getInstance().getLoginCredentialHeader();
-            }
-
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                return param;
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(stringRequest);
+        param.put("event_id", AppController.getInstance().getGlobalEventId());
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, 0, null, param, this);
+        httpVolleyRequest.execute();
     }
 
-    private void parseJsonFeed(JSONObject outputObj) {
-        String investmentAmount = JSONParsingStringFromObject(outputObj, "investment_amount");
-        String investmentOnReturn = JSONParsingStringFromObject(outputObj, "investment_return");
+    private void parseJsonFeed(String response) {
+        JSONObject responseObj = JSONParsingObjectFromString(response);
+        String investmentAmount = JSONParsingStringFromObject(responseObj, "investment_amount");
+        String investmentOnReturn = JSONParsingStringFromObject(responseObj, "investment_return");
 
-        JSONArray investmentList = JSONParsingArrayFromObject(outputObj, "investment_details");
-
+        JSONArray investmentList = JSONParsingArrayFromObject(responseObj, "investment_details");
         mInvestmentTableLayout.removeAllViews();
-
         for (int i = 0; i < investmentList.length(); i++) {
             JSONObject investmentItem = JSONParsingObjectFromArray(investmentList, i);
-
-            String investmentOn = JSONParsingStringFromObject(investmentItem, "investment_on");
-            String amount = JSONParsingStringFromObject(investmentItem, "amount");
-
-            addNewInvestmentItem(new InvestmentItem(investmentOn, amount));
+            addNewInvestmentItem(InvestmentItem.fromJson(investmentItem.toString()));
         }
 
         mTotalAmountTextView.setText(investmentAmount);
@@ -309,16 +248,19 @@ public class InvestmentFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    @Override
+    public void onHttpResponse(String response, int request) {
+        Log.v(TAG, response);
+        if (request == 0) {
+            parseJsonFeed(response);
+        }
+    }
+
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
