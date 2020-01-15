@@ -15,29 +15,24 @@ import android.widget.ListView;
 
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.snackbar.Snackbar;
-import com.projectreachout.AppController;
 import com.projectreachout.Event.EventDetailsAndModification.SingleEventDetailsActivity;
-import com.projectreachout.Event.GetMyEvent.EventItem;
+import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
+import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromObject;
 import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
 import static com.projectreachout.GeneralStatic.getDummyUrl;
@@ -50,7 +45,7 @@ import static com.projectreachout.GeneralStatic.getDummyUrl;
  * Use the {@link ExpendituresMainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ExpendituresMainFragment extends Fragment {
+public class ExpendituresMainFragment extends Fragment implements OnHttpResponse {
 
     private static final String TAG = ExpendituresMainFragment.class.getSimpleName();
 
@@ -163,30 +158,8 @@ public class ExpendituresMainFragment extends Fragment {
     }
 
     private void loadBackgroundAsyncTask(String url){
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String output) {
-                if(output != null){
-                    if (mErrorMessageLayout.getVisibility() == View.VISIBLE) {
-                        mErrorMessageLayout.setVisibility(View.GONE);
-                    }
-                    Log.v(TAG, output);
-                    parseJsonFeed(JSONParsingArrayFromString(output));
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                displayErrorMessage();
-            }
-        }){
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return AppController.getInstance().getLoginCredentialHeader();
-            }
-        };
-
-        AppController.getInstance().addToRequestQueue(stringRequest);
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.GET, url, null, 0, this);
+        httpVolleyRequest.execute();
     }
 
     private void displayErrorMessage() {
@@ -207,26 +180,7 @@ public class ExpendituresMainFragment extends Fragment {
         mEventItemList.clear();
         for (int i = jsonArray.length()-1; i >= 0; i--) {
             JSONObject eventItemJSONObj = JSONParsingObjectFromArray(jsonArray, i);
-
-            String eventId = JSONParsingStringFromObject(eventItemJSONObj, "event_id");
-            String title = JSONParsingStringFromObject(eventItemJSONObj, "event_title");
-            String date = JSONParsingStringFromObject(eventItemJSONObj, "event_date");
-            String team = JSONParsingStringFromObject(eventItemJSONObj, "selected_teams");
-            String assignBy = JSONParsingStringFromObject(eventItemJSONObj, "assigned_by");
-            String investedAmount = JSONParsingStringFromObject(eventItemJSONObj, "investment_amount");
-            String investmentInReturn = JSONParsingStringFromObject(eventItemJSONObj, "investment_return");
-            String description = JSONParsingStringFromObject(eventItemJSONObj, "description");
-            String eventLeader = JSONParsingStringFromObject(eventItemJSONObj, "event_leader");
-
-            JSONArray organizers = JSONParsingArrayFromObject(eventItemJSONObj, "organizers");
-
-            Log.d(TAG, organizers.toString());
-            Log.d(TAG, String.valueOf(organizers.length()));
-
-            EventItem eventItem = new EventItem(title, date, team, description, assignBy, organizers.length(), investmentInReturn, investedAmount);
-            eventItem.setEvent_id(eventId);
-            eventItem.setEventLeader(eventLeader);
-
+            EventItem eventItem = EventItem.fromJson(eventItemJSONObj.toString());
             mEventListAdapter.add(eventItem);
         }
         mEventListAdapter.notifyDataSetChanged();
@@ -235,13 +189,6 @@ public class ExpendituresMainFragment extends Fragment {
     private void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Objects.requireNonNull(getActivity()).startActivity(new Intent(getContext(), SingleEventDetailsActivity.class));
     }
-
-    /*private void addDummyEvent() {
-        for (int i = 0; i < 20; i++) {
-            mEventListAdapter.add(new EventItem());
-        }
-        mEventListAdapter.notifyDataSetChanged();
-    }*/
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -265,6 +212,26 @@ public class ExpendituresMainFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onHttpResponse(String response, int request) {
+        if (request == 0) {
+            if(response != null){
+                if (mErrorMessageLayout.getVisibility() == View.VISIBLE) {
+                    mErrorMessageLayout.setVisibility(View.GONE);
+                }
+                Log.v(TAG, response);
+                parseJsonFeed(JSONParsingArrayFromString(response));
+            }
+        }
+    }
+
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+        if (request == 0) {
+            displayErrorMessage();
+        }
     }
 
     /**
