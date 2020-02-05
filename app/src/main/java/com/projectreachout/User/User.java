@@ -8,6 +8,10 @@ import androidx.annotation.NonNull;
 import com.google.gson.Gson;
 
 public class User implements Parcelable {
+    public static final String AC_SUPERUSER = "superuser";
+    public static final String AC_STAFF = "staff";
+    public static final String AC_GUEST = "guest";
+
     private String user_id;
     private String username;
     private String team_name;
@@ -17,6 +21,7 @@ public class User implements Parcelable {
     private String phone_number;
     private String user_type;
     private String bio;
+    private boolean isActive;
 
     public String getDisplay_name() {
         return display_name;
@@ -30,32 +35,20 @@ public class User implements Parcelable {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getPhone_number() {
         return phone_number;
-    }
-
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
     }
 
     public String getUser_type() {
         return user_type;
     }
 
-    public void setUser_type(String user_type) {
-        this.user_type = user_type;
-    }
-
     public String getBio() {
         return bio;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public boolean isActive() {
+        return isActive;
     }
 
     public User() {
@@ -111,10 +104,6 @@ public class User implements Parcelable {
         return profile_image_url;
     }
 
-    public void setProfile_image_url(String profile_image_url) {
-        this.profile_image_url = profile_image_url;
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -145,6 +134,7 @@ public class User implements Parcelable {
         dest.writeString(this.phone_number);
         dest.writeString(this.user_type);
         dest.writeString(this.bio);
+        dest.writeByte(this.isActive ? (byte) 1 : (byte) 0);
     }
 
     protected User(Parcel in) {
@@ -157,6 +147,7 @@ public class User implements Parcelable {
         this.phone_number = in.readString();
         this.user_type = in.readString();
         this.bio = in.readString();
+        this.isActive = in.readByte() != 0;
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {

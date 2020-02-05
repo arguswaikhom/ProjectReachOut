@@ -1,5 +1,7 @@
 package com.projectreachout.Article.GetArticle;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
 
 public class Article {
@@ -10,6 +12,8 @@ public class Article {
     private String avatar;
     private String image_url;
     private String description;
+    private String my_reaction;
+    private String reaction_count;
 
     public Article() {
     }
@@ -50,18 +54,6 @@ public class Article {
         this.display_name = display_name;
     }
 
-    public void setTime_stamp(String time_stamp) {
-        this.time_stamp = time_stamp;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public void setImage_url(String image_url) {
-        this.image_url = image_url;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }
@@ -70,15 +62,26 @@ public class Article {
         return article_id;
     }
 
-    public void setArticle_id(String article_id) {
-        this.article_id = article_id;
-    }
-
     public String getUser_id() {
         return user_id;
     }
 
     public void setUser_id(String user_id) {
         this.user_id = user_id;
+    }
+
+    public String getMy_reaction() {
+        return my_reaction;
+    }
+
+    public String getReaction_count() {
+        return reaction_count;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 }

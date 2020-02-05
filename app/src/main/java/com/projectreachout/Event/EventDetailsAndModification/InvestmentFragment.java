@@ -39,7 +39,7 @@ import static com.projectreachout.GeneralStatic.JSONParsingArrayFromObject;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class InvestmentFragment extends Fragment implements OnHttpResponse {
 
@@ -95,12 +95,19 @@ public class InvestmentFragment extends Fragment implements OnHttpResponse {
                 e.printStackTrace();
             }
         });
-        fetchEventInvestmentDetails();
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (AppController.getInstance().performIfAuthenticated(getActivity())) {
+            fetchEventInvestmentDetails();
+        }
+    }
+
     private void fetchEventInvestmentDetails() {
-        String url = getDummyUrl() + "/get_event_investment/";
+        String url = getDomainUrl() + "/get_event_investment/";
         Map<String, String> param = new HashMap<>();
         param.put("event_id", AppController.getInstance().getGlobalEventId());
         HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, 0, null, param, this);
@@ -161,7 +168,7 @@ public class InvestmentFragment extends Fragment implements OnHttpResponse {
         String investment_details = ow.writeValueAsString(investmentItems);
         Log.v(TAG, investment_details);
 
-        String url = getDummyUrl() + "/add_investment_details/";
+        String url = getDomainUrl() + "/add_investment_details/";
         String event_id = AppController.getInstance().getGlobalEventId();
 
         long total = 0;

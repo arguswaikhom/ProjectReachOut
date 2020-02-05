@@ -11,9 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -29,6 +30,7 @@ import com.projectreachout.User.User;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
 import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
+import com.projectreachout.Utilities.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,8 +44,7 @@ import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.GET_ORGANIZER_LIST;
 import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
-import static com.projectreachout.GeneralStatic.getDate;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class EventDetailsFragment extends Fragment implements OnHttpResponse, MessageUtils.OnSnackBarActionListener {
 
@@ -89,6 +90,7 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
     private TextView mOrganizerCountTextView;
 
     private TableLayout mOrganizerTablelayout;
+    private ProgressBar mLoadingPbar;
 
     private Button mAddOrganizerbutton;
     private Button mSubmit;
@@ -106,15 +108,25 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
 
         mOrganizerTablelayout = rootView.findViewById(R.id.tl_sfed_organizer);
         mAddOrganizerbutton = rootView.findViewById(R.id.btn_sfed_add_organizer);
+        mLoadingPbar = rootView.findViewById(R.id.pbar_sfed_loading);
 
         mAddOrganizerbutton.setOnClickListener(this::selectOrganizersToAdd);
 
-        fetchEventDetails();
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (AppController.getInstance().performIfAuthenticated(getActivity())) {
+            fetchEventDetails();
+        }
+    }
+
     private void fetchEventDetails() {
-        String url = getDummyUrl() + "/get_event_details/";
+        mLoadingPbar.setVisibility(View.VISIBLE);
+
+        String url = getDomainUrl() + "/get_event_details/";
         Map<String, String> param = new HashMap<>();
         param.put("event_id", AppController.getInstance().getGlobalEventId());
         HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, RC_GET_EVENT_DETAILS, null, param, this);
@@ -154,7 +166,9 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
     }
 
     private void addNewOrganizers() {
-        String url = getDummyUrl() + "/add_organizer_to_event/";
+        mLoadingPbar.setVisibility(View.VISIBLE);
+
+        String url = getDomainUrl() + "/add_organizer_to_event/";
         String eventId = AppController.getInstance().getGlobalEventId();
         ArrayList<String> newOrganizers = new ArrayList<>();
 
@@ -200,7 +214,7 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
         }
 
         mEventTitleTV.setText(eventItem.getEvent_title());
-        mDateTV.setText(getDate(eventItem.getEvent_date()));
+        mDateTV.setText(TimeUtil.getTimeAgaFromSecond(Long.parseLong(eventItem.getEvent_date())));
         mAssignByTV.setText(eventItem.getAssigned_by().getDisplay_name());
         mDescriptionTV.setText(eventItem.getDescription());
         mOrganizerCountTextView.setText("Organizers: " + organizers.length);
@@ -216,18 +230,13 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
     }
 
     private void addOrganizer(User user) {
-        final int INDEX_PROFILE_PICTURE_TEXT_VIEW = 0;
-        final int INDEX_USER_NAME_TEXT_VIEW = 1;
-        final int INDEX_REMOVE_IMAGE_BUTTON = 3;
-
         // inflating layout
-        LinearLayout rootViewLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.evn_contribute_people_item, null);
-        LinearLayout contributePeopleLinearLayout = (LinearLayout) rootViewLinearLayout.getChildAt(0);
-        LinearLayout linearLayout = (LinearLayout) contributePeopleLinearLayout.getChildAt(1);
+        ViewGroup rootViewLinearLayout = (ViewGroup) LayoutInflater.from(getContext()).inflate(R.layout.evn_contribute_people_item, null);
+        ViewGroup contributePeopleLinearLayout = rootViewLinearLayout.findViewById(R.id.ll_ecpi_contribute_ppl);
 
-        CircleImageView profilePictureImageView = (CircleImageView) linearLayout.getChildAt(INDEX_PROFILE_PICTURE_TEXT_VIEW);
-        TextView userNameTextView = (TextView) linearLayout.getChildAt(INDEX_USER_NAME_TEXT_VIEW);
-        ImageButton removeImageButton = (ImageButton) linearLayout.getChildAt(INDEX_REMOVE_IMAGE_BUTTON);
+        CircleImageView profilePictureImageView = contributePeopleLinearLayout.findViewById(R.id.civ_ecpi_profile);
+        TextView userNameTextView = contributePeopleLinearLayout.findViewById(R.id.tv_ecpi_display_name);
+        ImageButton removeImageButton = contributePeopleLinearLayout.findViewById(R.id.ib_ecpi_remove_user);
 
         String profilePictureUrl = user.getProfile_image_url();
         Glide.with(Objects.requireNonNull(getContext()))
@@ -245,7 +254,9 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
     }
 
     private void removeOrganizer(String userId) {
-        String url = getDummyUrl() + "/remove_organizer_from_event/";
+        mLoadingPbar.setVisibility(View.VISIBLE);
+
+        String url = getDomainUrl() + "/remove_organizer_from_event/";
         String event_id = AppController.getInstance().getGlobalEventId();
 
         Map<String, String> param = new HashMap<>();
@@ -282,6 +293,7 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
     @Override
     public void onHttpResponse(String response, int request) {
         Log.v(TAG, response);
+        mLoadingPbar.setVisibility(View.GONE);
         switch (request) {
             case RC_GET_EVENT_DETAILS:
                 parseJsonFeed(response);
@@ -300,7 +312,8 @@ public class EventDetailsFragment extends Fragment implements OnHttpResponse, Me
     @Override
     public void onHttpErrorResponse(VolleyError error, int request) {
         Log.v(TAG, error.toString());
-        error.printStackTrace();
+        mLoadingPbar.setVisibility(View.GONE);
+        Toast.makeText(getContext(), "Something went wrong!!", Toast.LENGTH_SHORT).show();
     }
 
     @Override

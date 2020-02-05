@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.projectreachout.AppController;
 import com.projectreachout.R;
 import com.projectreachout.Utilities.CallbackUtilities.OnServerRequestResponse;
 
@@ -48,12 +49,11 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
     @Override
     public void onStart() {
         super.onStart();
+        if (AppController.getInstance().performIfAuthenticated(getActivity())) {
+            GetArticleHandler.loadArticles(this, GetArticleHandler.REFRESH, GetArticleHandler.REFRESH_VALUE);
+            mListener.onUpdateProgressVisibility(View.VISIBLE);
+        }
         //BackgoundServerChecker.backgroundCheck(BackgoundServerChecker.ACTION_ARTICLE_ONLY);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -73,7 +73,6 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
         mArticleListAdapter = new ArticleListAdapter(getActivity(), mArticleList);
         mListView.setAdapter(mArticleListAdapter);
 
-        GetArticleHandler.loadArticles(this, GetArticleHandler.REFRESH, GetArticleHandler.REFRESH_VALUE);
         mListView.setOnScrollListener(this);
         return rootView;
     }
@@ -115,6 +114,7 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
     @SuppressWarnings("unchecked")
     @Override
     public void onSuccess(int responseCode, List<?> response, String msg) {
+        mListener.onUpdateProgressVisibility(View.INVISIBLE);
         if (response.isEmpty()) {
             mListView.removeFooterView(mListViewProgressBarFooterView);
             return;
@@ -144,7 +144,7 @@ public class ArticleMainFragment extends Fragment implements OnServerRequestResp
     }
 
     public interface OnFragmentInteractionListener {
-        // Update argument type and name
+        void onUpdateProgressVisibility(int visibility);
         void onFragmentInteraction(Uri uri);
     }
 }

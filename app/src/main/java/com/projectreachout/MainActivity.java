@@ -12,7 +12,9 @@ import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -45,10 +47,8 @@ import com.projectreachout.Event.AddEvent.AddEventActivity;
 import com.projectreachout.Event.GetEvent.ExpendituresMainFragment;
 import com.projectreachout.Event.GetMyEvent.EventMainFragment;
 import com.projectreachout.Login.FetchUserDetails;
-import com.projectreachout.Login.LoginActivity;
-import com.projectreachout.Login.SignInWithGoogleActivity;
+import com.projectreachout.ManageUser.ManageUserActivity;
 import com.projectreachout.User.User;
-import com.projectreachout.Utilities.ClearCacheData;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
@@ -75,35 +75,31 @@ public class MainActivity extends AppCompatActivity
     private Button mMyArticlesBtn;
     private Button mEditProfileBtn;
     private ImageButton mShareAppLinkIB;
+    private Toolbar mToolBar;
+    private ProgressBar mLoadingPb;
     private final int RC_GET_USER_DETAILS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.sp_toolbar);
-        setSupportActionBar(toolbar);
+        mToolBar = findViewById(R.id.sp_toolbar);
+        setSupportActionBar(mToolBar);
+        mLoadingPb = findViewById(R.id.pb_abm_loading);
 
         mFragmentManager = getSupportFragmentManager();
-
         loadFragment(new ArticleMainFragment(), FRAGMENT_HOME);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, mToolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        /*if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
+        if (AppController.getInstance().isAuthenticated()) {
             setUpNavView();
-        } else {
-            toggle.setDrawerIndicatorEnabled(false);
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        }*/
-
-        setUpNavView();
-        inAppUpdateUtil();
-        showUserDetails();
+            inAppUpdateUtil();
+            showUserDetails();
+        }
     }
 
     @Override
@@ -126,16 +122,21 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         Menu menu = navigationView.getMenu();
-        if (AppController.getInstance().isSuperUserAccount()) {
-            menu.findItem(R.id.nav_home).setVisible(true);
-            menu.findItem(R.id.nav_add_article).setVisible(true);
-            menu.findItem(R.id.nav_my_events).setVisible(true);
-            menu.findItem(R.id.nav_events).setVisible(true);
-            menu.findItem(R.id.nav_add_event).setVisible(true);
-        } else if (AppController.getInstance().isStaffUserAccount()) {
-            menu.findItem(R.id.nav_home).setVisible(true);
-            menu.findItem(R.id.nav_add_article).setVisible(true);
-            menu.findItem(R.id.nav_my_events).setVisible(true);
+        try {
+            if (AppController.getInstance().isSuperUserAccount()) {
+                menu.findItem(R.id.nav_home).setVisible(true);
+                menu.findItem(R.id.nav_add_article).setVisible(true);
+                menu.findItem(R.id.nav_my_events).setVisible(true);
+                menu.findItem(R.id.nav_events).setVisible(true);
+                menu.findItem(R.id.nav_add_event).setVisible(true);
+                menu.findItem(R.id.nav_manage_user).setVisible(true);
+            } else if (AppController.getInstance().isStaffUserAccount()) {
+                menu.findItem(R.id.nav_home).setVisible(true);
+                menu.findItem(R.id.nav_add_article).setVisible(true);
+                menu.findItem(R.id.nav_my_events).setVisible(true);
+            }
+        } catch (NullPointerException npe) {
+            AppController.getInstance().signOut(this);
         }
 
         mHeaderView = navigationView.getHeaderView(0);
@@ -183,21 +184,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (AppController.getInstance().getFirebaseAuth() == null) {
-            navigateToLoginPage();
+        if (AppController.getInstance().performIfAuthenticated(this)) {
+            FetchUserDetails.fetch(this, RC_GET_USER_DETAILS);
         }
-        FetchUserDetails.fetch(this, RC_GET_USER_DETAILS);
-        // NotificationUtilities.clearAllNotifications(this);
-    }
-
-    private void navigateToLoginPage() {
-        startActivity(new Intent(this, SignInWithGoogleActivity.class));
-        finish();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     /*@Override
@@ -250,15 +239,15 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(this, AddEventActivity.class));
                 break;
             }
+            case R.id.nav_manage_user: {
+                startActivity(new Intent(this, ManageUserActivity.class));
+                break;
+            }
             case R.id.nav_share: {
                 break;
             }
-            case R.id.nav_send_report: {
-                startActivity(new Intent(this, LoginActivity.class));
-                break;
-            }
             case R.id.nav_logout: {
-                logOut();
+                AppController.getInstance().signOut(this);
             }
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -266,54 +255,21 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void logOut() {
-        AppController.getInstance().getFirebaseAuth().signOut();
-        AppController.getInstance().getGoogleSignInClient().signOut();
-        AppController.getInstance().setFirebaseAuth(null);
-        AppController.getInstance().setGoogleSignInClient(null);
-        startActivity(new Intent(this, SignInWithGoogleActivity.class));
-        AppController.getInstance().clearSharedPreferences();
-        ClearCacheData.clear(this);
-        finish();
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        TextView title = mToolBar.findViewById(R.id.tv_abm_title);
+        title.setText(uri.toString());
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-        try {
-            getSupportActionBar().setTitle(uri.toString());
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+    public void onUpdateProgressVisibility(int visibility) {
+        mLoadingPb.setVisibility(visibility);
     }
 
     private void loadFragment(Fragment fragment, String name) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fl_abm_include, fragment);
         fragmentTransaction.commit();
-    }
-
-    private void inflateFeedMainFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new ArticleMainFragment())
-                .commit();
-    }
-
-    private void inflateAddNewPostFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new AddNewArticleFragment())
-                .commit();
-    }
-
-    private void inflateEventMainFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new EventMainFragment())
-                .commit();
-    }
-
-    private void inflateExpendituresMainFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new ExpendituresMainFragment())
-                .commit();
     }
 
     @Override
@@ -354,12 +310,7 @@ public class MainActivity extends AppCompatActivity
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
                 requestUpdate(appUpdateInfo);
                 Log.d(TAG, "inApp: inAppUpdateUtil() -> Update Available");
-
-                if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
-                    //mUpdateAvailableFL.setVisibility(View.VISIBLE);
-                    // mUpdateAvailableTV.setText("New update available!! Click here to update..");
-                    showUpdateAvailable();
-                }
+                showUpdateAvailable();
             } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                 popupSnackBarForCompleteUpdate();
             }

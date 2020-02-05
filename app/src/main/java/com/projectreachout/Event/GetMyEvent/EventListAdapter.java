@@ -10,16 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.projectreachout.AppController;
@@ -27,6 +25,10 @@ import com.projectreachout.Event.EventDetailsAndModification.SingleEventDetailsA
 import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
 import com.projectreachout.User.User;
+import com.projectreachout.Utilities.CallbackUtilities.OnInteractionWithItem;
+import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
+import com.projectreachout.Utilities.TimeUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,19 +36,23 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.projectreachout.Event.GetMyEvent.EventMainFragment.mEventItemList;
-import static com.projectreachout.Event.GetMyEvent.EventMainFragment.mEventListAdapter;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 
-public class EventListAdapter extends ArrayAdapter<EventItem> {
+public class EventListAdapter extends ArrayAdapter<EventItem> implements OnHttpResponse {
 
     public static final String TAG = EventListAdapter.class.getSimpleName();
+    public static final int RC_DELETE_EVENT = 1;
+    public static final int RC_DELETED_EVENT = 100;
+    public static final int RC_FAIL_TO_DELETE = 200;
 
-    public EventListAdapter(Context context, int resource, List<EventItem> objects) {
+    private OnInteractionWithItem mOnInteractionWithItem;
+
+    public EventListAdapter(Context context, int resource, List<EventItem> objects, OnInteractionWithItem onInteractionWithItem) {
         super(context, resource, objects);
+        this.mOnInteractionWithItem = onInteractionWithItem;
     }
 
     private TableLayout mTableLayout;
@@ -77,10 +83,8 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
                 teamNameTextView.append(", ");
             }
         }
-        //teamNameTextView.setText(teamName);
         descriptionTextView.setText(eventItem.getDescription());
-        //dateTextView.setText(getTimeAgo(date));
-        dateTextView.setText(eventItem.getEvent_date());
+        dateTextView.setText(TimeUtil.getTimeAgaFromSecond(Long.parseLong(eventItem.getEvent_date())));
 
         User[] organizers = eventItem.getOrganizers();
         for (int i = 0; i < organizers.length; i++) {
@@ -97,27 +101,16 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
     }
 
     private void addContributor(User user) {
-        /* Synchronise indices with changes in the evn_contribute_people_item.xml layouts
-         * i.e. change the below index ids according to the changes in the xml layout of the contributePeopleLinearLayout
-         */
-
-        final int INDEX_PROFILE_PICTURE_TEXT_VIEW = 0;
-        final int INDEX_USER_NAME_TEXT_VIEW = 1;
-        final int INDEX_REMOVE_IMAGE_BUTTON = 3;
-        final int INDEX_IS_GOING_CHECKBOX = 4;
-
-        LinearLayout rootViewLinearLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.evn_contribute_people_item, null);
+        ViewGroup rootViewLinearLayout = (ViewGroup) LayoutInflater.from(getContext()).inflate(R.layout.evn_contribute_people_item, null);
 
         /* The Redundant LinearLayout from the evn_contribute_people_item. */
-        LinearLayout contributePeopleLinearLayout = (LinearLayout) rootViewLinearLayout.getChildAt(0);
+        ViewGroup contributePeopleLinearLayout = rootViewLinearLayout.findViewById(R.id.ll_ecpi_contribute_ppl);
         if (contributePeopleLinearLayout.getParent() != null) {
             ((ViewGroup) contributePeopleLinearLayout.getParent()).removeView(contributePeopleLinearLayout);
         }
 
-        LinearLayout linearLayout = (LinearLayout) contributePeopleLinearLayout.getChildAt(1);
-
-        CircleImageView profilePictureImageView = (CircleImageView) linearLayout.getChildAt(INDEX_PROFILE_PICTURE_TEXT_VIEW);
-        TextView userNameTextView = (TextView) linearLayout.getChildAt(INDEX_USER_NAME_TEXT_VIEW);
+        CircleImageView profilePictureImageView = contributePeopleLinearLayout.findViewById(R.id.civ_ecpi_profile);
+        TextView userNameTextView = contributePeopleLinearLayout.findViewById(R.id.tv_ecpi_display_name);
 
         String profilePictureUrl = user.getProfile_image_url();
         String userName = user.getDisplay_name();
@@ -171,30 +164,31 @@ public class EventListAdapter extends ArrayAdapter<EventItem> {
     }
 
     private void deleteEvent(String event_id, int position) {
-        String url = getDummyUrl() + "/delete_event/";
+        String url = getDomainUrl() + "/delete_event/";
 
         Map<String, String> param = new HashMap<>();
         param.put("event_id", String.valueOf(event_id));
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, RC_DELETE_EVENT, null, param, this);
+        httpVolleyRequest.execute();
+    }
+
+    @Override
+    public void onHttpResponse(String response, int request) {
+        Log.v(TAG, response);
+        if (request == RC_DELETE_EVENT) {
             if (response != null) {
                 if (JSONParsingStringFromObject(JSONParsingObjectFromString(response), "status").trim().equals("200")) {
-                    mEventItemList.remove(position);
-                    mEventListAdapter.notifyDataSetChanged();
+                    mOnInteractionWithItem.onInteractionWithItem(RC_DELETED_EVENT, "Item deleted.");
                 }
-                Log.v(TAG, response);
             }
-        }, error -> Log.v(TAG, error.toString())) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return AppController.getInstance().getLoginCredentialHeader();
-            }
+        }
+    }
 
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                return param;
-            }
-        };
-        AppController.getInstance().addToRequestQueue(stringRequest);
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+        if (request == RC_DELETE_EVENT) {
+            mOnInteractionWithItem.onInteractionWithItem(RC_FAIL_TO_DELETE, "Delete failed.");
+        }
     }
 }

@@ -29,6 +29,12 @@
             android:icon="@drawable/ic_event_add_black_24dp"
             android:title="@string/title_add_event"
             android:visible="false" />
+
+        <item
+            android:id="@+id/nav_manage_user"
+            android:icon="@drawable/ic_manage_user_black_24dp"
+            android:title="@string/title_manage_user"
+            android:visible="false" />
     </group>
 
     <item android:title="Others">
@@ -37,11 +43,6 @@
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Share"
-                android:visible="false" />
-            <item
-                android:id="@+id/nav_send_report"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send Report"
                 android:visible="false" />
             <item
                 android:id="@+id/nav_logout"

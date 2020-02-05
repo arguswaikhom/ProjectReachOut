@@ -1,16 +1,15 @@
 package com.projectreachout;
 
-import android.Manifest;
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.text.TextUtils;
 import android.util.Base64;
-
-import androidx.core.content.ContextCompat;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,8 +19,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.projectreachout.Login.LoginActivity;
+import com.projectreachout.Login.SignInWithGoogleActivity;
 import com.projectreachout.User.User;
+import com.projectreachout.Utilities.BackgroundSyncUtilities.BackgoundServerChecker;
+import com.projectreachout.Utilities.ClearCacheData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -155,32 +156,9 @@ public class AppController extends Application {
         editor.apply();
     }
 
-    public void setUserType(int userType) {
-        SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt(LoginActivity.USER_TYPE, userType);
-        editor.apply();
-    }
-
     public int getUserType() {
         SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
-        return sharedPreferences.getInt(LoginActivity.USER_TYPE, LoginActivity.GUEST_USER);
-    }
-
-    public boolean isUserLogin() {
-        SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
-        if (sharedPreferences != null) {
-            String username = sharedPreferences.getString(TAG_USERNAME, null);
-            String password = sharedPreferences.getString(TAG_USERNAME, null);
-            String email = sharedPreferences.getString(TAG_USERNAME, null);
-            String profile_picture_url = sharedPreferences.getString(TAG_USERNAME, null);
-            String account_type = sharedPreferences.getString(TAG_USERNAME, null);
-
-            if ((username == null || password == null || email == null || profile_picture_url == null || account_type == null)) {
-                return false;
-            }
-            return (!username.equals("") && !password.equals("") && !email.equals("") && !profile_picture_url.equals("") && !account_type.equals(""));
-        }
-        return true;
+        return sharedPreferences.getInt(BackgoundServerChecker.USER_TYPE, BackgoundServerChecker.GUEST_USER);
     }
 
     public void clearSharedPreferences() {
@@ -224,11 +202,6 @@ public class AppController extends Application {
         return sharedPreferences.getString(TAG_PASSWORD, null);
     }
 
-    public String getLoginUserEmail() {
-        SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
-        return sharedPreferences.getString(TAG_EMAIL, null);
-    }
-
     public String getLoginUserProfilePictureUrl() {
         SharedPreferences sharedPreferences = getSharedPreferences(TAG_CREDENTIAL_SP, MODE_PRIVATE);
         return sharedPreferences.getString(TAG_PROFILE_PICTURE_URL, null);
@@ -262,15 +235,40 @@ public class AppController extends Application {
         return getLoginUserAccountType().equals(GeneralStatic.USER_STAFF);
     }
 
-    public boolean hasPermissionGranted() {
-        return (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
-                (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
-                (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
-    }
-
     public boolean isInternetAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED);
+    }
+
+    public boolean isAuthenticated() {
+        boolean hasAuthenticated = false;
+        FirebaseAuth auth = getFirebaseAuth();
+        if (auth != null && auth.getUid() != null && !auth.getUid().isEmpty() && auth.getCurrentUser() != null) {
+            hasAuthenticated = true;
+        }
+        return hasAuthenticated;
+    }
+
+    public void signOut(Activity activity) {
+        getFirebaseAuth().signOut();
+        getGoogleSignInClient().signOut();
+        setFirebaseAuth(null);
+        setGoogleSignInClient(null);
+        clearSharedPreferences();
+        ClearCacheData.clear(this);
+
+        Intent intent = new Intent(activity, SignInWithGoogleActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        activity.startActivity(intent);
+
+        activity.finish();
+    }
+
+    public boolean performIfAuthenticated(Activity activity) {
+        if (isAuthenticated())  return true;
+        Toast.makeText(getApplicationContext(), "Please login and try again.", Toast.LENGTH_SHORT).show();
+        signOut(activity);
+        return false;
     }
 }

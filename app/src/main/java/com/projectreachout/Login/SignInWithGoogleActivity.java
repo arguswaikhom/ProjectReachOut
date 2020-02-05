@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -17,7 +18,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.projectreachout.AppController;
@@ -32,6 +32,8 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
     private View mParentView;
     private final int RC_SIGN_IN = 100;
     private final String TAG = SignInWithGoogleActivity.class.getSimpleName();
+
+    private ProgressBar mLoadingPb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,8 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
         mParentView = findViewById(android.R.id.content);
         RelativeLayout mRootLayout = findViewById(R.id.iasiwg_root_layout);
         GoogleSignInButton mSignInButton = findViewById(R.id.iasiwg_sign_in_button);
+        mLoadingPb = findViewById(R.id.pb_iasiwg_loading);
+
         mSignInButton.setOnClickListener(this);
 
         AnimationDrawable animationDrawable = (AnimationDrawable) mRootLayout.getBackground();
@@ -60,8 +64,7 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseAuth auth = AppController.getInstance().getFirebaseAuth();
-        if (auth != null && auth.getCurrentUser() != null) {
+        if (AppController.getInstance().isAuthenticated()) {
             navigateMainActivity();
         }
     }
@@ -99,7 +102,9 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
                         Log.d(TAG, "signInWithCredential:success");
                         FirebaseUser user = AppController.getInstance().getFirebaseAuth().getCurrentUser();
                         if (user != null) {
+                            Log.v(TAG, "\n\nUser token: " + user.getIdToken(false) + "\n\n");
                             FetchUserDetails.fetch(this, 0);
+                            mLoadingPb.setVisibility(View.VISIBLE);
                         } else {
                             MessageUtils.showActionIndefiniteSnackBar(mParentView, "Sign in failed", "RETRY", RC_SIGN_IN, SignInWithGoogleActivity.this);
                         }
@@ -132,6 +137,7 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
     public void onHttpResponse(String response, int request) {
         Log.v(TAG, response);
         if (request == 0) {
+            mLoadingPb.setVisibility(View.VISIBLE);
             AppController.getInstance().setUser(User.fromJson(response));
             navigateMainActivity();
         }
@@ -139,6 +145,6 @@ public class SignInWithGoogleActivity extends AppCompatActivity implements View.
 
     @Override
     public void onHttpErrorResponse(VolleyError error, int request) {
-
+        mLoadingPb.setVisibility(View.VISIBLE);
     }
 }

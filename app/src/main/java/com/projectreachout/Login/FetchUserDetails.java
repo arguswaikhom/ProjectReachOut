@@ -10,7 +10,7 @@ import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class FetchUserDetails {
     private final static String TAG = FetchUserDetails.class.getSimpleName();
@@ -20,7 +20,7 @@ public class FetchUserDetails {
     }
 
     private static void getUserDetails(OnHttpResponse onHttpResponse, int request) {
-        String url = getDummyUrl() + "/get_user_details/";
+        String url = getDomainUrl() + "/get_user_details/";
         String user_id = AppController.getInstance().getFirebaseAuth().getUid();
         Map<String, String> param = new HashMap<>();
         param.put("user_id", user_id);
