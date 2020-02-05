@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.google.android.material.snackbar.Snackbar;
+import com.projectreachout.AppController;
 import com.projectreachout.Event.EventDetailsAndModification.SingleEventDetailsActivity;
 import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
@@ -35,16 +36,8 @@ import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ExpendituresMainFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ExpendituresMainFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ExpendituresMainFragment extends Fragment implements OnHttpResponse {
 
     private static final String TAG = ExpendituresMainFragment.class.getSimpleName();
@@ -62,24 +55,6 @@ public class ExpendituresMainFragment extends Fragment implements OnHttpResponse
 
     public ExpendituresMainFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ExpendituresMainFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ExpendituresMainFragment newInstance(String param1, String param2) {
-        ExpendituresMainFragment fragment = new ExpendituresMainFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -117,30 +92,21 @@ public class ExpendituresMainFragment extends Fragment implements OnHttpResponse
         mEventListAdapter = new ExpendituresEventListAdapter(getContext(), R.layout.evn_exp_event_item, mEventItemList);
         mListView.setAdapter(mEventListAdapter);
 
-        //mListView.setOnItemClickListener(this::onItemClick);
-
-        //addDummyEvent();
-
-        loadData(REFRESH);
         mRetryBtn.setOnClickListener(v -> loadData(REFRESH));
-
         return rootView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (AppController.getInstance().performIfAuthenticated(getActivity())) {
+            loadData(REFRESH);
+        }
+    }
+
     private void loadData(int action) {
-        /*Uri.Builder builder = new Uri.Builder();
-        // TODO: use .authority(getString(R.string.localhost)) after having a domain name
-        *//*builder.scheme(getString(R.string.http))
-                .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("events");*//*
-
-        builder.scheme(getString(R.string.http))
-                .encodedAuthority(getString(R.string.localhost) + ":" + getString(R.string.port_no))
-                .appendPath("get_all_events")
-                .appendPath("");*/
-
-        String url = getDummyUrl() + "/get_all_events/";
-
+        mListener.onUpdateProgressVisibility(View.VISIBLE);
+        String url = getDomainUrl() + "/get_all_events/";
 
         switch (action){
             case REFRESH: {
@@ -216,6 +182,7 @@ public class ExpendituresMainFragment extends Fragment implements OnHttpResponse
 
     @Override
     public void onHttpResponse(String response, int request) {
+        mListener.onUpdateProgressVisibility(View.INVISIBLE);
         if (request == 0) {
             if(response != null){
                 if (mErrorMessageLayout.getVisibility() == View.VISIBLE) {
@@ -229,6 +196,7 @@ public class ExpendituresMainFragment extends Fragment implements OnHttpResponse
 
     @Override
     public void onHttpErrorResponse(VolleyError error, int request) {
+        mListener.onUpdateProgressVisibility(View.INVISIBLE);
         if (request == 0) {
             displayErrorMessage();
         }
@@ -245,7 +213,7 @@ public class ExpendituresMainFragment extends Fragment implements OnHttpResponse
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+        void onUpdateProgressVisibility(int visibility);
         void onFragmentInteraction(Uri uri);
     }
 }

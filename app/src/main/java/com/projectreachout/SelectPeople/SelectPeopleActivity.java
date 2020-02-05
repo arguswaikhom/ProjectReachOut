@@ -6,17 +6,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.projectreachout.AppController;
 import com.projectreachout.R;
 import com.projectreachout.User.User;
 import com.projectreachout.User.UserDetailsAdapter;
+import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
 import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
@@ -29,13 +31,11 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.FIXED_ID_100;
 import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
-import static com.projectreachout.GeneralStatic.getRandomString;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class SelectPeopleActivity extends AppCompatActivity implements OnHttpResponse {
 
@@ -45,13 +45,12 @@ public class SelectPeopleActivity extends AppCompatActivity implements OnHttpRes
     UserDetailsAdapter mUserDetailsAdapter;
     List<User> mUserList;
     FloatingActionButton mSubmitFAB;
+    private ProgressBar mLoadingPbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sp_activity_select_people);
-        Toolbar toolbar = findViewById(R.id.sp_toolbar);
-        setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -60,21 +59,16 @@ public class SelectPeopleActivity extends AppCompatActivity implements OnHttpRes
         mSubmitFAB.setImageResource(R.drawable.ic_send_white_24dp);
 
         mListView = findViewById(R.id.lv_lvl_list_view);
+        mLoadingPbar = findViewById(R.id.pbar_sasp_loading);
 
         mUserList = new ArrayList<>();
         mUserDetailsAdapter = new UserDetailsAdapter(this, R.layout.u_user_row_item, mUserList);
 
         mListView.setAdapter(mUserDetailsAdapter);
 
-        /*TextView textView = new TextView(this);
-        textView.setText("First selected person will be the event leader");
-
-        mListView.addHeaderView(textView);*/
-
         Intent intent = getIntent();
         ArrayList<User> userArrayList = intent.getParcelableArrayListExtra(EXISTING_ORGANIZERS);
 
-        fetchUserData();
 
         /* TODO: Delete this SparseBooleanArray part and use setSelectedToExistingOrganisers(userArrayList)
          *   after item selection works based on user id
@@ -85,13 +79,17 @@ public class SelectPeopleActivity extends AppCompatActivity implements OnHttpRes
             mUserDetailsAdapter.mSelectedItems.put(integerArrayList.get(i), true);
         }
 
-        Log.v("zzzzz", integerArrayList.toString());
-
         mListView.setOnItemClickListener(onListItemClicked);
-
-        // addDummyData();
-
         mSubmitFAB.setOnClickListener(v -> returnSelectedOrganizers(v, intent));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (AppController.getInstance().performIfAuthenticated(this)) {
+            mLoadingPbar.setVisibility(View.VISIBLE);
+            fetchUserData();
+        }
     }
 
     @Override
@@ -101,13 +99,14 @@ public class SelectPeopleActivity extends AppCompatActivity implements OnHttpRes
     }
 
     private void fetchUserData() {
-        String url = getDummyUrl() + "/get_users/";
+        String url = getDomainUrl() + "/get_users/";
         HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.GET, url, null, 0, this);
         httpVolleyRequest.execute();
     }
 
     @Override
     public void onHttpResponse(String response, int request) {
+        mLoadingPbar.setVisibility(View.GONE);
         if (request == 0) {
             parseJsonFeed(JSONParsingArrayFromString(response));
             Log.d(TAG, response);
@@ -116,7 +115,9 @@ public class SelectPeopleActivity extends AppCompatActivity implements OnHttpRes
 
     @Override
     public void onHttpErrorResponse(VolleyError error, int request) {
+        mLoadingPbar.setVisibility(View.GONE);
         Log.d(TAG, error.toString());
+        MessageUtils.showShortToast(this, "Something went wrong!!");
     }
 
     class ShortByName implements Comparator<User> {
@@ -213,18 +214,5 @@ public class SelectPeopleActivity extends AppCompatActivity implements OnHttpRes
                 mUserDetailsAdapter.mSelectedItems.put(userId, true);
             }
         }
-    }
-
-    private void addDummyData() {
-        for (int i = 0; i < 40; i++) {
-            int id = FIXED_ID_100[i];
-            String username = getRandomString(10, 15);
-            String teamName = "Regular Volunteers";
-            String profileThumbnailUrl = "https://api.androidhive.info/json/images/tom_hardy.jpg";
-
-            User user = new User(Integer.toString(id), username, teamName, profileThumbnailUrl);
-            mUserDetailsAdapter.add(user);
-        }
-        mUserDetailsAdapter.notifyDataSetChanged();
     }
 }

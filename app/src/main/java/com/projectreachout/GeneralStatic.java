@@ -15,7 +15,6 @@ import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
@@ -77,19 +76,6 @@ public class GeneralStatic {
             arr[i] = ThreadLocalRandom.current().nextInt(min, max + 1);
         }
         return arr;
-    }
-
-    public static String getRandomString(int min, int max) {
-        Random generator = new Random();
-        StringBuilder randomStringBuilder = new StringBuilder();
-        //int randomLength = generator.nextInt(max);
-        int randomLength = getRandomInt(min, max);
-        char tempChar;
-        for (int i = 0; i < randomLength; i++) {
-            tempChar = (char) (generator.nextInt(96) + 32);
-            randomStringBuilder.append(tempChar);
-        }
-        return randomStringBuilder.toString();
     }
 
     public static String JSONParsingStringFromObject(JSONObject jsonObject, String paramName) {
@@ -189,19 +175,6 @@ public class GeneralStatic {
     }
 
     public static String getDomainUrl() {
-        /*Resources resources = Resources.getSystem();
-
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme(resources.getString(R.string.http))
-                .encodedAuthority(resources.getString(R.string.localhost) + ":" + resources.getString(R.string.port_no));
-
-        return builder.build().toString();*/
-        //return "http://10.24.48.78:8000";
-        // return "http://reachout.pythonanywhere.com";
-        return "http://reachout.pythonanywhere.com";
-    }
-
-    public static String getDummyUrl() {
         return "https://us-central1-thewebsite-90faa.cloudfunctions.net";
     }
 

@@ -75,6 +75,7 @@ public class AddNewArticleFragment extends Fragment implements /*SingleUploadBro
     @Override
     public void onUploadCompleted(String imageUrl, String description) {
         Map<String, Object> article = new HashMap<>();
+        article.put("reaction_count", 0);
         article.put("image_url", imageUrl);
         article.put("description", description);
         article.put("time_stamp", new Timestamp(new Date()));
@@ -122,6 +123,14 @@ public class AddNewArticleFragment extends Fragment implements /*SingleUploadBro
 
         mUploadImage.setOnClickListener(this);
         mSubmitPost.setOnClickListener(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!AppController.getInstance().isAuthenticated()) {
+            AppController.getInstance().signOut(getActivity());
+        }
     }
 
     @Override

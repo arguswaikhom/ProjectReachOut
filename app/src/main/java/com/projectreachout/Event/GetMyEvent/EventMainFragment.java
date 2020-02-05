@@ -21,7 +21,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.projectreachout.AppController;
 import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
-import com.projectreachout.Utilities.BackgroundSyncUtilities.BackgoundServerChecker;
+import com.projectreachout.Utilities.CallbackUtilities.OnInteractionWithItem;
+import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
 import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
@@ -38,7 +39,7 @@ import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -46,7 +47,7 @@ import static com.projectreachout.GeneralStatic.getDummyUrl;
  * {@link EventMainFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class EventMainFragment extends Fragment implements OnHttpResponse {
+public class EventMainFragment extends Fragment implements OnHttpResponse, OnInteractionWithItem {
 
     private static final String TAG = EventMainFragment.class.getSimpleName();
 
@@ -71,7 +72,7 @@ public class EventMainFragment extends Fragment implements OnHttpResponse {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.list_view_layout, container, false);
 
-        if (mListener != null){
+        if (mListener != null) {
             mListener.onFragmentInteraction(Uri.parse(getString(R.string.title_my_events)));
         }
 
@@ -82,7 +83,7 @@ public class EventMainFragment extends Fragment implements OnHttpResponse {
         mFAB.setImageResource(R.drawable.ic_add_white_24dp);*/
 
         mEventItemList = new ArrayList<>();
-        mEventListAdapter = new EventListAdapter(getContext(), R.layout.evn_event_item, mEventItemList);
+        mEventListAdapter = new EventListAdapter(getContext(), R.layout.evn_event_item, mEventItemList, this);
         mListView.setAdapter(mEventListAdapter);
 
         mErrorMessageLayout = rootView.findViewById(R.id.ll_lvl_error_message_layout);
@@ -93,7 +94,6 @@ public class EventMainFragment extends Fragment implements OnHttpResponse {
             startActivity(intent);
         });*/
 
-        loadData(REFRESH);
         mRetryBtn.setOnClickListener(v -> loadData(REFRESH));
         return rootView;
     }
@@ -101,11 +101,15 @@ public class EventMainFragment extends Fragment implements OnHttpResponse {
     @Override
     public void onStart() {
         super.onStart();
-        BackgoundServerChecker.backgroundCheck(BackgoundServerChecker.ACTION_MY_EVENT_ONLY);
+        if (AppController.getInstance().performIfAuthenticated(getActivity())) {
+            loadData(REFRESH);
+        }
+        // BackgoundServerChecker.backgroundCheck(BackgoundServerChecker.ACTION_MY_EVENT_ONLY);
     }
 
     private void loadData(int action) {
-        String url = getDummyUrl() + "/get_my_event/";
+        mListener.onUpdateProgressVisibility(View.VISIBLE);
+        String url = getDomainUrl() + "/get_my_event/";
 
         switch (action) {
             case REFRESH: {
@@ -144,11 +148,12 @@ public class EventMainFragment extends Fragment implements OnHttpResponse {
 
     private void parseJsonFeed(JSONArray jsonArray) {
         mEventItemList.clear();
-        for (int i = jsonArray.length()-1; i >= 0; i--) {
+        for (int i = jsonArray.length() - 1; i >= 0; i--) {
             JSONObject eventItemJSONObj = JSONParsingObjectFromArray(jsonArray, i);
             EventItem eventItem = EventItem.fromJson(eventItemJSONObj.toString());
             mEventListAdapter.add(eventItem);
         }
+        mEventListAdapter.notifyDataSetChanged();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -178,6 +183,7 @@ public class EventMainFragment extends Fragment implements OnHttpResponse {
     @Override
     public void onHttpResponse(String response, int request) {
         Log.d(TAG, response);
+        mListener.onUpdateProgressVisibility(View.INVISIBLE);
         if (request == 0) {
             parseJsonFeed(JSONParsingArrayFromString(response));
         }
@@ -186,10 +192,28 @@ public class EventMainFragment extends Fragment implements OnHttpResponse {
     @Override
     public void onHttpErrorResponse(VolleyError error, int request) {
         Log.d(TAG, error.toString());
+        mListener.onUpdateProgressVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onInteractionWithItem(int request, String message) {
+        switch (request) {
+            case EventListAdapter.RC_FAIL_TO_DELETE:
+            case EventListAdapter.RC_DELETED_EVENT: {
+                mListener.onUpdateProgressVisibility(View.INVISIBLE);
+                MessageUtils.showShortToast(getContext(), message);
+                loadData(REFRESH);
+                break;
+            }
+            case EventListAdapter.RC_DELETE_EVENT: {
+                mListener.onUpdateProgressVisibility(View.VISIBLE);
+                break;
+            }
+        }
     }
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+        void onUpdateProgressVisibility(int visibility);
         void onFragmentInteraction(Uri uri);
     }
 }

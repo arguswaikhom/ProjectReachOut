@@ -24,6 +24,7 @@ import com.projectreachout.Event.EventDetailsAndModification.SingleEventDetailsA
 import com.projectreachout.Event.EventItem;
 import com.projectreachout.R;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
+import com.projectreachout.Utilities.TimeUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,8 +34,7 @@ import static com.projectreachout.Event.GetEvent.ExpendituresMainFragment.mEvent
 import static com.projectreachout.Event.GetEvent.ExpendituresMainFragment.mEventListAdapter;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDate;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
 
@@ -83,8 +83,7 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
         optionEB.setOnClickListener(v -> showPopupMenu(v, eventItem.getEvent_id(), position));
 
         titleTV.setText(eventItem.getEvent_title());
-        //teamNameTV.setText(eventItem.getTeam_name());
-        dateTV.setText(getDate(eventItem.getEvent_date()));
+        dateTV.setText(TimeUtil.getTimeAgaFromSecond(Long.parseLong(eventItem.getEvent_date())));
         assignedByTV.setText(Html.fromHtml("<font color='#000000'>Assign by: </font>" + "<i>" + eventItem.getAssigned_by().getDisplay_name() + "</i>"));
         organizerCountTV.setText(Html.fromHtml("<font color='#000000'>Organizer: </font>" + "<i>" + eventItem.getOrganizers().length + "</i>"));
         investedAmountTV.setText(Html.fromHtml("<font color='#000000'>Invested: </font>" + "<i>" + eventItem.getInvestment_amount() + "</i>"));
@@ -133,7 +132,7 @@ public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
     }
 
     private void deleteEvent(String event_id, int position) {
-        String url = getDummyUrl() + "/delete_event/";
+        String url = getDomainUrl() + "/delete_event/";
 
         /*Log.d(LOG_TAG, url);
         Log.d(LOG_TAG, String.valueOf(event_id));

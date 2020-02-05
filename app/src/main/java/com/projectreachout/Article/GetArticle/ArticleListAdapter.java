@@ -24,6 +24,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.projectreachout.AppController;
 import com.projectreachout.R;
+import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
+import com.projectreachout.Utilities.TimeUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,12 +37,11 @@ import static com.projectreachout.Article.GetArticle.ArticleMainFragment.mArticl
 import static com.projectreachout.Article.GetArticle.ArticleMainFragment.mArticleListAdapter;
 import static com.projectreachout.Article.MyArticles.MyArticles.mArticleItemListMyArticles;
 import static com.projectreachout.Article.MyArticles.MyArticles.mArticleListAdapterMyArticles;
-import static com.projectreachout.GeneralStatic.getDateTime;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
-public class ArticleListAdapter extends BaseAdapter {
+public class ArticleListAdapter extends BaseAdapter implements ArticleImageView.ResponseObserver {
 
-    public static final String LOG_TAG_FLA = ArticleListAdapter.class.getSimpleName();
+    public static final String TAG = ArticleListAdapter.class.getSimpleName();
 
     private Activity activity;
     private LayoutInflater inflater;
@@ -77,63 +78,57 @@ public class ArticleListAdapter extends BaseAdapter {
         if (imageLoader == null)
             imageLoader = AppController.getInstance().getImageLoader();
 
-        TextView teamName = convertView.findViewById(R.id.tv_pfi_team_name);
+        ArticleActionHandler articleActionHandler = new ArticleActionHandler(convertView, articles, this, position);
+
         TextView userName = convertView.findViewById(R.id.tv_pfi_username);
         TextView timeStamp = convertView.findViewById(R.id.tv_pfi_time_stamp);
-        TextView description = convertView.findViewById(R.id.tv_pfi_description);
+        TextView description = convertView.findViewById(R.id.tv_ail_description);
         ArticleImageView articleImageView = convertView.findViewById(R.id.iv_pfi_post_image);
         ImageButton optionsImageButton = convertView.findViewById(R.id.ibtn_pfi_overflow_button);
+        CircleImageView profilePicture = convertView.findViewById(R.id.iv_pfi_profile_picture);
+        ImageButton likeIBtn = convertView.findViewById(R.id.ib_ail_like);
+        ImageButton loveBtn = convertView.findViewById(R.id.ib_ail_love);
+        TextView reactionTV = convertView.findViewById(R.id.tv_ail_reaction);
 
         final Article item = articles.get(position);
 
-        //teamName.setText(item.getTeam_name());
+        likeIBtn.setOnClickListener(articleActionHandler);
+        loveBtn.setOnClickListener(articleActionHandler);
+
+        String myReaction = item.getMy_reaction();
+        if (myReaction != null && !myReaction.isEmpty()) {
+            if (myReaction.equals(ArticleActionHandler.ACTION_LIKE)) {
+                likeIBtn.setImageResource(R.drawable.ic_thumb_up_28dp);
+                loveBtn.setImageResource(R.drawable.ic_heart_24dp);
+            } else if (myReaction.equals(ArticleActionHandler.ACTION_LOVE)) {
+                likeIBtn.setImageResource(R.drawable.ic_like_28dp);
+                loveBtn.setImageResource(R.drawable.ic_heart_black_24dp);
+            } else {
+                likeIBtn.setImageResource(R.drawable.ic_like_28dp);
+                loveBtn.setImageResource(R.drawable.ic_heart_24dp);
+            }
+        }
 
         userName.setText(item.getDisplay_name());
-
-        // Converting timestamp into x ago format
-        /*CharSequence timeAgo = DateUtils.getRelativeTimeSpanString(
-                Long.parseLong(item.getTime_stamp()),
-                System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
-
-        timeStamp.setText(timeAgo);*/
-
-        timeStamp.setText(getDateTime(item.getTime_stamp()));
-
-        // Check for empty status message
+        timeStamp.setText(TimeUtil.getTimeAgaFromSecond(Long.parseLong(item.getTime_stamp())));
+        reactionTV.setText(String.format("%s People", item.getReaction_count()));
         if (!TextUtils.isEmpty(item.getDescription())) {
-            description.setText(item.getDescription());
             description.setVisibility(View.VISIBLE);
+            description.setText(item.getDescription());
         } else {
-            // status is empty, remove from view
             description.setVisibility(View.GONE);
         }
 
-        // user profile pic
-        //profilePicture.setImageUrl(item.getProfile_image_url(), imageLoader);
-
-        CircleImageView profilePicture = convertView.findViewById(R.id.iv_pfi_profile_picture);
-
         RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.ic_person_black_124dp).error(R.drawable.ic_person_black_124dp).centerCrop().circleCrop();
-
         Glide.with(profilePicture.getContext())
                 .load(item.getAvatar())
                 .apply(requestOptions)
                 .into(profilePicture);
 
-        // Feed image
         if (item.getImage_url() != null) {
             articleImageView.setImageUrl(item.getImage_url(), imageLoader);
             articleImageView.setVisibility(View.VISIBLE);
-            articleImageView.setResponseObserver(new ArticleImageView.ResponseObserver() {
-                @Override
-                public void onError() {
-                }
-
-                @Override
-                public void onSuccess() {
-                    Log.v(LOG_TAG_FLA,"Image loaded : " + item.getId());
-                }
-            });
+            articleImageView.setResponseObserver(this);
         } else {
             articleImageView.setVisibility(View.GONE);
         }
@@ -165,7 +160,7 @@ public class ArticleListAdapter extends BaseAdapter {
             int id = menuItem.getItemId();
             switch (id) {
                 case R.id.menu_eepm_delete: {
-                    deleteArticle(item, position);
+                    deleteArticle(view, item, position);
                 }
             }
             return true;
@@ -174,24 +169,26 @@ public class ArticleListAdapter extends BaseAdapter {
         popup.show();
     }
 
-    private void deleteArticle(Article article, int position) {
-        String url = getDummyUrl() + "/delete_article/";
+    private void deleteArticle(View view, Article article, int position) {
+        String url = getDomainUrl() + "/delete_article/";
 
         Map<String, String> param = new HashMap<>();
         param.put("article_id", article.getId());
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response -> {
-            if (response != null) {
+            Log.v(TAG, response);
+            if (response.trim().equals("200")) {
                 if (mArticleList != null) mArticleList.remove(position);
                 if (mArticleListAdapter != null) mArticleListAdapter.notifyDataSetChanged();
                 if (mArticleItemListMyArticles != null) mArticleItemListMyArticles.remove(position);
                 if (mArticleListAdapterMyArticles != null) mArticleListAdapterMyArticles.notifyDataSetChanged();
                 StorageReference imageStorageReference = FirebaseStorage.getInstance().getReferenceFromUrl(article.getImage_url());
                 imageStorageReference.delete();
-                Log.d(LOG_TAG_FLA, response);
+            } else {
+                MessageUtils.showNoActionShortSnackBar(view, "Something went wrong");
             }
         }, error -> {
-
+            Log.e(TAG, error.toString());
         }){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -205,5 +202,15 @@ public class ArticleListAdapter extends BaseAdapter {
         };
 
         AppController.getInstance().addToRequestQueue(stringRequest);
+    }
+
+    @Override
+    public void onError() {
+
+    }
+
+    @Override
+    public void onSuccess() {
+
     }
 }

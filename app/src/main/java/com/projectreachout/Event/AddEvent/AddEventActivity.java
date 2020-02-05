@@ -49,7 +49,7 @@ import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
 import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
 import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
 import static com.projectreachout.GeneralStatic.TEAM_LIST;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 import static com.projectreachout.GeneralStatic.getMonthForInt;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
 
@@ -129,6 +129,14 @@ public class AddEventActivity extends AppCompatActivity implements OnHttpRespons
         mSelectEventLeaderBtn.setOnClickListener(this::selectEventLeader);
 
         mSubmitBtn.setOnClickListener(this::submitEvent);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!AppController.getInstance().isAuthenticated()) {
+            AppController.getInstance().signOut(this);
+        }
     }
 
     String eventLeader = null;
@@ -340,7 +348,7 @@ public class AddEventActivity extends AppCompatActivity implements OnHttpRespons
         }
 
         Map<String, String> param = getMappedData();
-        String url = getDummyUrl() + "/add_event/";
+        String url = getDomainUrl() + "/add_event/";
 
         Log.v(TAG, param.toString());
 

@@ -32,7 +32,7 @@ import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
 import static com.projectreachout.GeneralStatic.LOAD_MORE;
 import static com.projectreachout.GeneralStatic.REFRESH;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class MyArticles extends AppCompatActivity {
 
@@ -79,7 +79,7 @@ public class MyArticles extends AppCompatActivity {
                 .appendPath("get_my_articles")
                 .appendPath("");*/
 
-        String url = getDummyUrl() + "/get_my_articles/";
+        String url = getDomainUrl() + "/get_my_articles/";
 
         switch (action) {
             case REFRESH: {

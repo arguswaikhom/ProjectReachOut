@@ -46,7 +46,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.projectreachout.GeneralStatic.getDomainUrl;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
 import static com.projectreachout.GeneralStatic.getVolleyErrorMessage;
 import static com.projectreachout.GeneralStatic.isValidMobile;
 import static com.projectreachout.GeneralStatic.showKeyBoard;
@@ -101,6 +100,23 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
         mDevicePermissionUtils.handlePermissions();
 
+        setupUI();
+        hideLayoutContainer();
+        showProgressBar();
+
+        mChooseProfilePictureBtn.setOnClickListener(this::uploadPost);
+        mSubmitBtn.setOnClickListener(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (AppController.getInstance().performIfAuthenticated(this)) {
+            fetchData();
+        }
+    }
+
+    private void setupUI() {
         mContentLL = findViewById(R.id.ll_eaep_content_layout);
 
         mProgressBar = findViewById(R.id.pb_eaep_progress_bar);
@@ -121,18 +137,10 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
         mChooseProfilePictureBtn = findViewById(R.id.btn_eaep_choose_profile_picture);
         mSubmitBtn = findViewById(R.id.btn_eaep_submit);
-
-        hideLayoutContainer();
-        showProgressBar();
-        fetchData();
-
-        mChooseProfilePictureBtn.setOnClickListener(this::uploadPost);
-
-        mSubmitBtn.setOnClickListener(this);
     }
 
     private void fetchData() {
-        String url = getDummyUrl() + "/get_user_details/";
+        String url = getDomainUrl() + "/get_user_details/";
         String user_id = AppController.getInstance().getFirebaseAuth().getUid();
         Map<String, String> param = new HashMap<>();
         param.put("user_id", user_id);
@@ -266,7 +274,7 @@ public class EditProfileActivity extends AppCompatActivity implements SingleUplo
 
         hideWarningView();
 
-        String url = getDummyUrl() + "/update_user_details/";
+        String url = getDomainUrl() + "/update_user_details/";
         Map<String, String> param = new HashMap<>();
         param.put("user_id", AppController.getInstance().getFirebaseAuth().getUid());
         param.put("bio", bio);

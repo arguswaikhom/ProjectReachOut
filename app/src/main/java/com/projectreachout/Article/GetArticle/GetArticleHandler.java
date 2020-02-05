@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
 import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.getDummyUrl;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class GetArticleHandler {
     public static final String TAG = GetArticleHandler.class.getSimpleName();
@@ -29,7 +29,7 @@ public class GetArticleHandler {
     public static final String REFRESH_VALUE = "-1";
 
     // private final static String url = getDomainUrl() + "/retrieve_articles/";
-    private final static String url = getDummyUrl() + "/get_all_articles/";
+    private final static String url = getDomainUrl() + "/get_all_articles/";
 
     public static void loadArticles(OnServerRequestResponse responseInterface, int action, String lastVisibleArticleID) {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, output -> {
@@ -42,6 +42,7 @@ public class GetArticleHandler {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> param = new HashMap<>();
                 param.put("last_viewed_id", String.valueOf(lastVisibleArticleID));
+                param.put("user_id", AppController.getInstance().getFirebaseAuth().getUid());
                 return param;
             }
         };

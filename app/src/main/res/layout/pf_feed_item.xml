@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -13,7 +14,7 @@
         android:layout_marginRight="@dimen/sub_item_gap"
         android:orientation="horizontal">
 
-        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_pfi_profile_picture"
             android:layout_width="@dimen/feed_item_profile_pic"
             android:layout_height="@dimen/feed_item_profile_pic"
@@ -87,13 +88,5 @@
         android:scaleType="fitXY"
         android:visibility="visible" />
 
-    <TextView
-        android:id="@+id/tv_pfi_description"
-        android:layout_width="match_parent"
-        android:justificationMode="inter_word"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/sub_item_gap"
-        android:layout_marginTop="@dimen/sub_item_gap"
-        android:text="@string/dummy_text" />
-
+    <include layout="@layout/article_interaction_layout" />
 </LinearLayout>
