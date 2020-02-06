@@ -3,6 +3,7 @@ package com.projectreachout.Article.GetArticle;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.projectreachout.User.User;
 
 public class Article {
     private String article_id;
@@ -83,5 +84,22 @@ public class Article {
     public String toString() {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+    public static class Reaction {
+        private User user;
+        private String reaction;
+
+        public static Reaction fromJSON(String jsonString) {
+            return new Gson().fromJson(jsonString, Reaction.class);
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public String getReaction() {
+            return reaction;
+        }
     }
 }

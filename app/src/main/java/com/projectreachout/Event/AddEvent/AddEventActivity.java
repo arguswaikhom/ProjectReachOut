@@ -251,6 +251,7 @@ public class AddEventActivity extends AppCompatActivity implements OnHttpRespons
         Bundle bundle = new Bundle();
         bundle.putInt(OPTION, OPTION_ORGANIZERS);
         bundle.putParcelableArrayList(ORGANIZER_LIST, mSelectedUsers);
+        bundle.putString(BottomSheetFragment.TITLE, BottomSheetFragment.TITLE_SELECTED_ORGANISERS);
 
         BottomSheetFragment bottomSheetFragment = new BottomSheetFragment();
         bottomSheetFragment.setArguments(bundle);
@@ -262,6 +263,7 @@ public class AddEventActivity extends AppCompatActivity implements OnHttpRespons
         Bundle bundle = new Bundle();
         bundle.putInt(OPTION, OPTION_TEAM);
         bundle.putStringArrayList(TEAM_LIST, mSelectedTeam);
+        bundle.putString(BottomSheetFragment.TITLE, BottomSheetFragment.TITLE_SELECTED_TEAM);
 
         BottomSheetFragment bottomSheetFragment = new BottomSheetFragment();
         bottomSheetFragment.setArguments(bundle);

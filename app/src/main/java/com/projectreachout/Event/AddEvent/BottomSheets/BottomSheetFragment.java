@@ -27,10 +27,14 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
     private BottomSheetListView mListView;
     private TextView mTextView;
 
+    public static final String TITLE_SELECTED_ORGANISERS = "Selected Organizers";
+    public static final String TITLE_REACTED_PEOPLE = "Reacted people";
+    public static final String TITLE_SELECTED_TEAM = "Selected Teams";
+    public static final String TITLE = "title";
+
     public BottomSheetFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,13 +48,12 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
         mListView = rootView.findViewById(R.id.bslv_abbsl_list_view);
         mTextView = rootView.findViewById(R.id.tv_abbsl_text_view);
 
-        int option = getArguments() != null ? getArguments().getInt(OPTION) : 0;
-
+        Bundle bundle = getArguments();
+        int option = bundle != null ? bundle.getInt(OPTION) : 0;
         switch (option){
             case OPTION_TEAM:{
-                ArrayList<String> mTeamList = getArguments() != null ? getArguments().getStringArrayList(TEAM_LIST) : null;
-
-                mTextView.setText("Selected Teams");
+                ArrayList<String> mTeamList = bundle.getStringArrayList(TEAM_LIST);
+                mTextView.setText(bundle.getString(TITLE));
 
                 if (mTeamList != null){
                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Objects.requireNonNull(getActivity()), android.R.layout.simple_list_item_1, mTeamList);
@@ -59,9 +62,8 @@ public class BottomSheetFragment extends BottomSheetDialogFragment {
                 break;
             }
             case OPTION_ORGANIZERS:{
-                ArrayList<User> userArrayList = getArguments().getParcelableArrayList(ORGANIZER_LIST);
-
-                mTextView.setText("Selected Organizers");
+                ArrayList<User> userArrayList = bundle.getParcelableArrayList(ORGANIZER_LIST);
+                mTextView.setText(bundle.getString(TITLE));
 
                 OrganizersListAdapter organizersListAdapter = new OrganizersListAdapter(getContext(), R.layout.u_user_row_item, userArrayList);
                 mListView.setAdapter(organizersListAdapter);

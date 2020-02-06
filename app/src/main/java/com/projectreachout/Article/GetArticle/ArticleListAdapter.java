@@ -94,6 +94,7 @@ public class ArticleListAdapter extends BaseAdapter implements ArticleImageView.
 
         likeIBtn.setOnClickListener(articleActionHandler);
         loveBtn.setOnClickListener(articleActionHandler);
+        reactionTV.setOnClickListener(articleActionHandler);
 
         String myReaction = item.getMy_reaction();
         if (myReaction != null && !myReaction.isEmpty()) {
