@@ -131,8 +131,11 @@ public class SelectPeopleActivity extends AppCompatActivity implements OnHttpRes
         List<User> userList = new ArrayList<>();
 
         for (int i = 0; i < responseArray.length(); i++) {
-            JSONObject user = JSONParsingObjectFromArray(responseArray, i);
-            userList.add(User.fromJson(user.toString()));
+            JSONObject userJSON = JSONParsingObjectFromArray(responseArray, i);
+            User user = User.fromJson(userJSON.toString());
+            if (user != null && !user.getUser_type().equals(User.AC_GUEST)) {
+                userList.add(user);
+            }
         }
 
         Collections.sort(userList, new ShortByName());

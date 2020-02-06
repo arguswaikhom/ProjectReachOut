@@ -128,6 +128,9 @@ public class InvestmentFragment extends Fragment implements OnHttpResponse {
 
         mTotalAmountTextView.setText(investmentAmount);
         mAmountInReturnET.setText(investmentOnReturn);
+        if (investmentOnReturn.equals("")) {
+            investmentOnReturn = "0";
+        }
         long diffAmount = Long.parseLong(investmentOnReturn) - Long.parseLong(investmentAmount);
         mDifferentAmountTV.setText(diffAmount + "");
     }

@@ -1,21 +1,37 @@
 package com.projectreachout.Article.GetArticle;
 
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import androidx.fragment.app.FragmentActivity;
+
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.projectreachout.AppController;
+import com.projectreachout.Event.AddEvent.BottomSheets.BottomSheetFragment;
 import com.projectreachout.R;
+import com.projectreachout.SelectPeople.SelectPeopleActivity;
+import com.projectreachout.User.User;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
 import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.OPTION;
+import static com.projectreachout.GeneralStatic.OPTION_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class ArticleActionHandler implements OnHttpResponse, View.OnClickListener {
@@ -26,6 +42,7 @@ public class ArticleActionHandler implements OnHttpResponse, View.OnClickListene
     private final int RC_LIKE = 1;
     private final int RC_LOVE = 2;
     private final int RC_REFRESH_ARTICLE = 3;
+    private final int RC_REACTED_ORGANIZERS = 4;
 
     private View mConvertView;
     private ProgressBar mLoadingPb;
@@ -49,8 +66,14 @@ public class ArticleActionHandler implements OnHttpResponse, View.OnClickListene
                 onClickedReactionButton(view);
                 break;
             }
+            case R.id.tv_ail_reaction: {
+                mLoadingPb.setVisibility(View.VISIBLE);
+                getReactedOrganizers();
+                break;
+            }
         }
     }
+
 
     @Override
     public void onHttpResponse(String response, int request) {
@@ -71,6 +94,11 @@ public class ArticleActionHandler implements OnHttpResponse, View.OnClickListene
                     updateArticle(response);
                 }
                 break;
+            case RC_REACTED_ORGANIZERS: {
+                mLoadingPb.setVisibility(View.INVISIBLE);
+                parseJson(JSONParsingArrayFromString(response));
+                break;
+            }
         }
     }
 
@@ -113,5 +141,37 @@ public class ArticleActionHandler implements OnHttpResponse, View.OnClickListene
         Article updatedArticle = Article.fromJson(response);
         mArticles.set(mPosition, updatedArticle);
         mAdapter.notifyDataSetChanged();
+    }
+
+    private void getReactedOrganizers() {
+        String url = getDomainUrl() + "/get_reacted_users_on_article/";
+        Map<String, String> param = new HashMap<>();
+        param.put("article_id", mArticles.get(mPosition).getArticle_id());
+
+        HttpVolleyRequest httpVolleyRequest = new HttpVolleyRequest(Request.Method.POST, url, null, RC_REACTED_ORGANIZERS, null, param, this);
+        httpVolleyRequest.execute();
+    }
+
+    private void parseJson(JSONArray responseArray) {
+        ArrayList<User> userList = new ArrayList<>();
+
+        for (int i = 0; i < responseArray.length(); i++) {
+            JSONObject userJSON = JSONParsingObjectFromArray(responseArray, i);
+            Article.Reaction reaction = Article.Reaction.fromJSON(userJSON.toString());
+            userList.add(reaction.getUser());
+        }
+        showSelectedOrganizers(userList);
+    }
+
+    private void showSelectedOrganizers(ArrayList<User> users) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(OPTION, OPTION_ORGANIZERS);
+        bundle.putParcelableArrayList(ORGANIZER_LIST, users);
+        bundle.putString(BottomSheetFragment.TITLE, BottomSheetFragment.TITLE_REACTED_PEOPLE);
+
+        BottomSheetFragment bottomSheetFragment = new BottomSheetFragment();
+        bottomSheetFragment.setArguments(bundle);
+
+        bottomSheetFragment.show(((FragmentActivity)mConvertView.getContext()).getSupportFragmentManager(), bottomSheetFragment.getTag());
     }
 }
