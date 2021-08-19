@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:orientation="vertical"
-        tools:context=".AddNewEvent.AddEventActivity">
+        tools:context=".Event.AddEvent.AddEventActivity">
 
         <LinearLayout
             android:layout_width="match_parent"

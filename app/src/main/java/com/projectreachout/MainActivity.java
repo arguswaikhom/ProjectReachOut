@@ -8,11 +8,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -24,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.navigation.NavigationView;
@@ -36,16 +39,18 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
-import com.projectreachout.AddNewArticle.AddNewArticleFragment;
-import com.projectreachout.AddNewEvent.AddEventActivity;
-import com.projectreachout.Article.ArticleMainFragment;
+import com.projectreachout.Article.AddArticle.AddNewArticleFragment;
+import com.projectreachout.Article.GetArticle.ArticleMainFragment;
+import com.projectreachout.Article.MyArticles.MyArticles;
 import com.projectreachout.EditProfile.EditProfileActivity;
-import com.projectreachout.Event.EventMainFragment;
-import com.projectreachout.Event.Expenditures.ExpendituresMainFragment;
-import com.projectreachout.Login.LoginActivity;
-import com.projectreachout.MyArticles.MyArticles;
+import com.projectreachout.Event.AddEvent.AddEventActivity;
+import com.projectreachout.Event.GetEvent.ExpendituresMainFragment;
+import com.projectreachout.Event.GetMyEvent.EventMainFragment;
+import com.projectreachout.Login.FetchUserDetails;
+import com.projectreachout.ManageUser.ManageUserActivity;
+import com.projectreachout.User.User;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
-import com.projectreachout.Utilities.NotificationUtilities.NotificationUtilities;
+import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
 import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
 import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
@@ -56,53 +61,47 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ArticleMainFragment.OnFragmentInteractionListener,
         AddNewArticleFragment.OnFragmentInteractionListener, EventMainFragment.OnFragmentInteractionListener,
         ExpendituresMainFragment.OnFragmentInteractionListener, View.OnClickListener, InstallStateUpdatedListener,
-        MessageUtils.OnSnackBarActionListener {
+        MessageUtils.OnSnackBarActionListener, OnHttpResponse {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private FragmentManager mFragmentManager;
-
     private View mHeaderView;
-
     private TextView mAccountTypeTV;
     private TextView mUsernameTV;
     private TextView mEmailTV;
     private TextView mUpdateAvailableTV;
-
+    private TextView guestNoteTV;
     private ImageView mUserProfilePictureIV;
-
     private Button mMyArticlesBtn;
     private Button mEditProfileBtn;
-
     private ImageButton mShareAppLinkIB;
-
-    private FrameLayout mUpdateAvailableFL;
+    private Toolbar mToolBar;
+    private ProgressBar mLoadingPb;
+    private View mInUpdateBoardV;
+    private View mGuestNoteV;
+    private final int RC_GET_USER_DETAILS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.sp_toolbar);
-        setSupportActionBar(toolbar);
+        mToolBar = findViewById(R.id.sp_toolbar);
+        setSupportActionBar(mToolBar);
+        mLoadingPb = findViewById(R.id.pb_abm_loading);
 
         mFragmentManager = getSupportFragmentManager();
-
         loadFragment(new ArticleMainFragment(), FRAGMENT_HOME);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, mToolBar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
+        if (AppController.getInstance().isAuthenticated()) {
             setUpNavView();
-        } else {
-            toggle.setDrawerIndicatorEnabled(false);
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            inAppUpdateUtil();
+            showUserDetails();
         }
-
-        inAppUpdateUtil();
     }
 
     @Override
@@ -124,16 +123,30 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Menu menu = navigationView.getMenu();
-        if (AppController.getInstance().isSuperUserAccount()) {
-            menu.findItem(R.id.nav_events).setVisible(true);
-            menu.findItem(R.id.nav_add_event).setVisible(true);
-        } else {
-            menu.findItem(R.id.nav_events).setVisible(false);
-            menu.findItem(R.id.nav_add_event).setVisible(false);
-        }
-
         mHeaderView = navigationView.getHeaderView(0);
+        mGuestNoteV = mHeaderView.findViewById(R.id.cv_nhm_guest_note);
+        guestNoteTV = mGuestNoteV.findViewById(R.id.tv_wbl_notice);
+
+        Menu menu = navigationView.getMenu();
+        try {
+            if (AppController.getInstance().isSuperUserAccount()) {
+                menu.findItem(R.id.nav_home).setVisible(true);
+                menu.findItem(R.id.nav_add_article).setVisible(true);
+                menu.findItem(R.id.nav_my_events).setVisible(true);
+                menu.findItem(R.id.nav_events).setVisible(true);
+                menu.findItem(R.id.nav_add_event).setVisible(true);
+                menu.findItem(R.id.nav_manage_user).setVisible(true);
+            } else if (AppController.getInstance().isStaffUserAccount()) {
+                menu.findItem(R.id.nav_home).setVisible(true);
+                menu.findItem(R.id.nav_add_article).setVisible(true);
+                menu.findItem(R.id.nav_my_events).setVisible(true);
+            } else {
+                menu.findItem(R.id.nav_home).setVisible(true);
+                showGuestNote();
+            }
+        } catch (NullPointerException npe) {
+            AppController.getInstance().signOut(this);
+        }
 
         mAccountTypeTV = mHeaderView.findViewById(R.id.tv_nhm_account_type);
         mUsernameTV = mHeaderView.findViewById(R.id.tv_nhm_username);
@@ -143,8 +156,8 @@ public class MainActivity extends AppCompatActivity
         mEditProfileBtn = mHeaderView.findViewById(R.id.btn_nhm_edit_profile);
         mShareAppLinkIB = mHeaderView.findViewById(R.id.ib_nhm_share_app_link);
 
-        mUpdateAvailableFL = mHeaderView.findViewById(R.id.fl_nhm_update_available);
-        mUpdateAvailableTV = mHeaderView.findViewById(R.id.tv_wbl_notice);
+        mInUpdateBoardV = mHeaderView.findViewById(R.id.cv_nhm_update_available);
+        mUpdateAvailableTV = mInUpdateBoardV.findViewById(R.id.tv_wbl_notice);
 
         mUpdateAvailableTV.setOnClickListener(this);
         mShareAppLinkIB.setOnClickListener(this);
@@ -154,29 +167,6 @@ public class MainActivity extends AppCompatActivity
 
     private void onClickedEditProfile(View view) {
         startActivity(new Intent(this, EditProfileActivity.class));
-    }
-
-    private void displayUserDetails() {
-        AppController appController = AppController.getInstance();
-
-        String username = appController.getLoginUserUsername();
-        String email = appController.getLoginUserEmail();
-        String profile_picture_url = appController.getLoginUserProfilePictureUrl();
-        String account_type = appController.getLoginUserAccountType();
-
-        mUsernameTV.setText(username);
-        mEmailTV.setText(email);
-        mAccountTypeTV.setText(account_type);
-
-        try {
-            Glide.with(this)
-                    .load(profile_picture_url)
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(mUserProfilePictureIV);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private void onClickedMyArticles(View view) {
@@ -196,41 +186,25 @@ public class MainActivity extends AppCompatActivity
         } else {
             finish();
         }
-        //super.onBackPressed();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
-            login();
-            displayUserDetails();
-        }
-        NotificationUtilities.clearAllNotifications(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    private void login() {
-        if (!AppController.getInstance().isUserLogin()) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+        if (AppController.getInstance().performIfAuthenticated(this)) {
+            FetchUserDetails.fetch(this, RC_GET_USER_DETAILS);
         }
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (AppController.getInstance().getUserType() == LoginActivity.GUEST_USER) {
             getMenuInflater().inflate(R.menu.activity_main_option_menu, menu);
         }
         return true;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.amom_login: {
@@ -239,7 +213,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -272,15 +246,15 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(this, AddEventActivity.class));
                 break;
             }
+            case R.id.nav_manage_user: {
+                startActivity(new Intent(this, ManageUserActivity.class));
+                break;
+            }
             case R.id.nav_share: {
                 break;
             }
-            case R.id.nav_send_report: {
-                startActivity(new Intent(this, LoginActivity.class));
-                break;
-            }
             case R.id.nav_logout: {
-                logOut();
+                AppController.getInstance().signOut(this);
             }
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -288,49 +262,21 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void logOut() {
-        AppController.getInstance().logout();
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        TextView title = mToolBar.findViewById(R.id.tv_abm_title);
+        title.setText(uri.toString());
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-        try {
-            getSupportActionBar().setTitle(uri.toString());
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+    public void onUpdateProgressVisibility(int visibility) {
+        mLoadingPb.setVisibility(visibility);
     }
 
     private void loadFragment(Fragment fragment, String name) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fl_abm_include, fragment);
         fragmentTransaction.commit();
-    }
-
-    private void inflateFeedMainFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new ArticleMainFragment())
-                .commit();
-    }
-
-    private void inflateAddNewPostFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new AddNewArticleFragment())
-                .commit();
-    }
-
-    private void inflateEventMainFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new EventMainFragment())
-                .commit();
-    }
-
-    private void inflateExpendituresMainFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fl_abm_include, new ExpendituresMainFragment())
-                .commit();
     }
 
     @Override
@@ -340,7 +286,7 @@ public class MainActivity extends AppCompatActivity
                 shareAppLink();
                 break;
             }
-            case R.id.tv_wbl_notice: {
+            case R.id.cv_nhm_update_available: {
                 inAppUpdateUtil();
                 break;
             }
@@ -371,11 +317,7 @@ public class MainActivity extends AppCompatActivity
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
                 requestUpdate(appUpdateInfo);
                 Log.d(TAG, "inApp: inAppUpdateUtil() -> Update Available");
-
-                if(AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER){
-                    mUpdateAvailableFL.setVisibility(View.VISIBLE);
-                    mUpdateAvailableTV.setText("New update available!! Click here to update..");
-                }
+                showUpdateAvailable();
             } else if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                 popupSnackBarForCompleteUpdate();
             }
@@ -423,5 +365,49 @@ public class MainActivity extends AppCompatActivity
                 mAppUpdateManager.completeUpdate();
             }
         }
+    }
+
+    @Override
+    public void onHttpResponse(String response, int request) {
+        Log.v(TAG, response);
+        if (request == RC_GET_USER_DETAILS) {
+            AppController.getInstance().setUser(User.fromJson(response));
+            showUserDetails();
+        }
+    }
+
+    private void showUserDetails() {
+        User user = AppController.getInstance().getUser();
+        if (user.getUser_type() != null)
+            mAccountTypeTV.setText(user.getUser_type());
+        if (user.getDisplay_name() != null)
+            mUsernameTV.setText(user.getDisplay_name());
+        if (user.getEmail() != null)
+            mEmailTV.setText(user.getEmail());
+        if (URLUtil.isValidUrl(user.getProfile_image_url()))
+            Glide.with(getApplicationContext())
+                    .load(user.getProfile_image_url())
+                    .apply(new RequestOptions().circleCrop())
+                    .into(mUserProfilePictureIV);
+    }
+
+    @Override
+    public void onHttpErrorResponse(VolleyError error, int request) {
+        Log.v(TAG, "" + error);
+    }
+
+    private void showGuestNote() {
+        String guestNote = "This app was designed only for people who work for Project ReachOut (PRO). Since your email is not in our database your account was created as a guest account.\n" +
+                "\n" +
+                "If you're a member of PRO contact one of our administrator to upgrade your account.";
+
+        mGuestNoteV.setVisibility(View.VISIBLE);
+        guestNoteTV.setText(guestNote);
+    }
+
+    private void showUpdateAvailable() {
+        String updateAvailableMsg = "New update available!! Click here to update..";
+        mInUpdateBoardV.setVisibility(View.VISIBLE);
+        mUpdateAvailableTV.setText(updateAvailableMsg);
     }
 }

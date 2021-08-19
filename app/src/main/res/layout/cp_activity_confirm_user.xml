@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/text_view_gap"
-            android:autofillHints="username"
+            android:autofillHints="display_name"
             android:digits="@string/input_alphanumeric_no_space"
             android:hint="Username"
             android:inputType="textPersonName" />
