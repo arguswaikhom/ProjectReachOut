@@ -57,7 +57,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="12dp"
         android:gravity="center"
-        android:text="@string/username"
+        android:text="@string/display_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@android:color/black"
         android:textStyle="bold"
@@ -95,7 +95,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/title_my_articles"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btn_nhm_edit_profile"
@@ -104,19 +105,27 @@
             android:layout_weight="1"
             android:text="Edit Profile"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:visibility="visible" />
+            android:visibility="visible"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/fl_nhm_update_available"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="@+id/linearLayout"
         app:layout_constraintStart_toStartOf="@+id/linearLayout"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-        <include layout="@layout/warning_board_layout" />
-    </FrameLayout>
+        <include
+            android:id="@+id/cv_nhm_update_available"
+            layout="@layout/warning_board_layout"
+            android:visibility="gone" />
 
+        <include
+            android:id="@+id/cv_nhm_guest_note"
+            layout="@layout/warning_board_layout"
+            android:visibility="gone" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

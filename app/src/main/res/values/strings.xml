@@ -7,7 +7,7 @@
 
 
     <string name="account_type">Account Type</string>
-    <string name="username">Username</string>
+    <string name="display_name">Username</string>
     <string name="time_stamp">14 Feb 2014</string>
 
 
@@ -22,7 +22,7 @@
 
     <!-- AddNewArticleFragment -->
     <string name="choose_picture">Choose Picture</string>
-    <string name="lbl_set_profile_photo">Set profile image</string>
+    <string name="lbl_set_profile_photo">Upload image</string>
     <string name="lbl_take_camera_picture">Take a picture</string>
     <string name="lbl_choose_from_gallery">Choose from gallery</string>
     <string name="toast_image_intent_null">Image picker option is missing!</string>
@@ -38,12 +38,14 @@
     <string name="input_alphabets_no_space">qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM</string>
     <string name="input_alphanumeric_no_space">qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM0123456789</string>
 
-    <string name="app_link">https://play.google.com/store/apps/details?id=com.projectreachout</string>
+    <string name="app_link">https://play.google.com/store/apps/details?user_id=com.projectreachout</string>
 
     <!--Notification Contents-->
     <string name="notification_title_new_article">New Article</string>
     <string name="notification_title_new_event">New Event</string>
     <string name="notification_body_new_article">You have some new articles available you haven\'t seen</string>
     <string name="notification_body_new_event">You have a new event around the corner and you might not want to miss it</string>
+    <string name="server_client_id">server_client_id</string>
+    <string name="title_manage_user">Manage user</string>
 
 </resources>

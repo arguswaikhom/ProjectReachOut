@@ -23,7 +23,7 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (AppController.getInstance().isInternetAvailable()) {
-            performChecking(context);
+            //performChecking(context);
         } else {
             Log.v("ooooo", "no internet");
         }

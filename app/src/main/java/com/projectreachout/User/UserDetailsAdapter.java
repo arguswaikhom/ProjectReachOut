@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class UserDetailsAdapter extends ArrayAdapter<UserDetails> {
+public class UserDetailsAdapter extends ArrayAdapter<User> {
 
     private static final String TAG = UserDetailsAdapter.class.getSimpleName();
 
     public SparseBooleanArray mSelectedItems;
 
-    public UserDetailsAdapter(Context context, int resource, List<UserDetails> objects) {
+    public UserDetailsAdapter(Context context, int resource, List<User> objects) {
         super(context, resource, objects);
         mSelectedItems = new SparseBooleanArray();
     }
@@ -50,10 +50,10 @@ public class UserDetailsAdapter extends ArrayAdapter<UserDetails> {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.u_user_row_item, parent, false);
         }
 
-        UserDetails userDetails = getItem(position);
+        User user = getItem(position);
 
-        String username = Objects.requireNonNull(userDetails).getUser_name();
-        String profileThumbnailUrl = Objects.requireNonNull(userDetails).getProfile_picture_url();
+        String username = Objects.requireNonNull(user).getDisplay_name();
+        String profileThumbnailUrl = Objects.requireNonNull(user).getProfile_image_url();
 
         ImageView profileThumbnailImageView = convertView.findViewById(R.id.iv_uuri_profile_thumbnail);
         TextView usernameTextView = convertView.findViewById(R.id.tv_uuri_username);

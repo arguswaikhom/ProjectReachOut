@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin"
+    tools:context=".ManageUser.UserDetailsActivity">
+
+    <ImageView
+        android:id="@+id/iv_maud_profile"
+        android:layout_width="124dp"
+        android:layout_height="124dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/nav_header_desc"
+        android:gravity="center"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:src="@drawable/ic_person_black_124dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_maud_display_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/iv_maud_profile"
+        app:layout_constraintHorizontal_bias="0.481"
+        app:layout_constraintStart_toStartOf="@+id/iv_maud_profile"
+        app:layout_constraintTop_toBottomOf="@+id/iv_maud_profile"
+        tools:text="Display name" />
+
+    <RadioGroup
+        android:id="@+id/rg_maud_account_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/tv_maud_email"
+        tools:layout_editor_absoluteX="79dp">
+
+        <RadioButton
+            android:id="@+id/rb_maud_guest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="guest"
+            android:textColor="@android:color/darker_gray" />
+
+        <RadioButton
+            android:id="@+id/rb_maud_staff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="staff"
+            android:textColor="@android:color/darker_gray" />
+
+        <RadioButton
+            android:id="@+id/rb_maud_superuser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="superuser"
+            android:textColor="@android:color/darker_gray" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tv_maud_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sub_item_gap"
+        android:gravity="center_horizontal"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/tv_maud_display_name"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="@+id/tv_maud_display_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_maud_display_name"
+        tools:text="email@gmail.com" />
+
+    <TextView
+        android:id="@+id/tv_maud_phone_no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/sub_item_gap"
+        android:gravity="center_horizontal"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/tv_maud_email"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="@+id/tv_maud_email"
+        app:layout_constraintTop_toBottomOf="@+id/tv_maud_email"
+        tools:text="9082134572" />
+
+    <Button
+        android:id="@+id/btn_maud_submit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:text="update"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rg_maud_account_type" />
+
+    <ProgressBar
+        android:id="@+id/pbar_maud_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

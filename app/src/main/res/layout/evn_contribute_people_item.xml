@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll_ecpi_contribute_ppl"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Redundant LinearLayout is use to remove parent in the EventListAdapter
-         Everything changes here change the index in the adapter class -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
@@ -25,6 +24,7 @@
             android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/civ_ecpi_profile"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_gravity="center"
@@ -32,11 +32,12 @@
                 app:civ_border_width="1dp" />
 
             <TextView
+                android:id="@+id/tv_ecpi_display_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="16dp"
-                android:text="@string/username"
+                android:text="@string/display_name"
                 android:textColor="@color/black"
                 android:textSize="@dimen/feed_item_profile_name" />
 
@@ -46,6 +47,7 @@
                 android:layout_weight="1" />
 
             <ImageButton
+                android:id="@+id/ib_ecpi_remove_user"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

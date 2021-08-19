@@ -1,139 +1,56 @@
 package com.projectreachout.Event;
 
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.Gson;
+import com.projectreachout.User.User;
 
 public class EventItem {
-    private int event_id;
+    private String event_id;
     private String event_title;
-    private String date;
-    private String team_name;
+    private User event_leader;
+    private User assigned_by;
+    private String created_on;
+    private String event_date;
     private String description;
-    private String assignBy;
-    private String investmentInReturn;
-    private String investmentAmount;
-    private int organizerCount;
-    private String eventLeader;
-    private List<ContributePeople> contribute_people_list = new ArrayList<>();
+    private User[] organizers;
+    private String[] selected_teams;
+    private String investment_amount;
+    private String investment_return;
 
-    public EventItem() {
+    public EventItem() { }
+
+    public static EventItem fromJson(String jsonString) {
+        return new Gson().fromJson(jsonString, EventItem.class);
     }
 
-    public EventItem(String event_title, String date, String team_name, String description, String assignBy, int organizerCount, String investmentInReturn, String investmentAmount) {
-        this.event_title = event_title;
-        this.date = date;
-        this.team_name = team_name;
-        this.description = description;
-        this.assignBy = assignBy;
-        this.organizerCount = organizerCount;
-        this.investmentInReturn = investmentInReturn;
-        this.investmentAmount = investmentAmount;
+    public User getEvent_leader() {
+        return event_leader;
     }
-
-    public String getEventLeader() {
-        return eventLeader;
+    public User getAssigned_by() {
+        return assigned_by;
     }
-
-    public void setEventLeader(String eventLeader) {
-        this.eventLeader = eventLeader;
+    public String getCreated_on() {
+        return created_on;
     }
-
-    public void setOrganizerCount(int count) {
-        this.organizerCount = count;
+    public String getEvent_date() {
+        return event_date;
     }
-
-    public int getOrganizerCount() {
-        return organizerCount;
+    public User[] getOrganizers() {
+        return organizers;
     }
-
-    public void setEvent_id(int event_id) {
-        this.event_id = event_id;
+    public String[] getSelected_teams() { return selected_teams; }
+    public String getInvestment_amount() {
+        return investment_amount;
     }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public String getInvestment_return() {
+        return investment_return;
     }
-
-    public void setAssignBy(String assignBy) {
-        this.assignBy = assignBy;
-    }
-
-    public void setInvestmentInReturn(String investmentInReturn) {
-        this.investmentInReturn = investmentInReturn;
-    }
-
-    public void setInvestmentAmount(String investmentAmount) {
-        this.investmentAmount = investmentAmount;
-    }
-
-    public int getEvent_id() {
+    public String getEvent_id() {
         return event_id;
     }
-
     public String getDescription() {
         return description;
     }
-
-    public String getAssignBy() {
-        return assignBy;
-    }
-
-    public String getInvestmentInReturn() {
-        return investmentInReturn;
-    }
-
-    public String getInvestmentAmount() {
-        return investmentAmount;
-    }
-
-    public void setEvent_title(String event_title) {
-        this.event_title = event_title;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public void setTeam_name(String team_name) {
-        this.team_name = team_name;
-    }
-
-    public void setContribute_people_list(List<ContributePeople> contribute_people_list) {
-        this.contribute_people_list = contribute_people_list;
-    }
-
-    public void addItemContributePeopleList(ContributePeople contributePeople) {
-        contribute_people_list.add(contributePeople);
-    }
-
     public String getEvent_title() {
         return event_title;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public String getTeam_name() {
-        return team_name;
-    }
-
-    public List<ContributePeople> getContribute_people_list() {
-        return contribute_people_list;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return getEvent_title() + "\n" +
-                getTeam_name() + "\n" +
-                getDate() + "\n" +
-                getAssignBy() + "\n" +
-                getOrganizerCount() + "\n" +
-                getInvestmentAmount() + "\n" +
-                getInvestmentInReturn() + "\n" +
-                getDescription() + "\n";
     }
 }

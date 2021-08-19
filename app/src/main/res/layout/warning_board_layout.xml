@@ -1,34 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
-    app:cardUseCompatPadding="true"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@android:color/transparent">
+    style="@style/WarningCardView">
 
     <TextView
         android:id="@+id/tv_wbl_notice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:gravity="center"
-        android:textSize="12sp"
-        android:textColor="@color/colorError"
+        style="@style/WarningTextView"
         android:visibility="visible"
         tools:text="Notice Shows here..." />
-
-    <!--<TextView
-        android:id="@+id/tv_wbl_notice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:gravity="center"
-        android:drawableTop="@drawable/ic_error_outline_dark_red_24dp"
-        android:textAppearance="?android:textAppearanceSmall"
-        android:textColor="@color/colorError"
-        android:visibility="visible"
-        tools:text="Notice Shows here..." />-->
 </androidx.cardview.widget.CardView>

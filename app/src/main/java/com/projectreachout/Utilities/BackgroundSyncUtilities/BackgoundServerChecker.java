@@ -10,7 +10,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.projectreachout.AppController;
-import com.projectreachout.Login.LoginActivity;
 import com.projectreachout.Utilities.PreferenceUtilities.NotificationPreferenceUtilities;
 
 import org.json.JSONObject;
@@ -23,6 +22,10 @@ import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
 import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class BackgoundServerChecker {
+    public static final String USER_TYPE = "user_type";
+    public static final int GUEST_USER = 0;
+    public static final int AUTHORISED_USER = 1;
+
     static class IndexHolder {
         int article;
         int my_event;
@@ -46,7 +49,7 @@ public class BackgoundServerChecker {
         Log.v("ooooo", NotificationPreferenceUtilities.getLastArticle() + " : " + NotificationPreferenceUtilities.getLastMyEvent());
 
         if (AppController.getInstance().isInternetAvailable()) {
-            performChecking(action);
+            //performChecking(action);
         }
     }
 
@@ -90,9 +93,9 @@ public class BackgoundServerChecker {
 
     public static Map<String, String> getBackgroundSyncPOSTParam() {
         Map<String, String> param = new HashMap<>();
-        if (AppController.getInstance().getUserType() == LoginActivity.AUTHORISED_USER) {
+        if (AppController.getInstance().getUserType() == AUTHORISED_USER) {
             param.put("user_name", AppController.getInstance().getLoginUserUsername());
-        } else if (AppController.getInstance().getUserType() == LoginActivity.GUEST_USER) {
+        } else if (AppController.getInstance().getUserType() == GUEST_USER) {
             param.put("user_name", "0_guest");
         }
         Log.v("ooooo", param.toString());
