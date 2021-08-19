@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity
     private ImageButton mShareAppLinkIB;
     private Toolbar mToolBar;
     private ProgressBar mLoadingPb;
+    private View mInUpdateBoardV;
+    private View mGuestNoteV;
     private final int RC_GET_USER_DETAILS = 1;
 
     @Override
@@ -121,6 +123,10 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mHeaderView = navigationView.getHeaderView(0);
+        mGuestNoteV = mHeaderView.findViewById(R.id.cv_nhm_guest_note);
+        guestNoteTV = mGuestNoteV.findViewById(R.id.tv_wbl_notice);
+
         Menu menu = navigationView.getMenu();
         try {
             if (AppController.getInstance().isSuperUserAccount()) {
@@ -134,12 +140,13 @@ public class MainActivity extends AppCompatActivity
                 menu.findItem(R.id.nav_home).setVisible(true);
                 menu.findItem(R.id.nav_add_article).setVisible(true);
                 menu.findItem(R.id.nav_my_events).setVisible(true);
+            } else {
+                menu.findItem(R.id.nav_home).setVisible(true);
+                showGuestNote();
             }
         } catch (NullPointerException npe) {
             AppController.getInstance().signOut(this);
         }
-
-        mHeaderView = navigationView.getHeaderView(0);
 
         mAccountTypeTV = mHeaderView.findViewById(R.id.tv_nhm_account_type);
         mUsernameTV = mHeaderView.findViewById(R.id.tv_nhm_username);
@@ -149,8 +156,8 @@ public class MainActivity extends AppCompatActivity
         mEditProfileBtn = mHeaderView.findViewById(R.id.btn_nhm_edit_profile);
         mShareAppLinkIB = mHeaderView.findViewById(R.id.ib_nhm_share_app_link);
 
-        mUpdateAvailableTV = mHeaderView.findViewById(R.id.cv_nhm_update_available).findViewById(R.id.tv_wbl_notice);
-        guestNoteTV = mHeaderView.findViewById(R.id.cv_nhm_guest_note).findViewById(R.id.tv_wbl_notice);
+        mInUpdateBoardV = mHeaderView.findViewById(R.id.cv_nhm_update_available);
+        mUpdateAvailableTV = mInUpdateBoardV.findViewById(R.id.tv_wbl_notice);
 
         mUpdateAvailableTV.setOnClickListener(this);
         mShareAppLinkIB.setOnClickListener(this);
@@ -279,7 +286,7 @@ public class MainActivity extends AppCompatActivity
                 shareAppLink();
                 break;
             }
-            case R.id.tv_wbl_notice: {
+            case R.id.cv_nhm_update_available: {
                 inAppUpdateUtil();
                 break;
             }
@@ -392,15 +399,15 @@ public class MainActivity extends AppCompatActivity
     private void showGuestNote() {
         String guestNote = "This app was designed only for people who work for Project ReachOut (PRO). Since your email is not in our database your account was created as a guest account.\n" +
                 "\n" +
-                "If you're a member of PRO contact one of our administrators.";
+                "If you're a member of PRO contact one of our administrator to upgrade your account.";
 
-        guestNoteTV.setVisibility(View.VISIBLE);
+        mGuestNoteV.setVisibility(View.VISIBLE);
         guestNoteTV.setText(guestNote);
     }
 
     private void showUpdateAvailable() {
         String updateAvailableMsg = "New update available!! Click here to update..";
-        mUpdateAvailableTV.setVisibility(View.VISIBLE);
+        mInUpdateBoardV.setVisibility(View.VISIBLE);
         mUpdateAvailableTV.setText(updateAvailableMsg);
     }
 }

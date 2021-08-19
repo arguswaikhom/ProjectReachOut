@@ -23,7 +23,8 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ManageUser.UserDetailsActivity"></activity>
+        <activity android:name=".TestActivity"></activity>
+        <activity android:name=".ManageUser.UserDetailsActivity" />
         <activity
             android:name=".ManageUser.ManageUserActivity"
             android:label="Manage user" />
