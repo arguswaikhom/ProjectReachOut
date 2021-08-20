@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/home_dest">
+
+    <fragment
+        android:id="@+id/home_dest"
+        android:name="com.projectreachout.Article.GetArticle.ArticleMainFragment"
+        android:label="ArticleMainFragment" />
+    <!--<activity
+        android:id="@+id/add_event_dest"
+        android:name="com.projectreachout.Event.AddEvent.AddEventActivity"
+        android:label="AddEventActivity" />
+    <fragment
+        android:id="@+id/my_event_dest"
+        android:name="com.projectreachout.Event.GetMyEvent.EventMainFragment"
+        android:label="EventMainFragment" />
+    <fragment
+        android:id="@+id/all_event_dest"
+        android:name="com.projectreachout.Event.GetEvent.ExpendituresMainFragment"
+        android:label="ExpendituresMainFragment" />
+    <fragment
+        android:id="@+id/add_article_dest"
+        android:name="com.projectreachout.Article.AddArticle.AddNewArticleFragment"
+        android:label="fragment_add_new_post"
+        tools:layout="@layout/fragment_add_new_post" />-->
+</navigation>

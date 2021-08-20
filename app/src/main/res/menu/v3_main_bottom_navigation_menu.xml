@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home_dest"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/title_home" />
+    <!--<item
+        android:id="@+id/add_article_dest"
+        android:icon="@drawable/ic_post_add_black_24dp"
+        android:title="@string/title_add_article" />
+    <item
+        android:id="@+id/my_event_dest"
+        android:icon="@drawable/ic_events"
+        android:title="@string/title_my_events" />
+    <item
+        android:id="@+id/all_event_dest"
+        android:icon="@drawable/ic_library_books_black_24dp"
+        android:title="@string/title_events" />
+    <item
+        android:id="@+id/add_event_dest"
+        android:icon="@drawable/ic_event_add_black_24dp"
+        android:title="@string/title_add_event" />-->
+    <!--<item
+        android:id="@+id/nav_manage_user"
+        android:icon="@drawable/ic_manage_user_black_24dp"
+        android:title="@string/title_manage_user" />-->
+</menu>
