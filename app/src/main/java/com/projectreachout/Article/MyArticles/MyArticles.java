@@ -1,5 +1,11 @@
 package com.projectreachout.Article.MyArticles;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.LOAD_MORE;
+import static com.projectreachout.GeneralStatic.REFRESH;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,12 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.LOAD_MORE;
-import static com.projectreachout.GeneralStatic.REFRESH;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class MyArticles extends AppCompatActivity {
 

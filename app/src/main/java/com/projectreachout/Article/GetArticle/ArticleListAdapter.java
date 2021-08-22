@@ -1,5 +1,11 @@
 package com.projectreachout.Article.GetArticle;
 
+import static com.projectreachout.Article.GetArticle.ArticleMainFragment.mArticleList;
+import static com.projectreachout.Article.GetArticle.ArticleMainFragment.mArticleListAdapter;
+import static com.projectreachout.Article.MyArticles.MyArticles.mArticleItemListMyArticles;
+import static com.projectreachout.Article.MyArticles.MyArticles.mArticleListAdapterMyArticles;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
@@ -32,12 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.projectreachout.Article.GetArticle.ArticleMainFragment.mArticleList;
-import static com.projectreachout.Article.GetArticle.ArticleMainFragment.mArticleListAdapter;
-import static com.projectreachout.Article.MyArticles.MyArticles.mArticleItemListMyArticles;
-import static com.projectreachout.Article.MyArticles.MyArticles.mArticleListAdapterMyArticles;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class ArticleListAdapter extends BaseAdapter implements ArticleImageView.ResponseObserver {
 
@@ -99,14 +99,14 @@ public class ArticleListAdapter extends BaseAdapter implements ArticleImageView.
         String myReaction = item.getMy_reaction();
         if (myReaction != null && !myReaction.isEmpty()) {
             if (myReaction.equals(ArticleActionHandler.ACTION_LIKE)) {
-                likeIBtn.setImageResource(R.drawable.ic_thumb_up_28dp);
-                loveBtn.setImageResource(R.drawable.ic_heart_24dp);
+                likeIBtn.setImageResource(R.drawable.v3_ic_liked_reaction_28dp);
+                loveBtn.setImageResource(R.drawable.v3_ic_love_reaction_24dp);
             } else if (myReaction.equals(ArticleActionHandler.ACTION_LOVE)) {
-                likeIBtn.setImageResource(R.drawable.ic_like_28dp);
-                loveBtn.setImageResource(R.drawable.ic_heart_black_24dp);
+                likeIBtn.setImageResource(R.drawable.v3_ic_like_reaction_28dp);
+                loveBtn.setImageResource(R.drawable.v3_ic_loved_reaction_24dp);
             } else {
-                likeIBtn.setImageResource(R.drawable.ic_like_28dp);
-                loveBtn.setImageResource(R.drawable.ic_heart_24dp);
+                likeIBtn.setImageResource(R.drawable.v3_ic_like_reaction_28dp);
+                loveBtn.setImageResource(R.drawable.v3_ic_love_reaction_24dp);
             }
         }
 

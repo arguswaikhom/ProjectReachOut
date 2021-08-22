@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <LinearLayout
@@ -16,13 +16,13 @@
         <ImageButton
             android:id="@+id/ib_ail_like"
             style="@style/ArticleInteractionAction"
-            android:src="@drawable/ic_like_28dp" />
+            android:src="@drawable/v3_ic_like_reaction_28dp" />
 
         <ImageButton
             android:id="@+id/ib_ail_love"
             style="@style/ArticleInteractionAction"
             android:layout_marginStart="4dp"
-            android:src="@drawable/ic_heart_24dp" />
+            android:src="@drawable/v3_ic_love_reaction_24dp" />
 
         <ImageButton
             android:id="@+id/ib_ail_share"

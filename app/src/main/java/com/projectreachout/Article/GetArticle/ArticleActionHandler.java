@@ -1,5 +1,12 @@
 package com.projectreachout.Article.GetArticle;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.OPTION;
+import static com.projectreachout.GeneralStatic.OPTION_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +19,6 @@ import com.android.volley.VolleyError;
 import com.projectreachout.AppController;
 import com.projectreachout.Event.AddEvent.BottomSheets.BottomSheetFragment;
 import com.projectreachout.R;
-import com.projectreachout.SelectPeople.SelectPeopleActivity;
 import com.projectreachout.User.User;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NetworkUtils.HttpVolleyRequest;
@@ -22,17 +28,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.OPTION;
-import static com.projectreachout.GeneralStatic.OPTION_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class ArticleActionHandler implements OnHttpResponse, View.OnClickListener {
     private final String TAG = ArticleActionHandler.class.getName();

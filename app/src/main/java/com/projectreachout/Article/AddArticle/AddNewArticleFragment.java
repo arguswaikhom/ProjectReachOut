@@ -1,5 +1,7 @@
 package com.projectreachout.Article.AddArticle;
 
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -50,8 +52,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class AddNewArticleFragment extends Fragment implements /*SingleUploadBroadcastReceiver.Delegate,*/ View.OnClickListener, OnUploadCompleted {
     private DevicePermissionUtils mDevicePermissionUtils;

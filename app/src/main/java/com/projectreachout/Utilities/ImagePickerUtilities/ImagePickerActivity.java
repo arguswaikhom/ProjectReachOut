@@ -1,5 +1,7 @@
 package com.projectreachout.Utilities.ImagePickerUtilities;
 
+import static androidx.core.content.FileProvider.getUriForFile;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -28,8 +30,6 @@ import com.yalantis.ucrop.model.AspectRatio;
 
 import java.io.File;
 import java.util.List;
-
-import static androidx.core.content.FileProvider.getUriForFile;
 
 public class ImagePickerActivity extends AppCompatActivity {
     private static final String TAG = ImagePickerActivity.class.getSimpleName();

@@ -1,5 +1,10 @@
 package com.projectreachout.EditProfile;
 
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getVolleyErrorMessage;
+import static com.projectreachout.GeneralStatic.isValidMobile;
+import static com.projectreachout.GeneralStatic.showKeyBoard;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -44,11 +49,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
-import static com.projectreachout.GeneralStatic.getDomainUrl;
-import static com.projectreachout.GeneralStatic.getVolleyErrorMessage;
-import static com.projectreachout.GeneralStatic.isValidMobile;
-import static com.projectreachout.GeneralStatic.showKeyBoard;
 
 public class EditProfileActivity extends AppCompatActivity implements SingleUploadBroadcastReceiver.Delegate, OnHttpResponse, MessageUtils.OnSnackBarActionListener, View.OnClickListener {
 

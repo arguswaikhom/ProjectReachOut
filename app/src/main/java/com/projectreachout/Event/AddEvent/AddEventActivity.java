@@ -1,5 +1,19 @@
 package com.projectreachout.Event.AddEvent;
 
+import static com.projectreachout.GeneralStatic.DATE_RESPONSE;
+import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.GET_ORGANIZER_LIST;
+import static com.projectreachout.GeneralStatic.OPTION;
+import static com.projectreachout.GeneralStatic.OPTION_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.OPTION_TEAM;
+import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
+import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
+import static com.projectreachout.GeneralStatic.TEAM_LIST;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+import static com.projectreachout.GeneralStatic.getMonthForInt;
+import static com.projectreachout.GeneralStatic.showKeyBoard;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Paint;
@@ -38,20 +52,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.DATE_RESPONSE;
-import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.GET_ORGANIZER_LIST;
-import static com.projectreachout.GeneralStatic.OPTION;
-import static com.projectreachout.GeneralStatic.OPTION_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.OPTION_TEAM;
-import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
-import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
-import static com.projectreachout.GeneralStatic.TEAM_LIST;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
-import static com.projectreachout.GeneralStatic.getMonthForInt;
-import static com.projectreachout.GeneralStatic.showKeyBoard;
 
 public class AddEventActivity extends AppCompatActivity implements OnHttpResponse {
 

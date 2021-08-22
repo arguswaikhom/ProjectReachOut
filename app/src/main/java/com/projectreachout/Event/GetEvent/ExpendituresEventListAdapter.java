@@ -1,5 +1,11 @@
 package com.projectreachout.Event.GetEvent;
 
+import static com.projectreachout.Event.GetEvent.ExpendituresMainFragment.mEventItemList;
+import static com.projectreachout.Event.GetEvent.ExpendituresMainFragment.mEventListAdapter;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -29,12 +35,6 @@ import com.projectreachout.Utilities.TimeUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.projectreachout.Event.GetEvent.ExpendituresMainFragment.mEventItemList;
-import static com.projectreachout.Event.GetEvent.ExpendituresMainFragment.mEventListAdapter;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class ExpendituresEventListAdapter extends ArrayAdapter<EventItem> {
 

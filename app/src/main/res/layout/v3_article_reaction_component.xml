@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <ImageButton
+        android:id="@+id/like_react_ibtn"
+        style="@style/ArticleInteractionAction"
+        tools:src="@drawable/v3_ic_like_reaction_28dp" />
+
+    <ImageButton
+        android:id="@+id/love_react_ibtn"
+        style="@style/ArticleInteractionAction"
+        android:layout_marginStart="4dp"
+        tools:src="@drawable/v3_ic_love_reaction_24dp" />
+</LinearLayout>

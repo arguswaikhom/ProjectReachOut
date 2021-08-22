@@ -1,5 +1,7 @@
 package com.projectreachout.Utilities.DateAndTimePicker;
 
+import static com.projectreachout.GeneralStatic.DATE_RESPONSE;
+
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -10,8 +12,6 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.Calendar;
 import java.util.Objects;
-
-import static com.projectreachout.GeneralStatic.DATE_RESPONSE;
 
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 

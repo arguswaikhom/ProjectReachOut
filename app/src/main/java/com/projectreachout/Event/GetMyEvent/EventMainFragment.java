@@ -1,5 +1,11 @@
 package com.projectreachout.Event.GetMyEvent;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.LOAD_MORE;
+import static com.projectreachout.GeneralStatic.REFRESH;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,12 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.LOAD_MORE;
-import static com.projectreachout.GeneralStatic.REFRESH;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 /**
  * A simple {@link Fragment} subclass.

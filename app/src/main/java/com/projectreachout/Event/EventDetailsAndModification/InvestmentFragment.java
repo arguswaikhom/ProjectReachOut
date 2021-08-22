@@ -1,5 +1,11 @@
 package com.projectreachout.Event.EventDetailsAndModification;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromObject;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,12 +40,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromObject;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class InvestmentFragment extends Fragment implements OnHttpResponse {
 

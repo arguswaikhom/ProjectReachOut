@@ -14,5 +14,6 @@
     <dimen name="feed_item_timestamp">10sp</dimen>
     <dimen name="sub_item_gap">8dp</dimen>
     <dimen name="feed_team_name_padding_bottom">2dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 
 </resources>

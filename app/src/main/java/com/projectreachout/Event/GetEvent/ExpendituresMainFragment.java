@@ -1,5 +1,11 @@
 package com.projectreachout.Event.GetEvent;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.LOAD_MORE;
+import static com.projectreachout.GeneralStatic.REFRESH;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -31,12 +37,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.LOAD_MORE;
-import static com.projectreachout.GeneralStatic.REFRESH;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class ExpendituresMainFragment extends Fragment implements OnHttpResponse {
 

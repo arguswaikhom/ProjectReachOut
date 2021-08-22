@@ -1,5 +1,12 @@
 package com.projectreachout.SelectPeople;
 
+import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,13 +36,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class SelectPeopleActivity extends AppCompatActivity implements OnHttpResponse {
 

@@ -1,5 +1,11 @@
 package com.projectreachout.Event.AddEvent.BottomSheets;
 
+import static com.projectreachout.GeneralStatic.OPTION;
+import static com.projectreachout.GeneralStatic.OPTION_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.OPTION_TEAM;
+import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
+import static com.projectreachout.GeneralStatic.TEAM_LIST;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,12 +21,6 @@ import com.projectreachout.User.User;
 
 import java.util.ArrayList;
 import java.util.Objects;
-
-import static com.projectreachout.GeneralStatic.OPTION;
-import static com.projectreachout.GeneralStatic.OPTION_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.OPTION_TEAM;
-import static com.projectreachout.GeneralStatic.ORGANIZER_LIST;
-import static com.projectreachout.GeneralStatic.TEAM_LIST;
 
 public class BottomSheetFragment extends BottomSheetDialogFragment {
 

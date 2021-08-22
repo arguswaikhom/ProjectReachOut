@@ -48,4 +48,13 @@
     <string name="server_client_id">server_client_id</string>
     <string name="title_manage_user">Manage user</string>
 
+    <!--v3 starts-->
+    <string name="db_col_article">Article</string>
+    <string name="db_col_user">User</string>
+    <string name="db_col_reaction">Reaction</string>
+
+    <string name="db_field_time_stamp">time_stamp</string>
+    <string name="db_field_user_id">user_id</string>
+    <string name="db_field_reaction">reaction</string>
+    <!--v3 ends-->
 </resources>

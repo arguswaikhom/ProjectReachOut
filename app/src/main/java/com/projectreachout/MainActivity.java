@@ -1,5 +1,10 @@
 package com.projectreachout;
 
+import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
+import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
+import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
+import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
+
 import android.content.Intent;
 import android.content.IntentSender;
 import android.net.Uri;
@@ -14,7 +19,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -51,11 +55,6 @@ import com.projectreachout.ManageUser.ManageUserActivity;
 import com.projectreachout.User.User;
 import com.projectreachout.Utilities.MessageUtilities.MessageUtils;
 import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
-
-import static com.projectreachout.GeneralStatic.FRAGMENT_ADD_POST;
-import static com.projectreachout.GeneralStatic.FRAGMENT_EVENTS;
-import static com.projectreachout.GeneralStatic.FRAGMENT_EXPENDITURES;
-import static com.projectreachout.GeneralStatic.FRAGMENT_HOME;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ArticleMainFragment.OnFragmentInteractionListener,

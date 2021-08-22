@@ -97,7 +97,8 @@
         <item name="colorPrimary">@color/colorV3Background</item>
         <item name="colorPrimaryDark">@color/colorV3Background</item>
         <item name="colorAccent">@color/colorV3Accent</item>
-        <item name="android:textColor">@color/colorV3Foreground</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:windowBackground">@color/colorV3WindowBackground</item>
 
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

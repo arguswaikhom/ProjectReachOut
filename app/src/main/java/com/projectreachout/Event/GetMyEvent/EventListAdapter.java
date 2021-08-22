@@ -1,5 +1,9 @@
 package com.projectreachout.Event.GetMyEvent;
 
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -35,10 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 
 public class EventListAdapter extends ArrayAdapter<EventItem> implements OnHttpResponse {

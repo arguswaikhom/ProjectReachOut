@@ -9,4 +9,10 @@
         <attr name="metaButtonBarButtonStyle" format="reference" />
     </declare-styleable>
 
+    <declare-styleable name="ArticleReaction">
+        <attr name="srcLikeActive" format="reference" />
+        <attr name="srcLikeInactive" format="reference" />
+        <attr name="srcLoveActive" format="reference" />
+        <attr name="srcLoveInactive" format="reference" />
+    </declare-styleable>
 </resources>

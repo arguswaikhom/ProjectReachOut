@@ -8,11 +8,27 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/drawable/ic_heart_24dp.xml" value="0.22604166666666667" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/drawable/ic_heart_black_24dp.xml" value="0.11666666666666667" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/drawable/ic_like_28dp.xml" value="0.11666666666666667" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/drawable/ic_thumb_up_28dp.xml" value="0.22604166666666667" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/drawable/v3_ic_like_reaction_28dp.xml" value="0.22604166666666667" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/drawable/v3_ic_liked_reaction_28dp.xml" value="0.22604166666666667" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/drawable/v3_ic_loved_reaction_24dp.xml" value="0.22604166666666667" />
         <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/activity_main.xml" value="0.12273550724637682" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/article_interaction_layout.xml" value="0.20989583333333334" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/fragment_item.xml" value="0.20989583333333334" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/fragment_item_list.xml" value="0.19635416666666666" />
         <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/main_activity.xml" value="0.12635869565217392" />
         <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/main_fragment.xml" value="0.12635869565217392" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/pf_feed_item.xml" value="0.20989583333333334" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/v3_article_fragment.xml" value="0.20989583333333334" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/v3_article_post.xml" value="0.20989583333333334" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/v3_article_reaction_component.xml" value="0.184375" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/layout/v3_main_activity.xml" value="0.20989583333333334" />
         <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/menu-v26/main_bottom_navigation_menu.xml" value="0.20989583333333334" />
         <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/menu/activity_main_drawer.xml" value="0.184375" />
+        <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/menu/evn_eei_popup_menu.xml" value="0.20989583333333334" />
         <entry key="..\:/Users/BW078209/AndroidStudioProjects/ProjectReachOut/app/src/main/res/menu/main_bottom_navigation_menu.xml" value="0.184375" />
       </map>
     </option>

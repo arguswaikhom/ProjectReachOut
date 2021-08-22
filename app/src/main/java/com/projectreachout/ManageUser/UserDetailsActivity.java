@@ -1,6 +1,6 @@
 package com.projectreachout.ManageUser;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.bumptech.glide.Glide;
@@ -26,8 +28,6 @@ import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class UserDetailsActivity extends AppCompatActivity implements View.OnClickListener, OnHttpResponse, MessageUtils.OnSnackBarActionListener {
     private final String TAG = UserDetailsActivity.class.getName();

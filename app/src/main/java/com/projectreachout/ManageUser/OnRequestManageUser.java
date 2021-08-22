@@ -1,5 +1,9 @@
 package com.projectreachout.ManageUser;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -12,10 +16,6 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class OnRequestManageUser implements OnHttpResponse {
     private final String TAG = OnRequestManageUser.class.getName();

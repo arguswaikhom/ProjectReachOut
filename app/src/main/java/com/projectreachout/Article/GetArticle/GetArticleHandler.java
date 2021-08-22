@@ -1,5 +1,9 @@
 package com.projectreachout.Article.GetArticle;
 
+import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -17,10 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.JSONParsingArrayFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromArray;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class GetArticleHandler {
     public static final String TAG = GetArticleHandler.class.getSimpleName();

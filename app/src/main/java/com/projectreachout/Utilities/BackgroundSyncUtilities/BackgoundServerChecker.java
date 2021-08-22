@@ -1,5 +1,9 @@
 package com.projectreachout.Utilities.BackgroundSyncUtilities;
 
+import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
+import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,10 +20,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.JSONParsingObjectFromString;
-import static com.projectreachout.GeneralStatic.JSONParsingStringFromObject;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class BackgoundServerChecker {
     public static final String USER_TYPE = "user_type";

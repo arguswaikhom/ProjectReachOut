@@ -1,5 +1,7 @@
 package com.projectreachout.Login;
 
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -9,8 +11,6 @@ import com.projectreachout.Utilities.NetworkUtils.OnHttpResponse;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class FetchUserDetails {
     private final static String TAG = FetchUserDetails.class.getSimpleName();

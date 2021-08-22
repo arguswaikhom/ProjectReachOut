@@ -1,5 +1,12 @@
 package com.projectreachout.Event.EventDetailsAndModification;
 
+import static android.app.Activity.RESULT_OK;
+import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.GET_ORGANIZER_LIST;
+import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
+import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
+import static com.projectreachout.GeneralStatic.getDomainUrl;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -38,13 +45,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static android.app.Activity.RESULT_OK;
-import static com.projectreachout.GeneralStatic.EXISTING_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.GET_ORGANIZER_LIST;
-import static com.projectreachout.GeneralStatic.SELECTED_ORGANIZERS;
-import static com.projectreachout.GeneralStatic.SPARSE_BOOLEAN_ARRAY;
-import static com.projectreachout.GeneralStatic.getDomainUrl;
 
 public class EventDetailsFragment extends Fragment implements OnHttpResponse, MessageUtils.OnSnackBarActionListener {
 
